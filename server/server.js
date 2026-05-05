@@ -1,19 +1,33 @@
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const connectDB = require('./config/connect');
+const express = require("express");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const path = require("path");
+const cookieParser = require("cookie-parser");
+const connectDB = require("./config/connect.js");
 
-dotenv.config();
-connectDB();
 const app = express();
-app.use(cors());
-app.use(express.json()); 
+dotenv.config();
 
-app.get('/', (req, res) => {
-  res.send('HouseHunt API');
-});
 
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 8001;
+
+
+app.use(express.json());
+app.use(cors({
+  origin: 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
+app.use(cookieParser());
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use('/api/user', require('./routes/userRoutes.js'))
+app.use('/api/admin', require('./routes/adminRoutes'))
+app.use('/api/owner', require('./routes/ownerRoutes'))
+
+
+
 app.listen(PORT, () => {
+  connectDB();
   console.log(`Server is running on port ${PORT}`);
 });
