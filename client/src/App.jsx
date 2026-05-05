@@ -1,121 +1,64 @@
-import { useState } from 'react'
-import reactLogo from './images/react.svg'
-import viteLogo from './images/vite.svg'
-import heroImg from './images/hero.png'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route, BrowserRouter } from "react-router-dom";
+import Home from "./modules/common/Home";
+import Login from "./modules/common/Login";
+import Register from "./modules/common/Register";
+import ForgotPassword from "./modules/common/ForgotPassword";
+import AdminHome from "./modules/admin/AdminHome";
+import OwnerHome from "./modules/user/owner/OwnerHome";
+import RenterHome from "./modules/user/renter/RenterHome";
+import AllUsers from "./modules/admin/AllUsers";
+import AddProperty from "./modules/user/owner/AddProperty";
+import OwnerAllBookings from "./modules/user/owner/AllBookings";
+import RenterAllProperty from "./modules/user/renter/AllProperties";
+import AdminAllBookings from "./modules/admin/AllBookings";
+import AdminAllProperty from "./modules/admin/AllProperty";
+import OwnerAllProperties from "./modules/user/owner/AllProperties";
+import AllPropertiesCards from "./modules/user/AllPropertiesCards";
+import { createContext, useEffect, useState } from "react";
+
+export const UserContext = createContext();
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [userData, setUserData] = useState(null);
+  const [userLoggedIn, setUserLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUserData(parsedUser);
+        setUserLoggedIn(true);
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+      }
+    }
+  }, []);
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+     <UserContext.Provider value={{ userData, setUserData, userLoggedIn, setUserLoggedIn }}>
+    <div>
+      <BrowserRouter>
+        <Routes>
+          <Route path='/' element={<Home />} />
+          <Route path='/login' element={<Login />} />
+          <Route path='/register' element={<Register />} />
+          <Route path='/forgotpassword' element={<ForgotPassword />} />
+          <Route path='/adminhome' element={<AdminHome />} />
+          <Route path='/ownerhome' element={<OwnerHome />} />
+          <Route path='/renterhome' element={<RenterHome />} />
+          <Route path='/getallbookings' element={<AdminAllBookings />} />
+          <Route path='/getallproperties' element={<AdminAllProperty />} />
+          <Route path='/getallusers' element={<AllUsers />} />
+          <Route path='/postproperty' element={<AddProperty />} />
+          <Route path='/getallbookings' element={<OwnerAllBookings />} />
+          <Route path='/getallproperties' element={<OwnerAllProperties />} />
+          <Route path='/getallbookings' element={<RenterAllProperty />} />
+          <Route path='/getAllProperties' element={<AllPropertiesCards />} />
+        </Routes>
+      </BrowserRouter>
+    </div>
+    </UserContext.Provider>
   )
 }
 
