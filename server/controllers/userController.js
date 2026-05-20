@@ -117,6 +117,44 @@ const forgotPasswordController = async (req, res) => {
   }
 };
 
+const updateProfileController = async (req, res) => {
+  try {
+    const { userId, name } = req.body;
+    const trimmedName = typeof name === "string" ? name.trim() : "";
+
+    if (!trimmedName) {
+      return res
+        .status(200)
+        .send({ message: "Name is required", success: false });
+    }
+
+    const updatedUser = await userSchema.findByIdAndUpdate(
+      userId,
+      { name: trimmedName },
+      { returnDocument: "after" }
+    );
+
+    if (!updatedUser) {
+      return res
+        .status(200)
+        .send({ message: "User not found", success: false });
+    }
+
+    updatedUser.password = undefined;
+
+    return res.status(200).send({
+      success: true,
+      message: "Profile updated",
+      data: updatedUser,
+    });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .send({ success: false, message: `${error.message}` });
+  }
+};
+
 ////auth controller
 const authController = async (req, res) => {
   console.log(req.body);
@@ -208,6 +246,7 @@ module.exports = {
   registerController,
   loginController,
   forgotPasswordController,
+  updateProfileController,
   authController,
   getAllPropertiesController,
   bookingHandleController,
