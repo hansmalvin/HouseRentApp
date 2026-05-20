@@ -81,6 +81,14 @@ const AllPropertiesCards = ({ loggedIn }) => {
     setShowModal(true);
   };
 
+  const getPropertyImagePath = (property) => {
+    if (!property?.propertyImage) return "";
+    if (Array.isArray(property.propertyImage)) {
+      return property.propertyImage[0]?.path || "";
+    }
+    return property.propertyImage.path || "";
+  };
+
   return (
     <div className="p-6 text-white">
       {toast.show && (
@@ -130,7 +138,7 @@ const AllPropertiesCards = ({ loggedIn }) => {
               className="bg-gray-800/70 border border-gray-700 rounded-lg shadow-lg hover:shadow-indigo-600/40 transition transform hover:-translate-y-1 overflow-hidden"
             >
               <img
-                src={`http://localhost:8001${property.propertyImage[0]?.path}`}
+                src={`http://localhost:8001${getPropertyImagePath(property)}`}
                 alt="Property"
                 className="w-full h-40 object-cover"
               />
@@ -148,7 +156,7 @@ const AllPropertiesCards = ({ loggedIn }) => {
                       <b>Availability:</b> {property.isAvailable}
                     </p>
                     <p className="text-sm">
-                      <b>Price:</b> ₹{property.propertyAmt}
+                      <b>Price:</b> Rp.{property.propertyAmt}
                     </p>
                   </>
                 )}
@@ -188,7 +196,7 @@ const AllPropertiesCards = ({ loggedIn }) => {
             </button>
             <h3 className="text-xl font-bold mb-4 text-white">Property Info</h3>
             <img
-              src={`http://localhost:8001${selectedProperty.propertyImage[0]?.path}`}
+              src={`http://localhost:8001${getPropertyImagePath(selectedProperty)}`}
               alt="Property"
               className="w-full h-48 object-cover rounded mb-4"
             />

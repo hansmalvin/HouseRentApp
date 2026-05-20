@@ -5,19 +5,22 @@ const bookingSchema = require("../models/BookingSchema");
 //////////adding property by owner////////
 const addPropertyController = async (req, res) => {
   try {
-    let images = [];
+    let propertyImage;
     if (req.files) {
-      images = req.files.map((file) => ({
-        filename: file.filename,
-        path: `/uploads/${file.filename}`,
-      }));
+      const firstFile = req.files[0];
+      if (firstFile) {
+        propertyImage = {
+          filename: firstFile.filename,
+          path: `/uploads/${firstFile.filename}`,
+        };
+      }
     }
 
     const user = await userSchema.findById({ _id: req.body.userId });
 
     const newPropertyData = new propertySchema({
       ...req.body,
-      propertyImage: images,
+      propertyImage,
       ownerId: user._id,
       ownerName: user.name,
       isAvailable: "Available",
@@ -31,6 +34,11 @@ const addPropertyController = async (req, res) => {
     });
   } catch (error) {
     console.log("Error in get All Users Controller ", error);
+    return res.status(500).send({
+      success: false,
+      message: "Failed to add property",
+      error: error.message,
+    });
   }
 };
 

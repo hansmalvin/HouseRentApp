@@ -22,3 +22,6 @@ And make JWT_KEY in the .env file for unique key JWT Token
 migrate database for dummy db
 
 npm run migrate
+
+Note before updating the code:
+Update the 0.0.0.0/0 connection in atlas
