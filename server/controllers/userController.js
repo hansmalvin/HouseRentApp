@@ -96,7 +96,7 @@ const forgotPasswordController = async (req, res) => {
     const updatedUser = await userSchema.findOneAndUpdate(
       { email },
       { password: hashedPassword },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!updatedUser) {
@@ -105,7 +105,6 @@ const forgotPasswordController = async (req, res) => {
         .send({ message: "User not found", success: false });
     }
 
-    await updatedUser.save();
     return res.status(200).send({
       message: "Password changed successfully",
       success: true,

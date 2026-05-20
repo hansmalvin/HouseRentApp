@@ -30,7 +30,7 @@ const handleStatusController = async (req, res) => {
     const user = await userSchema.findByIdAndUpdate(
       userid,
       { granted: status },
-      { new: true }
+      { returnDocument: "after" }
     );
     return res.status(200).send({
       success: true,

@@ -93,7 +93,7 @@ const updatePropertyController = async (req, res) => {
         ...req.body,
         ownerId: req.body.userId,
       },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     return res.status(200).send({
@@ -138,7 +138,7 @@ const handleAllBookingstatusController = async (req, res) => {
         bookingStatus: status,
       },
       {
-        new: true,
+        returnDocument: "after",
       }
     );
 
@@ -147,7 +147,7 @@ const handleAllBookingstatusController = async (req, res) => {
       {
         isAvailable: status === 'booked' ? 'Unavailable' : 'Available', 
       },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     return res.status(200).send({
