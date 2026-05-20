@@ -7,6 +7,11 @@ export function formatPropertyAmount(amount) {
   }).format(num);
 }
 
+/** Human-readable label used to confirm delete (property address). */
+export function getPropertyVerificationName(property) {
+  return String(property?.propertyAddress ?? "").trim();
+}
+
 export function parsePropertyAmountInput(value) {
   const digits = String(value ?? "").replace(/\D/g, "");
   if (digits === "") return 0;

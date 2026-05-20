@@ -2,8 +2,12 @@ import { message } from "antd";
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import DeletePropertyModal from "../../../components/DeletePropertyModal";
 import OwnerContactInput from "../../../components/OwnerContactInput";
-import { formatPropertyAmount, parsePropertyAmountInput } from "../../../utils/propertyFormat";
+import {
+  formatPropertyAmount,
+  parsePropertyAmountInput,
+} from "../../../utils/propertyFormat";
 import {
   buildOwnerContact,
   DEFAULT_DIAL_CODE,
@@ -26,6 +30,9 @@ const OwnerAllProperties = () => {
   const [show, setShow] = useState(false);
   const [editDialCode, setEditDialCode] = useState(DEFAULT_DIAL_CODE);
   const [editContactNumber, setEditContactNumber] = useState("");
+  const [propertyToDelete, setPropertyToDelete] = useState(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
 
   const handleClose = useCallback(() => {
@@ -79,6 +86,17 @@ const OwnerAllProperties = () => {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [show, handleClose]);
+
+  const openDeleteModal = (property) => {
+    setPropertyToDelete(property);
+    setDeleteConfirmText("");
+  };
+
+  const closeDeleteModal = useCallback(() => {
+    if (isDeleting) return;
+    setPropertyToDelete(null);
+    setDeleteConfirmText("");
+  }, [isDeleting]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -153,31 +171,36 @@ const OwnerAllProperties = () => {
     }
   };
 
-  const handleDelete = async (propertyId) => {
-    if (window.confirm("Are you sure to delete?")) {
-      try {
-        const response = await axios.delete(
-          `http://localhost:8001/api/owner/deleteproperty/${propertyId}`,
-          { withCredentials: true }
-        );
+  const confirmDelete = async () => {
+    if (!propertyToDelete) return;
 
-        if (response.data.success) {
-          message.success(response.data.message);
-          getAllProperty();
-        } else {
-          message.error(response.data.message || "Unauthorized access");
-          navigate("/login");
-        }
-      } catch (error) {
-        console.log(error);
+    setIsDeleting(true);
+    try {
+      const response = await axios.delete(
+        `http://localhost:8001/api/owner/deleteproperty/${propertyToDelete._id}`,
+        { withCredentials: true }
+      );
 
-        if (error.response && error.response.status === 401) {
-          message.error("Session expired, please login again");
-          navigate("/login");
-        } else {
-          message.error("Failed to delete property");
-        }
+      if (response.data.success) {
+        message.success(response.data.message);
+        setPropertyToDelete(null);
+        setDeleteConfirmText("");
+        getAllProperty();
+      } else {
+        message.error(response.data.message || "Unauthorized access");
+        navigate("/login");
       }
+    } catch (error) {
+      console.log(error);
+
+      if (error.response && error.response.status === 401) {
+        message.error("Session expired, please login again");
+        navigate("/login");
+      } else {
+        message.error("Failed to delete property");
+      }
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -235,7 +258,7 @@ const OwnerAllProperties = () => {
                 Edit
               </button>
               <button
-                onClick={() => handleDelete(property._id)}
+                onClick={() => openDeleteModal(property)}
                 className="px-3 py-1 text-sm border border-red-500 text-red-400 rounded-lg hover:bg-red-500/20 transition"
               >
                 Delete
@@ -450,6 +473,17 @@ const OwnerAllProperties = () => {
         </form>
       </div>
     </div>
+  )}
+
+  {propertyToDelete && (
+    <DeletePropertyModal
+      property={propertyToDelete}
+      confirmText={deleteConfirmText}
+      onConfirmTextChange={setDeleteConfirmText}
+      onCancel={closeDeleteModal}
+      onConfirm={confirmDelete}
+      isDeleting={isDeleting}
+    />
   )}
 </div>
 
