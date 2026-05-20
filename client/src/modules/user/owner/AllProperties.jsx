@@ -1,7 +1,15 @@
 import { message } from "antd";
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import {useNavigate} from "react-router-dom"
+import { useNavigate } from "react-router-dom";
+import OwnerContactInput from "../../../components/OwnerContactInput";
+import { formatPropertyAmount, parsePropertyAmountInput } from "../../../utils/propertyFormat";
+import {
+  buildOwnerContact,
+  DEFAULT_DIAL_CODE,
+  formatOwnerContactDisplay,
+  parseOwnerContact,
+} from "../../../utils/phoneContact";
 
 const OwnerAllProperties = () => {
   const [image, setImage] = useState(null);
@@ -16,16 +24,23 @@ const OwnerAllProperties = () => {
   });
   const [allProperties, setAllProperties] = useState([]);
   const [show, setShow] = useState(false);
+  const [editDialCode, setEditDialCode] = useState(DEFAULT_DIAL_CODE);
+  const [editContactNumber, setEditContactNumber] = useState("");
   const navigate = useNavigate();
 
   const handleClose = useCallback(() => {
     setShow(false);
     setImage(null);
+    setEditDialCode(DEFAULT_DIAL_CODE);
+    setEditContactNumber("");
   }, []);
 
   const handleShow = (property) => {
+    const { dialCode, nationalNumber } = parseOwnerContact(property.ownerContact);
     setEditingPropertyId(property._id);
     setEditingPropertyData(property);
+    setEditDialCode(dialCode);
+    setEditContactNumber(nationalNumber);
     setShow(true);
   };
 
@@ -75,6 +90,11 @@ const OwnerAllProperties = () => {
     setEditingPropertyData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleAmountChange = (e) => {
+    const propertyAmt = parsePropertyAmountInput(e.target.value);
+    setEditingPropertyData((prev) => ({ ...prev, propertyAmt }));
+  };
+
   const getPropertyImagePath = (property) => {
     if (!property?.propertyImage) return "";
     if (Array.isArray(property.propertyImage)) {
@@ -94,8 +114,15 @@ const OwnerAllProperties = () => {
         "propertyAmt",
         "additionalInfo",
       ];
+      const ownerContact = buildOwnerContact(editDialCode, editContactNumber);
       editableFields.forEach((field) => {
-        formData.append(field, editingPropertyData[field] ?? "");
+        const value =
+          field === "ownerContact"
+            ? ownerContact
+            : field === "propertyAmt"
+              ? editingPropertyData.propertyAmt ?? 0
+              : editingPropertyData[field] ?? "";
+        formData.append(field, value);
       });
       if (image) formData.append("propertyImage", image);
       formData.append("isAvailable", status);
@@ -185,8 +212,12 @@ const OwnerAllProperties = () => {
             <td className="px-4 py-3 text-center">{property.propertyType}</td>
             <td className="px-4 py-3 text-center">{property.propertyAdType}</td>
             <td className="px-4 py-3 text-center">{property.propertyAddress}</td>
-            <td className="px-4 py-3 text-center">{property.ownerContact}</td>
-            <td className="px-4 py-3 text-center">₹{property.propertyAmt}</td>
+            <td className="px-4 py-3 text-center">
+              {formatOwnerContactDisplay(property.ownerContact)}
+            </td>
+            <td className="px-4 py-3 text-center">
+              Rp {formatPropertyAmount(property.propertyAmt)}
+            </td>
             <td
               className={`px-4 py-3 text-center font-semibold ${
                 property.isAvailable === "Available"
@@ -321,14 +352,15 @@ const OwnerAllProperties = () => {
               >
                 Owner contact
               </label>
-              <input
-                id="edit-ownerContact"
-                type="text"
-                name="ownerContact"
-                value={editingPropertyData.ownerContact}
-                onChange={handleChange}
-                placeholder="e.g. +91 98765 43210"
-                className="mt-2 w-full rounded-lg border border-gray-600 bg-slate-950/80 px-3 py-2.5 text-white placeholder-gray-500 transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/35"
+              <OwnerContactInput
+                dialId="edit-ownerContact-dial"
+                numberId="edit-ownerContact"
+                dialCode={editDialCode}
+                nationalNumber={editContactNumber}
+                onDialCodeChange={setEditDialCode}
+                onNationalNumberChange={setEditContactNumber}
+                numberPlaceholder="81799987778"
+                className="mt-2"
               />
             </div>
 
@@ -337,16 +369,20 @@ const OwnerAllProperties = () => {
                 htmlFor="edit-propertyAmt"
                 className="text-sm font-semibold text-gray-100"
               >
-                Amount (₹)
+                Amount (Rp)
               </label>
               <input
                 id="edit-propertyAmt"
-                type="number"
+                type="text"
+                inputMode="numeric"
                 name="propertyAmt"
-                min={0}
-                value={editingPropertyData.propertyAmt}
-                onChange={handleChange}
-                placeholder="Enter amount in rupees"
+                value={
+                  editingPropertyData.propertyAmt
+                    ? formatPropertyAmount(editingPropertyData.propertyAmt)
+                    : ""
+                }
+                onChange={handleAmountChange}
+                placeholder="e.g. 100.000"
                 className="mt-2 w-full rounded-lg border border-gray-600 bg-slate-950/80 px-3 py-2.5 text-white placeholder-gray-500 transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/35"
               />
             </div>

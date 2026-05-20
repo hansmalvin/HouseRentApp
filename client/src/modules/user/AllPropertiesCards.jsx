@@ -1,6 +1,8 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 import Toast from "../common/Toast";
+import { formatPropertyAmount } from "../../utils/propertyFormat";
+import { formatOwnerContactDisplay } from "../../utils/phoneContact";
 
 
 const AllPropertiesCards = ({ loggedIn }) => {
@@ -150,13 +152,13 @@ const AllPropertiesCards = ({ loggedIn }) => {
                 {loggedIn && (
                   <>
                     <p className="mt-2 text-sm">
-                      <b>Owner:</b> {property.ownerContact}
+                      <b>Owner:</b> {formatOwnerContactDisplay(property.ownerContact)}
                     </p>
                     <p className="text-sm">
                       <b>Availability:</b> {property.isAvailable}
                     </p>
                     <p className="text-sm">
-                      <b>Price:</b> Rp.{property.propertyAmt}
+                      <b>Price:</b> Rp {formatPropertyAmount(property.propertyAmt)}
                     </p>
                   </>
                 )}
@@ -203,13 +205,14 @@ const AllPropertiesCards = ({ loggedIn }) => {
             <div className="grid grid-cols-2 gap-4 text-sm text-gray-300">
               <div>
                 <p>
-                  <b>Owner Contact:</b> {selectedProperty.ownerContact}
+                  <b>Owner Contact:</b>{" "}
+                  {formatOwnerContactDisplay(selectedProperty.ownerContact)}
                 </p>
                 <p>
                   <b>Availability:</b> {selectedProperty.isAvailable}
                 </p>
                 <p>
-                  <b>Price:</b> ₹{selectedProperty.propertyAmt}
+                  <b>Price:</b> Rp {formatPropertyAmount(selectedProperty.propertyAmt)}
                 </p>
               </div>
               <div>

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { message } from "antd";
 import { useNavigate } from "react-router-dom";
+import { formatPropertyAmount } from "../../utils/propertyFormat";
+import { formatOwnerContactDisplay } from "../../utils/phoneContact";
 
 axios.defaults.withCredentials = true;
 
@@ -75,10 +77,10 @@ const AdminAllProperty = () => {
                   {property.propertyAddress}
                 </td>
                 <td className="py-2 px-4 border-b border-gray-700 text-center text-gray-300">
-                  {property.ownerContact}
+                  {formatOwnerContactDisplay(property.ownerContact)}
                 </td>
                 <td className="py-2 px-4 border-b border-gray-700 text-center font-semibold text-green-400">
-                  ₹{property.propertyAmt}
+                  Rp {formatPropertyAmount(property.propertyAmt)}
                 </td>
               </tr>
             ))

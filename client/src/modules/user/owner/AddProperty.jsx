@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { message } from "antd";
-import {useNavigate} from "react-router-dom"
+import { useNavigate } from "react-router-dom";
+import OwnerContactInput from "../../../components/OwnerContactInput";
+import { formatPropertyAmount, parsePropertyAmountInput } from "../../../utils/propertyFormat";
+import {
+  buildOwnerContact,
+  DEFAULT_DIAL_CODE,
+} from "../../../utils/phoneContact";
 
 axios.defaults.withCredentials = true; 
 
@@ -15,6 +21,8 @@ function AddProperty() {
     propertyAmt: 0,
     additionalInfo: "",
   });
+  const [contactDialCode, setContactDialCode] = useState(DEFAULT_DIAL_CODE);
+  const [contactNumber, setContactNumber] = useState("");
   const navigate = useNavigate();
 
   const handleImageChange = (e) => {
@@ -24,6 +32,11 @@ function AddProperty() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setPropertyDetails((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleAmountChange = (e) => {
+    const propertyAmt = parsePropertyAmountInput(e.target.value);
+    setPropertyDetails((prev) => ({ ...prev, propertyAmt }));
   };
 
   useEffect(() => {
@@ -40,7 +53,7 @@ function AddProperty() {
     formData.append("propertyType", propertyDetails.propertyType);
     formData.append("propertyAdType", propertyDetails.propertyAdType);
     formData.append("propertyAddress", propertyDetails.propertyAddress);
-    formData.append("ownerContact", propertyDetails.ownerContact);
+    formData.append("ownerContact", buildOwnerContact(contactDialCode, contactNumber));
     formData.append("propertyAmt", propertyDetails.propertyAmt);
     formData.append("additionalInfo", propertyDetails.additionalInfo);
 
@@ -67,6 +80,8 @@ function AddProperty() {
           propertyAmt: 0,
           additionalInfo: "",
         });
+        setContactDialCode(DEFAULT_DIAL_CODE);
+        setContactNumber("");
         setImage(null);
       } else {
         message.error(res.data.message || "Unauthorized access");
@@ -161,14 +176,13 @@ function AddProperty() {
         <label className="block font-medium mb-2 text-gray-300">
           Owner Contact No.
         </label>
-        <input
-          type="tel"
-          name="ownerContact"
-          value={propertyDetails.ownerContact}
-          onChange={handleChange}
-          placeholder="Contact number"
+        <OwnerContactInput
+          dialCode={contactDialCode}
+          nationalNumber={contactNumber}
+          onDialCodeChange={setContactDialCode}
+          onNationalNumberChange={setContactNumber}
+          numberPlaceholder="8123456789"
           required
-          className="w-full bg-gray-800/80 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400"
         />
       </div>
 
@@ -177,11 +191,16 @@ function AddProperty() {
           Property Amount
         </label>
         <input
-          type="number"
+          type="text"
+          inputMode="numeric"
           name="propertyAmt"
-          value={propertyDetails.propertyAmt}
-          onChange={handleChange}
-          placeholder="Amount"
+          value={
+            propertyDetails.propertyAmt
+              ? formatPropertyAmount(propertyDetails.propertyAmt)
+              : ""
+          }
+          onChange={handleAmountChange}
+          placeholder="e.g. 100.000"
           required
           className="w-full bg-gray-800/80 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400"
         />
