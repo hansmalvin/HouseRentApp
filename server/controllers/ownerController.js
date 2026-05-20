@@ -85,16 +85,32 @@ const deletePropertyController = async (req, res) => {
 //////updating the property/////////////
 const updatePropertyController = async (req, res) => {
   const { propertyid } = req.params;
-  console.log(req.body);
   try {
-    const property = await propertySchema.findByIdAndUpdate(
-      { _id: propertyid },
-      {
-        ...req.body,
-        ownerId: req.body.userId,
-      },
+    const updateData = {
+      ...req.body,
+    };
+
+    delete updateData.userId;
+
+    if (req.file) {
+      updateData.propertyImage = {
+        filename: req.file.filename,
+        path: `/uploads/${req.file.filename}`,
+      };
+    }
+
+    const property = await propertySchema.findOneAndUpdate(
+      { _id: propertyid, ownerId: req.body.userId },
+      updateData,
       { returnDocument: "after" }
     );
+
+    if (!property) {
+      return res.status(404).send({
+        success: false,
+        message: "Property not found or unauthorized update.",
+      });
+    }
 
     return res.status(200).send({
       success: true,

@@ -63,12 +63,28 @@ const OwnerAllProperties = () => {
     setEditingPropertyData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const getPropertyImagePath = (property) => {
+    if (!property?.propertyImage) return "";
+    if (Array.isArray(property.propertyImage)) {
+      return property.propertyImage[0]?.path || "";
+    }
+    return property.propertyImage.path || "";
+  };
+
   const saveChanges = async (propertyId, status) => {
     try {
       const formData = new FormData();
-      Object.entries(editingPropertyData).forEach(([key, value]) =>
-        formData.append(key, value)
-      );
+      const editableFields = [
+        "propertyType",
+        "propertyAdType",
+        "propertyAddress",
+        "ownerContact",
+        "propertyAmt",
+        "additionalInfo",
+      ];
+      editableFields.forEach((field) => {
+        formData.append(field, editingPropertyData[field] ?? "");
+      });
       if (image) formData.append("propertyImage", image);
       formData.append("isAvailable", status);
 
@@ -93,7 +109,7 @@ const OwnerAllProperties = () => {
         message.error("Session expired, please login again");
         navigate("/login");
       } else {
-        message.error("Failed to save changes");
+        message.error(error.response?.data?.message || "Failed to save changes");
       }
     }
   };
@@ -186,8 +202,8 @@ const OwnerAllProperties = () => {
 
   {/* Edit Modal */}
   {show && (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm z-50">
-      <div className="bg-gray-900/90 border border-gray-700 text-white w-full max-w-xl p-6 rounded-xl shadow-2xl">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm z-50 p-4 pt-60">
+      <div className="bg-gray-900/90 border border-gray-700 text-white w-full max-w-xl max-h-[90vh] overflow-y-auto p-6 rounded-xl shadow-2xl">
         <h3 className="text-2xl font-bold mb-6 text-indigo-400">Edit Property</h3>
         <form
           onSubmit={(e) => {
@@ -196,22 +212,25 @@ const OwnerAllProperties = () => {
           }}
           className="space-y-4"
         >
-          <input
-            type="text"
+          <select
             name="propertyType"
-            value={editingPropertyData.propertyType}
+            value={editingPropertyData.propertyType || "residential"}
             onChange={handleChange}
-            placeholder="Property Type"
-            className="border border-gray-700 bg-gray-800/70 text-white px-3 py-2 w-full rounded-lg focus:ring-2 focus:ring-indigo-500 placeholder-gray-400"
-          />
-          <input
-            type="text"
+            className="border border-gray-700 bg-gray-800/70 text-white px-3 py-2 w-full rounded-lg focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="residential">Residential</option>
+            <option value="commercial">Commercial</option>
+            <option value="land/plot">Land/Plot</option>
+          </select>
+          <select
             name="propertyAdType"
-            value={editingPropertyData.propertyAdType}
+            value={editingPropertyData.propertyAdType || "rent"}
             onChange={handleChange}
-            placeholder="Ad Type"
-            className="border border-gray-700 bg-gray-800/70 text-white px-3 py-2 w-full rounded-lg focus:ring-2 focus:ring-indigo-500 placeholder-gray-400"
-          />
+            className="border border-gray-700 bg-gray-800/70 text-white px-3 py-2 w-full rounded-lg focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="rent">Rent</option>
+            <option value="sale">Sale</option>
+          </select>
           <input
             type="text"
             name="propertyAddress"
@@ -249,6 +268,13 @@ const OwnerAllProperties = () => {
             onChange={handleImageChange}
             className="border border-gray-700 bg-gray-800/70 text-white px-3 py-2 w-full rounded-lg cursor-pointer file:mr-3 file:px-3 file:py-1 file:rounded-md file:border-0 file:bg-indigo-600 file:text-white hover:file:bg-indigo-700"
           />
+          {getPropertyImagePath(editingPropertyData) && (
+            <img
+              src={`http://localhost:8001${getPropertyImagePath(editingPropertyData)}`}
+              alt="Current property"
+              className="w-full h-40 object-cover rounded-lg border border-gray-700"
+            />
+          )}
 
           <div className="flex justify-end gap-3 mt-4">
             <button
