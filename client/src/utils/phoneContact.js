@@ -1,4 +1,3 @@
-/** Longest codes first so +1 does not match before +12, etc. */
 export const COUNTRY_DIAL_CODES = [
   { code: "+971", label: "UAE (+971)" },
   { code: "+972", label: "Israel (+972)" },
@@ -51,13 +50,11 @@ export const COUNTRY_DIAL_CODES = [
   { code: "+1", label: "USA / Canada (+1)" },
 ];
 
-/** Country part of label, e.g. "Germany (+49)" → "Germany" */
 function dialCodeCountryName(entry) {
   const m = String(entry.label).match(/^(.+?)\s*\(/);
   return (m ? m[1] : entry.label).trim();
 }
 
-/** A → Z by country name (for dropdown only; matching still uses all codes). */
 export const COUNTRY_DIAL_CODES_SORTED = [...COUNTRY_DIAL_CODES].sort((a, b) =>
   dialCodeCountryName(a).localeCompare(dialCodeCountryName(b), "en", {
     sensitivity: "base",

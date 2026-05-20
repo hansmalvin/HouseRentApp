@@ -2,7 +2,7 @@ import React from "react";
 import { COUNTRY_DIAL_CODES_SORTED } from "../utils/phoneContact";
 
 const inputClass =
-  "rounded-lg border border-gray-600 bg-slate-950/80 px-3 py-2.5 text-white transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/35";
+  "rounded-xl border border-indigo-200 bg-white px-3 py-2.5 text-slate-800 shadow-sm transition placeholder:text-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200";
 
 const OwnerContactInput = ({
   dialCode,

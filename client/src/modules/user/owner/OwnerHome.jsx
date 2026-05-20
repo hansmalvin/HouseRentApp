@@ -1,14 +1,27 @@
-import React, { useState, useContext, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../../App";
+import RentEaseLogo from "../../../components/RentEaseLogo";
 import AddProperty from "./AddProperty";
 import AllProperties from "./AllProperties";
 import AllBookings from "./AllBookings";
 
 const tabs = [
-  { name: "Add Property", component: <AddProperty /> },
-  { name: "All Properties", component: <AllProperties /> },
-  { name: "All Bookings", component: <AllBookings /> },
+  {
+    name: "Add My Property",
+    description: "List a new property for rent or sale",
+    component: <AddProperty />,
+  },
+  {
+    name: "My Properties",
+    description: "View and manage your listings",
+    component: <AllProperties />,
+  },
+  {
+    name: "All Related Bookings",
+    description: "Booking requests for your properties",
+    component: <AllBookings />,
+  },
 ];
 
 const OwnerHome = () => {
@@ -26,18 +39,22 @@ const OwnerHome = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-800 via-gray-900 to-black text-white">
-      {/* Navbar */}
-      <nav className="sticky top-0 z-50 bg-black/30 backdrop-blur-lg shadow-md border-b border-gray-700">
-        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
-          <h2 className="text-3xl font-extrabold text-indigo-400 tracking-wide">RentEase</h2>
-          <div className="flex items-center gap-6">
-            <h5 className="font-medium text-gray-300">
-              Hi {user.userData.name}
-            </h5>
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-indigo-50 to-blue-50 text-slate-800">
+      <nav className="sticky top-0 z-50 border-b border-indigo-100/80 bg-white/75 shadow-sm backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
+          <RentEaseLogo subtitle="Owner dashboard" variant="light" />
+          <div className="flex items-center gap-3 sm:gap-5">
+            <p className="hidden text-sm font-medium text-slate-600 sm:block">
+              Welcome,{" "}
+              <span className="text-indigo-700">{user.userData.name}</span>
+            </p>
+            <p className="text-sm font-medium text-slate-600 sm:hidden">
+              Hi, {user.userData.name}
+            </p>
             <button
+              type="button"
               onClick={handleLogOut}
-              className="px-4 py-2 text-sm bg-red-500/80 text-white rounded-lg shadow hover:bg-red-600 transition duration-200"
+              className="rounded-xl bg-rose-200 px-4 py-2 text-sm font-semibold text-rose-800 shadow-sm transition hover:bg-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2"
             >
               Log Out
             </button>
@@ -45,31 +62,51 @@ const OwnerHome = () => {
         </div>
       </nav>
 
-      {/* Tabs */}
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        <div className="flex space-x-4 border-b border-gray-700">
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
+        <header className="mb-6 rounded-2xl border border-indigo-100 bg-white/60 px-5 py-4 shadow-sm backdrop-blur-sm">
+          <h1 className="text-lg font-semibold text-slate-800 sm:text-xl">
+            Manage your rentals
+          </h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Add listings, update your properties, and respond to tenant
+            bookings — all in one place.
+          </p>
+        </header>
+
+        <div
+          className="flex flex-wrap gap-2 border-b border-indigo-100 pb-1 sm:gap-3"
+          role="tablist"
+          aria-label="Owner sections"
+        >
           {tabs.map((tab, index) => (
             <button
-              key={index}
+              key={tab.name}
+              type="button"
+              role="tab"
+              aria-selected={activeTab === index}
               onClick={() => setActiveTab(index)}
-              className={`px-4 py-2 font-medium text-sm transition-all duration-200 rounded-t-lg
-            ${activeTab === index
-                  ? "text-indigo-400 border-b-2 border-indigo-500 bg-indigo-500/10 shadow-inner"
-                  : "text-gray-400 hover:text-indigo-300 hover:bg-gray-800/40"
-                }`}
+              className={`rounded-t-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 sm:px-5 ${
+                activeTab === index
+                  ? "border border-b-0 border-indigo-200 bg-white text-indigo-700 shadow-sm"
+                  : "text-slate-500 hover:bg-indigo-50/80 hover:text-indigo-600"
+              }`}
             >
               {tab.name}
             </button>
           ))}
         </div>
 
-        {/* Tab Content */}
-        <div className="bg-gray-900/80 border border-gray-700 backdrop-blur-md mt-6 p-6 shadow-2xl rounded-xl transition-all">
+        <div
+          className="rounded-b-2xl rounded-tr-2xl border border-indigo-100 bg-white/90 p-5 shadow-lg backdrop-blur-sm sm:p-8"
+          role="tabpanel"
+        >
+          <p className="mb-6 text-sm text-slate-500">
+            {tabs[activeTab].description}
+          </p>
           {tabs[activeTab].component}
         </div>
-      </div>
+      </main>
     </div>
-
   );
 };
 

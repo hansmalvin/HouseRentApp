@@ -1,14 +1,15 @@
 import { message } from "antd";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import {useNavigate} from "react-router-dom"
+import { useNavigate } from "react-router-dom";
 
-axios.defaults.withCredentials = true; 
+axios.defaults.withCredentials = true;
 
 const OwnerAllBookings = () => {
   const [allBookings, setAllBookings] = useState([]);
   const navigate = useNavigate();
- const getAllProperty = async () => {
+
+  const getAllProperty = async () => {
     try {
       const response = await axios.get(
         "http://localhost:8001/api/owner/getallbookings",
@@ -19,7 +20,7 @@ const OwnerAllBookings = () => {
         setAllBookings(response.data.data);
       } else {
         message.error(response.data.message || "Unauthorized access");
-        navigate("/login"); 
+        navigate("/login");
       }
     } catch (error) {
       console.log(error);
@@ -57,77 +58,95 @@ const OwnerAllBookings = () => {
   };
 
   return (
-    <div className="overflow-x-auto mt-6">
-  <table className="min-w-full border border-gray-700 rounded-lg shadow-2xl bg-gray-900/80 backdrop-blur-md text-gray-300">
-    <thead className="bg-indigo-600/80 text-white">
-      <tr>
-        <th className="py-3 px-4 text-left">Booking ID</th>
-        <th className="py-3 px-4 text-center">Property ID</th>
-        <th className="py-3 px-4 text-center">Tenant Name</th>
-        <th className="py-3 px-4 text-center">Tenant Phone</th>
-        <th className="py-3 px-4 text-center">Booking Status</th>
-        <th className="py-3 px-4 text-center">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {allBookings.length > 0 ? (
-        allBookings.map((booking, idx) => (
-          <tr
-            key={booking._id}
-            className={`border-b border-gray-700 transition duration-200 hover:bg-gray-800/50 ${
-              idx % 2 === 0 ? "bg-gray-800/40" : "bg-gray-900/40"
-            }`}
-          >
-            <td className="py-3 px-4">{booking._id}</td>
-            <td className="py-3 px-4 text-center">{booking.propertyId}</td>
-            <td className="py-3 px-4 text-center">{booking.userName}</td>
-            <td className="py-3 px-4 text-center">{booking.phone}</td>
-            <td
-              className={`py-3 px-4 text-center font-semibold ${
-                booking.bookingStatus === "booked"
-                  ? "text-green-400"
-                  : "text-yellow-400"
-              }`}
-            >
-              {booking.bookingStatus}
-            </td>
-            <td className="py-3 px-4 text-center">
-              {booking.bookingStatus === "pending" ? (
-                <button
-                  onClick={() =>
-                    handleStatus(booking._id, booking.propertyId, "booked")
-                  }
-                  className="px-4 py-1 text-sm bg-green-600/80 hover:bg-green-600 text-white rounded-lg transition shadow-md"
-                >
-                  Mark Booked
-                </button>
-              ) : (
-                <button
-                  onClick={() =>
-                    handleStatus(booking._id, booking.propertyId, "pending")
-                  }
-                  className="px-4 py-1 text-sm bg-yellow-500/80 hover:bg-yellow-500 text-white rounded-lg transition shadow-md"
-                >
-                  Mark Pending
-                </button>
-              )}
-            </td>
-          </tr>
-        ))
-      ) : (
-        <tr>
-          <td
-            colSpan={6}
-            className="py-6 px-4 text-center text-gray-400 italic"
-          >
-            No bookings available
-          </td>
-        </tr>
-      )}
-    </tbody>
-  </table>
-</div>
+    <div>
+      <h2 className="mb-1 text-xl font-bold text-indigo-700">Booking requests</h2>
+      <p className="mb-6 text-sm text-slate-500">
+        Tenants who applied to your properties appear here. Approve or change
+        status as needed.
+      </p>
 
+      <div className="overflow-x-auto rounded-2xl border border-indigo-100 bg-white shadow-sm">
+        <table className="min-w-full text-left text-sm text-slate-700">
+          <thead className="bg-indigo-100/90 text-indigo-900">
+            <tr>
+              <th className="px-4 py-3 font-semibold">Booking ID</th>
+              <th className="px-4 py-3 text-center font-semibold">Property ID</th>
+              <th className="px-4 py-3 text-center font-semibold">Tenant name</th>
+              <th className="px-4 py-3 text-center font-semibold">Tenant phone</th>
+              <th className="px-4 py-3 text-center font-semibold">Status</th>
+              <th className="px-4 py-3 text-center font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {allBookings.length > 0 ? (
+              allBookings.map((booking, idx) => (
+                <tr
+                  key={booking._id}
+                  className={`border-t border-indigo-50 transition hover:bg-sky-50/60 ${
+                    idx % 2 === 0 ? "bg-white" : "bg-indigo-50/30"
+                  }`}
+                >
+                  <td className="px-4 py-3 font-mono text-xs sm:text-sm">
+                    {booking._id}
+                  </td>
+                  <td className="px-4 py-3 text-center font-mono text-xs">
+                    {booking.propertyId}
+                  </td>
+                  <td className="px-4 py-3 text-center">{booking.userName}</td>
+                  <td className="px-4 py-3 text-center">{booking.phone}</td>
+                  <td
+                    className={`px-4 py-3 text-center font-semibold capitalize ${
+                      booking.bookingStatus === "booked"
+                        ? "text-emerald-600"
+                        : "text-amber-600"
+                    }`}
+                  >
+                    {booking.bookingStatus}
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    {booking.bookingStatus === "pending" ? (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleStatus(booking._id, booking.propertyId, "booked")
+                        }
+                        className="rounded-lg bg-emerald-200 px-4 py-1.5 text-sm font-medium text-emerald-800 shadow-sm transition hover:bg-emerald-300"
+                      >
+                        Mark booked
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleStatus(
+                            booking._id,
+                            booking.propertyId,
+                            "pending"
+                          )
+                        }
+                        className="rounded-lg bg-amber-200 px-4 py-1.5 text-sm font-medium text-amber-800 shadow-sm transition hover:bg-amber-300"
+                      >
+                        Mark pending
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan={6}
+                  className="px-4 py-10 text-center text-slate-500"
+                >
+                  No booking requests yet. When tenants apply to your
+                  listings, they will show up here.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 };
 

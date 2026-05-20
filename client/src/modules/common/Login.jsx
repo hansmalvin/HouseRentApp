@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Toast from "../common/Toast";
+import RentEaseLogo from "../../components/RentEaseLogo";
 
 axios.defaults.withCredentials = true;
 
@@ -77,9 +78,7 @@ const Login = () => {
 
       {/* Navbar */}
       <nav className="fixed top-0 left-0 w-full z-50 bg-black/30 backdrop-blur-lg shadow-md py-4 px-8 flex justify-between items-center">
-        <h2 className="text-3xl font-extrabold text-indigo-400 tracking-wide">
-          RentEase
-        </h2>
+        <RentEaseLogo to="/" variant="dark" size="lg" />
         <div className="space-x-8 text-lg">
           <Link to="/" className="text-gray-200 hover:text-indigo-400 transition">
             Home

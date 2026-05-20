@@ -1,4 +1,3 @@
-/** Indonesian-style grouping, e.g. 100000 → "100.000" */
 export function formatPropertyAmount(amount) {
   const num = Number(amount);
   if (!Number.isFinite(num)) return "0";
@@ -7,7 +6,6 @@ export function formatPropertyAmount(amount) {
   }).format(num);
 }
 
-/** Human-readable label used to confirm delete (property address). */
 export function getPropertyVerificationName(property) {
   return String(property?.propertyAddress ?? "").trim();
 }

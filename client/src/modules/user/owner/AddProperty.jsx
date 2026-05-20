@@ -9,7 +9,12 @@ import {
   DEFAULT_DIAL_CODE,
 } from "../../../utils/phoneContact";
 
-axios.defaults.withCredentials = true; 
+axios.defaults.withCredentials = true;
+
+const fieldClass =
+  "w-full rounded-xl border border-indigo-200 bg-white px-3 py-2.5 text-slate-800 shadow-sm transition placeholder:text-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200";
+
+const labelClass = "mb-2 block text-sm font-medium text-slate-600";
 
 function AddProperty() {
   const [image, setImage] = useState(null);
@@ -96,143 +101,128 @@ function AddProperty() {
         message.error("Failed to add property");
       }
     }
-  };;
+  };
 
   return (
- <div className="max-w-5xl mx-auto bg-gray-900/80 border border-gray-700 backdrop-blur-md shadow-2xl rounded-xl p-8 mt-12 text-white">
-  <h2 className="text-3xl font-extrabold text-indigo-400 mb-8 text-center tracking-wide">
-    Add New Property
-  </h2>
+    <div className="mx-auto max-w-5xl">
+      <h2 className="mb-2 text-center text-2xl font-bold text-indigo-700 sm:text-3xl">
+        Add a new listing
+      </h2>
+      <p className="mb-8 text-center text-sm text-slate-500">
+        Fill in the details below to publish your property.
+      </p>
 
-  <form onSubmit={handleSubmit} className="space-y-8">
-    {/* Row 1 */}
-    <div className="grid md:grid-cols-3 gap-6">
-      <div>
-        <label className="block font-medium mb-2 text-gray-300">
-          Property Type
-        </label>
-        <select
-          name="propertyType"
-          value={propertyDetails.propertyType}
-          onChange={handleChange}
-          className="w-full bg-gray-800/80 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400"
-        >
-          <option disabled>Choose...</option>
-          <option value="residential">Residential</option>
-          <option value="commercial">Commercial</option>
-          <option value="land/plot">Land/Plot</option>
-        </select>
-      </div>
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <div className="grid gap-6 md:grid-cols-3">
+          <div>
+            <label className={labelClass}>Property type</label>
+            <select
+              name="propertyType"
+              value={propertyDetails.propertyType}
+              onChange={handleChange}
+              className={fieldClass}
+            >
+              <option disabled>Choose...</option>
+              <option value="residential">Residential</option>
+              <option value="commercial">Commercial</option>
+              <option value="land/plot">Land/Plot</option>
+            </select>
+          </div>
 
-      <div>
-        <label className="block font-medium mb-2 text-gray-300">
-          Property Ad Type
-        </label>
-        <select
-          name="propertyAdType"
-          value={propertyDetails.propertyAdType}
-          onChange={handleChange}
-          className="w-full bg-gray-800/80 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400"
-        >
-          <option disabled>Choose...</option>
-          <option value="rent">Rent</option>
-          <option value="sale">Sale</option>
-        </select>
-      </div>
+          <div>
+            <label className={labelClass}>Listing type</label>
+            <select
+              name="propertyAdType"
+              value={propertyDetails.propertyAdType}
+              onChange={handleChange}
+              className={fieldClass}
+            >
+              <option disabled>Choose...</option>
+              <option value="rent">Rent</option>
+              <option value="sale">Sale</option>
+            </select>
+          </div>
 
-      <div>
-        <label className="block font-medium mb-2 text-gray-300">
-          Property Full Address
-        </label>
-        <input
-          type="text"
-          name="propertyAddress"
-          value={propertyDetails.propertyAddress}
-          onChange={handleChange}
-          placeholder="Address"
-          required
-          className="w-full bg-gray-800/80 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400"
-        />
-      </div>
+          <div>
+            <label className={labelClass}>Full address</label>
+            <input
+              type="text"
+              name="propertyAddress"
+              value={propertyDetails.propertyAddress}
+              onChange={handleChange}
+              placeholder="Street, city, postal code"
+              required
+              className={fieldClass}
+            />
+          </div>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-3">
+          <div>
+            <label className={labelClass}>Property images</label>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              required
+              onChange={handleImageChange}
+              className={`${fieldClass} cursor-pointer file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-indigo-300 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-indigo-900 hover:file:bg-indigo-400`}
+            />
+          </div>
+
+          <div>
+            <label className={labelClass}>Your contact number</label>
+            <OwnerContactInput
+              dialCode={contactDialCode}
+              nationalNumber={contactNumber}
+              onDialCodeChange={setContactDialCode}
+              onNationalNumberChange={setContactNumber}
+              numberPlaceholder="8123456789"
+              required
+            />
+          </div>
+
+          <div>
+            <label className={labelClass}>Amount (Rp)</label>
+            <input
+              type="text"
+              inputMode="numeric"
+              name="propertyAmt"
+              value={
+                propertyDetails.propertyAmt
+                  ? formatPropertyAmount(propertyDetails.propertyAmt)
+                  : ""
+              }
+              onChange={handleAmountChange}
+              placeholder="e.g. 100.000"
+              required
+              className={fieldClass}
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className={labelClass}>Additional details</label>
+          <textarea
+            name="additionalInfo"
+            value={propertyDetails.additionalInfo}
+            onChange={handleChange}
+            rows={4}
+            placeholder="Amenities, move-in date, parking, pets, etc."
+            className={fieldClass}
+          />
+        </div>
+
+        <div className="flex justify-end border-t border-indigo-100 pt-6">
+          <button
+            type="submit"
+            className="rounded-xl bg-indigo-400 px-8 py-2.5 font-semibold text-white shadow-md transition hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2"
+          >
+            Publish listing
+          </button>
+        </div>
+      </form>
     </div>
-
-    {/* Row 2 */}
-    <div className="grid md:grid-cols-3 gap-6">
-      <div>
-        <label className="block font-medium mb-2 text-gray-300">
-          Property Images
-        </label>
-        <input
-          type="file"
-          accept="image/*"
-          multiple
-          required
-          onChange={handleImageChange}
-          className="w-full bg-gray-800/80 border border-gray-700 rounded-lg px-3 py-2 cursor-pointer text-white file:mr-3 file:px-3 file:py-1 file:rounded-md file:border-0 file:bg-indigo-600 file:text-white hover:file:bg-indigo-700"
-        />
-      </div>
-
-      <div>
-        <label className="block font-medium mb-2 text-gray-300">
-          Owner Contact No.
-        </label>
-        <OwnerContactInput
-          dialCode={contactDialCode}
-          nationalNumber={contactNumber}
-          onDialCodeChange={setContactDialCode}
-          onNationalNumberChange={setContactNumber}
-          numberPlaceholder="8123456789"
-          required
-        />
-      </div>
-
-      <div>
-        <label className="block font-medium mb-2 text-gray-300">
-          Property Amount
-        </label>
-        <input
-          type="text"
-          inputMode="numeric"
-          name="propertyAmt"
-          value={
-            propertyDetails.propertyAmt
-              ? formatPropertyAmount(propertyDetails.propertyAmt)
-              : ""
-          }
-          onChange={handleAmountChange}
-          placeholder="e.g. 100.000"
-          required
-          className="w-full bg-gray-800/80 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400"
-        />
-      </div>
-    </div>
-
-    {/* Row 3 */}
-    <div>
-      <label className="block font-medium mb-2 text-gray-300">
-        Additional Details for the Property
-      </label>
-      <textarea
-        name="additionalInfo"
-        value={propertyDetails.additionalInfo}
-        onChange={handleChange}
-        rows={4}
-        placeholder="Add any details here..."
-        className="w-full bg-gray-800/80 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400"
-      />
-    </div>
-
-    {/* Submit */}
-    <div className="text-right">
-      <button
-        type="submit"
-        className="bg-indigo-600 text-white font-semibold px-6 py-2 rounded-lg shadow-lg hover:bg-indigo-700 transition duration-200"
-      >
-        Submit Form
-      </button>
-    </div>
-  </form>
-</div>
   );
 }
 

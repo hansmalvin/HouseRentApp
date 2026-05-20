@@ -4,6 +4,7 @@ import { UserContext } from "../../../App";
 import PropTypes from "prop-types";
 import AllPropertiesCards from "../AllPropertiesCards";
 import AllProperty from "./AllProperties";
+import RentEaseLogo from "../../../components/RentEaseLogo";
 
 const CustomTabPanel = ({ children, value, index }) => {
   return (
@@ -34,7 +35,7 @@ const RenterHome = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-800 via-gray-900 to-black">
       {/* Navbar */}
       <nav className="bg-black/30 backdrop-blur-lg shadow-md px-6 py-4 flex items-center justify-between">
-        <h2 className="text-3xl font-extrabold text-indigo-400 tracking-wide">RentEase</h2>
+        <RentEaseLogo variant="dark" size="lg" />
         <div className="flex items-center gap-6">
           <h5 className="font-medium text-gray-200">
             Hi, {user.userData.name}

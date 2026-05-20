@@ -205,15 +205,24 @@ const OwnerAllProperties = () => {
   };
 
 
+  const editFieldClass =
+    "mt-2 w-full rounded-xl border border-indigo-200 bg-white px-3 py-2.5 text-slate-800 shadow-sm transition placeholder:text-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200";
+
   return (
-   <div className="p-6">
-  <div
-    className={`overflow-x-auto rounded-lg border border-gray-700 bg-gray-900/80 shadow-2xl backdrop-blur-md transition-[min-height] duration-300 ease-out ${
-      show ? "min-h-[min(100dvh,28rem)]" : ""
-    }`}
-  >
-    <table className="w-full text-sm text-left text-gray-300">
-      <thead className="bg-indigo-600/80 text-white">
+    <div>
+      <h2 className="mb-1 text-xl font-bold text-indigo-700">Your listings</h2>
+      <p className="mb-6 text-sm text-slate-500">
+        Edit or remove properties you have published. Availability updates when
+        you save changes.
+      </p>
+
+      <div
+        className={`overflow-x-auto rounded-2xl border border-indigo-100 bg-white shadow-sm transition-[min-height] duration-300 ease-out ${
+          show ? "min-h-[min(100dvh,34rem)]" : ""
+        }`}
+      >
+        <table className="w-full text-left text-sm text-slate-700">
+          <thead className="bg-indigo-100/90 text-indigo-900">
         <tr>
           <th className="px-4 py-3">Property ID</th>
           <th className="px-4 py-3 text-center">Property Type</th>
@@ -229,7 +238,7 @@ const OwnerAllProperties = () => {
         {allProperties.map((property) => (
           <tr
             key={property._id}
-            className="border-b border-gray-700 hover:bg-gray-800/60 transition duration-200"
+            className="border-t border-indigo-50 transition duration-200 even:bg-indigo-50/30 hover:bg-sky-50/50"
           >
             <td className="px-4 py-3">{property._id}</td>
             <td className="px-4 py-3 text-center">{property.propertyType}</td>
@@ -244,22 +253,24 @@ const OwnerAllProperties = () => {
             <td
               className={`px-4 py-3 text-center font-semibold ${
                 property.isAvailable === "Available"
-                  ? "text-green-400"
-                  : "text-red-400"
+                  ? "text-emerald-600"
+                  : "text-rose-600"
               }`}
             >
               {property.isAvailable}
             </td>
             <td className="px-4 py-3 flex gap-2 justify-center">
               <button
+                type="button"
                 onClick={() => handleShow(property)}
-                className="px-3 py-1 text-sm border border-indigo-500 text-indigo-400 rounded-lg hover:bg-indigo-500/20 transition"
+                className="rounded-lg border border-indigo-300 bg-indigo-50 px-3 py-1 text-sm font-medium text-indigo-700 transition hover:bg-indigo-100"
               >
                 Edit
               </button>
               <button
+                type="button"
                 onClick={() => openDeleteModal(property)}
-                className="px-3 py-1 text-sm border border-red-500 text-red-400 rounded-lg hover:bg-red-500/20 transition"
+                className="rounded-lg border border-rose-300 bg-rose-50 px-3 py-1 text-sm font-medium text-rose-700 transition hover:bg-rose-100"
               >
                 Delete
               </button>
@@ -273,7 +284,7 @@ const OwnerAllProperties = () => {
   {/* Edit modal — elevated card, sticky actions, scroll only on body */}
   {show && (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/75 p-1 backdrop-blur-md sm:p-2"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-indigo-900/20 p-2 backdrop-blur-sm sm:p-4"
       onClick={handleClose}
       role="presentation"
     >
@@ -281,26 +292,26 @@ const OwnerAllProperties = () => {
         role="dialog"
         aria-labelledby="edit-property-title"
         aria-describedby="edit-property-desc"
-        className="my-4 flex h-[calc(100dvh-2rem)] max-h-[calc(100dvh-2rem)] w-full max-w-6xl min-h-0 flex-col overflow-hidden rounded-2xl ... sm:my-4"
+        className="my-4 flex h-[calc(100dvh-2rem)] max-h-[calc(100dvh-2rem)] w-full max-w-6xl min-h-0 flex-col overflow-hidden rounded-2xl border border-indigo-200 bg-white shadow-2xl sm:my-4"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="relative shrink-0 border-b border-gray-700/90 bg-gray-900/60 px-6 py-3 pr-12 sm:px-8">
-          <span className="mb-1.5 inline-flex items-center rounded-full bg-indigo-500/15 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-indigo-300">
-            Owner · Edit listing
+        <div className="relative shrink-0 border-b border-indigo-100 bg-indigo-50/80 px-6 py-4 pr-12 sm:px-8">
+          <span className="mb-1.5 inline-flex items-center rounded-full bg-indigo-200/80 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-indigo-800">
+            Edit listing
           </span>
           <h3
             id="edit-property-title"
-            className="text-xl font-bold tracking-tight text-white sm:text-2xl"
+            className="text-xl font-bold tracking-tight text-indigo-800 sm:text-2xl"
           >
             Edit property
           </h3>
-          <p id="edit-property-desc" className="mt-1 max-w-md text-sm leading-relaxed text-gray-400">
-            Update details in each section. Your save actions stay pinned at the bottom so you always see them.
+          <p id="edit-property-desc" className="mt-1 max-w-md text-sm leading-relaxed text-slate-500">
+            Update details in each section. Save stays pinned at the bottom.
           </p>
           <button
             type="button"
             onClick={handleClose}
-            className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-lg border border-gray-600/80 bg-gray-800/80 text-gray-300 transition hover:border-gray-500 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/60"
+            className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-lg border border-indigo-200 bg-white text-slate-500 transition hover:bg-indigo-100 hover:text-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-300"
             aria-label="Close"
           >
             <span className="text-lg leading-none" aria-hidden>
@@ -316,18 +327,16 @@ const OwnerAllProperties = () => {
           }}
           className="flex min-h-0 flex-1 flex-col"
         >
-          <div
-            className="min-h-0 flex-1 space-y-2.5 overflow-y-auto px-6 py-3 sm:px-8 [scrollbar-color:rgba(71,85,105,0.9)_rgba(15,23,42,0.9)] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-slate-950/80 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-600 hover:[&::-webkit-scrollbar-thumb]:bg-slate-500"
-          >
-            <div className="rounded-xl border border-gray-600/70 border-l-4 border-l-indigo-500 bg-slate-800/35 p-4 shadow-sm ring-1 ring-white/[0.04]">
-              <label className="text-sm font-semibold text-gray-100">
+          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-gradient-to-b from-white to-indigo-50/40 px-6 py-4 sm:px-8">
+            <div className="rounded-xl border border-indigo-100 border-l-4 border-l-indigo-400 bg-indigo-50/50 p-4 shadow-sm">
+              <label className="text-sm font-semibold text-slate-700">
                 Property type
               </label>
               <select
                 name="propertyType"
                 value={editingPropertyData.propertyType || "residential"}
                 onChange={handleChange}
-                className="mt-2 w-full cursor-pointer rounded-lg border border-gray-600 bg-slate-950/80 px-3 py-2.5 text-white shadow-inner transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/35"
+                className={editFieldClass}
               >
                 <option value="residential">Residential</option>
                 <option value="commercial">Commercial</option>
@@ -335,25 +344,25 @@ const OwnerAllProperties = () => {
               </select>
             </div>
 
-            <div className="rounded-xl border border-gray-600/70 border-l-4 border-l-indigo-500 bg-slate-800/35 p-4 shadow-sm ring-1 ring-white/[0.04]">
-              <label className="text-sm font-semibold text-gray-100">
+            <div className="rounded-xl border border-indigo-100 border-l-4 border-l-sky-400 bg-sky-50/50 p-4 shadow-sm">
+              <label className="text-sm font-semibold text-slate-700">
                 Listing type
               </label>
               <select
                 name="propertyAdType"
                 value={editingPropertyData.propertyAdType || "rent"}
                 onChange={handleChange}
-                className="mt-2 w-full cursor-pointer rounded-lg border border-gray-600 bg-slate-950/80 px-3 py-2.5 text-white shadow-inner transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/35"
+                className={editFieldClass}
               >
                 <option value="rent">Rent</option>
                 <option value="sale">Sale</option>
               </select>
             </div>
 
-            <div className="rounded-xl border border-gray-600/70 border-l-4 border-l-violet-500 bg-slate-800/35 p-4 shadow-sm ring-1 ring-white/[0.04]">
+            <div className="rounded-xl border border-indigo-100 border-l-4 border-l-rose-300 bg-rose-50/40 p-4 shadow-sm">
               <label
                 htmlFor="edit-propertyAddress"
-                className="text-sm font-semibold text-gray-100"
+                className="text-sm font-semibold text-slate-700"
               >
                 Property address
               </label>
@@ -364,14 +373,14 @@ const OwnerAllProperties = () => {
                 value={editingPropertyData.propertyAddress}
                 onChange={handleChange}
                 placeholder="e.g. 12 Main Street, City"
-                className="mt-2 w-full rounded-lg border border-gray-600 bg-slate-950/80 px-3 py-2.5 text-white placeholder-gray-500 transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/35"
+                className={editFieldClass}
               />
             </div>
 
-            <div className="rounded-xl border border-gray-600/70 border-l-4 border-l-violet-500 bg-slate-800/35 p-4 shadow-sm ring-1 ring-white/[0.04]">
+            <div className="rounded-xl border border-indigo-100 border-l-4 border-l-rose-300 bg-rose-50/40 p-4 shadow-sm">
               <label
                 htmlFor="edit-ownerContact"
-                className="text-sm font-semibold text-gray-100"
+                className="text-sm font-semibold text-slate-700"
               >
                 Owner contact
               </label>
@@ -387,10 +396,10 @@ const OwnerAllProperties = () => {
               />
             </div>
 
-            <div className="rounded-xl border border-gray-600/70 border-l-4 border-l-violet-500 bg-slate-800/35 p-4 shadow-sm ring-1 ring-white/[0.04]">
+            <div className="rounded-xl border border-indigo-100 border-l-4 border-l-emerald-300 bg-emerald-50/40 p-4 shadow-sm">
               <label
                 htmlFor="edit-propertyAmt"
-                className="text-sm font-semibold text-gray-100"
+                className="text-sm font-semibold text-slate-700"
               >
                 Amount (Rp)
               </label>
@@ -406,14 +415,14 @@ const OwnerAllProperties = () => {
                 }
                 onChange={handleAmountChange}
                 placeholder="e.g. 100.000"
-                className="mt-2 w-full rounded-lg border border-gray-600 bg-slate-950/80 px-3 py-2.5 text-white placeholder-gray-500 transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/35"
+                className={editFieldClass}
               />
             </div>
 
-            <div className="rounded-xl border border-gray-600/70 border-l-4 border-l-fuchsia-500 bg-slate-800/35 p-4 shadow-sm ring-1 ring-white/[0.04]">
+            <div className="rounded-xl border border-indigo-100 border-l-4 border-l-blue-400 bg-blue-50/50 p-4 shadow-sm">
               <label
                 htmlFor="edit-additionalInfo"
-                className="text-sm font-semibold text-gray-100"
+                className="text-sm font-semibold text-slate-700"
               >
                 Additional details
               </label>
@@ -424,47 +433,47 @@ const OwnerAllProperties = () => {
                 onChange={handleChange}
                 rows={4}
                 placeholder="Write extra details for this listing…"
-                className="mt-2 min-h-[5.5rem] w-full resize-y rounded-lg border border-gray-600 bg-slate-950/80 px-3 py-2.5 text-white placeholder-gray-500 transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/35"
+                className={`${editFieldClass} min-h-[5.5rem] resize-y`}
               />
             </div>
 
-            <div className="rounded-xl border border-gray-600/70 border-l-4 border-l-sky-500 bg-slate-800/35 p-4 shadow-sm ring-1 ring-white/[0.04]">
-              <label className="text-sm font-semibold text-gray-100">
+            <div className="rounded-xl border border-indigo-100 border-l-4 border-l-sky-400 bg-sky-50/50 p-4 shadow-sm">
+              <label className="text-sm font-semibold text-slate-700">
                 Property photo
               </label>
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
-                className="mt-2 w-full cursor-pointer rounded-lg border border-dashed border-gray-500/80 bg-slate-950/60 px-3 py-3.5 text-sm text-gray-300 transition file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-indigo-600 file:px-3.5 file:py-2 file:text-sm file:font-semibold file:text-white hover:border-indigo-500/50 hover:file:bg-indigo-500"
+                className={`${editFieldClass} cursor-pointer border-dashed file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-indigo-300 file:px-3.5 file:py-2 file:text-sm file:font-semibold file:text-indigo-900 hover:file:bg-indigo-400`}
               />
               {getPropertyImagePath(editingPropertyData) && (
                 <div className="mt-4">
-                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                     Current image
                   </p>
                   <img
                     src={`http://localhost:8001${getPropertyImagePath(editingPropertyData)}`}
                     alt="Current property"
-                    className="h-40 w-full rounded-lg border border-gray-600 object-cover shadow-md sm:h-44"
+                    className="h-40 w-full rounded-xl border border-indigo-200 object-cover shadow-md sm:h-44"
                   />
                 </div>
               )}
             </div>
           </div>
 
-          <div className="shrink-0 rounded-b-2xl border-t border-gray-700/90 bg-gradient-to-t from-slate-950 via-gray-950/98 to-gray-900/95 px-6 py-3.5 backdrop-blur sm:px-10">
+          <div className="shrink-0 rounded-b-2xl border-t border-indigo-100 bg-indigo-50/80 px-6 py-4 sm:px-10">
             <div className="flex flex-row flex-nowrap items-center justify-end gap-3">
               <button
                 type="button"
                 onClick={handleClose}
-                className="min-w-[6.5rem] shrink-0 rounded-lg border border-gray-500/80 bg-transparent px-5 py-2.5 text-sm font-medium text-gray-200 transition hover:border-gray-400 hover:bg-gray-800/90"
+                className="min-w-[6.5rem] shrink-0 rounded-xl border border-indigo-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-indigo-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="min-w-[6.5rem] shrink-0 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-900/40 transition hover:from-indigo-500 hover:to-violet-500 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-900"
+                className="min-w-[6.5rem] shrink-0 rounded-xl bg-indigo-400 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2"
               >
                 Save changes
               </button>
@@ -485,8 +494,7 @@ const OwnerAllProperties = () => {
       isDeleting={isDeleting}
     />
   )}
-</div>
-
+    </div>
   );
 };
 
