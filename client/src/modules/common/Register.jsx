@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Toast from "../common/Toast";
@@ -6,6 +6,8 @@ import RentEaseLogo from "../../components/RentEaseLogo";
 
 axios.defaults.withCredentials = true;
 
+const inputClass =
+  "w-full rounded-xl border border-stone-200/90 bg-white/75 px-4 py-2.5 text-stone-700 shadow-sm placeholder:text-stone-400 backdrop-blur-sm transition focus:border-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-100/90 sm:py-3";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -47,12 +49,16 @@ const Register = () => {
         showToast("error", response.data.message);
       }
     } catch (error) {
-      showToast("error", error.response?.data?.message || "Registration failed. Please try again.");
+      showToast(
+        "error",
+        error.response?.data?.message ||
+          "Registration failed. Please try again."
+      );
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-800 via-gray-900 to-black flex flex-col">
+    <div className="relative flex min-h-[100dvh] flex-col overflow-x-hidden">
       {toast.show && (
         <Toast
           type={toast.type}
@@ -60,91 +66,166 @@ const Register = () => {
           onClose={() => setToast({ ...toast, show: false })}
         />
       )}
+
+      {/* Background image */}
+      <div
+        className="pointer-events-none absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/signin.png')" }}
+        aria-hidden
+      />
+
+      {/* Light beige tint — keeps the photo visible */}
+      <div
+        className="pointer-events-none absolute inset-0 bg-gradient-to-br from-stone-100/35 via-amber-50/30 to-orange-50/25"
+        aria-hidden
+      />
+
       {/* Navbar */}
-      <nav className="fixed top-0 left-0 w-full z-50 bg-black/30 backdrop-blur-lg shadow-md py-4 px-8 flex justify-between items-center">
-        <RentEaseLogo to="/" variant="dark" size="lg" />
-        <div className="space-x-8 text-lg">
-          <Link to="/" className="text-gray-200 hover:text-indigo-400 transition">
-            Home
-          </Link>
-          <Link to="/login" className="text-gray-200 hover:text-indigo-400 transition">
-            Login
-          </Link>
-          <Link
-            to="/register"
-            className="text-black bg-indigo-400 px-4 py-2 rounded-lg shadow hover:bg-indigo-500 transition"
-          >
-            Register
-          </Link>
+      <nav className="relative z-20 border-b border-stone-200/50 bg-stone-50/40 px-4 py-3 shadow-sm backdrop-blur-md sm:px-6 sm:py-4">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
+          <RentEaseLogo to="/" variant="light" size="md" className="shrink-0" />
+          <div className="flex flex-wrap items-center justify-end gap-2 text-sm font-medium sm:gap-6 sm:text-base">
+            <Link
+              to="/"
+              className="rounded-lg px-3 py-1.5 text-stone-700 transition hover:bg-white/50 hover:text-amber-900"
+            >
+              Home
+            </Link>
+            <Link
+              to="/login"
+              className="rounded-lg px-3 py-1.5 text-stone-700 transition hover:bg-white/50 hover:text-amber-900"
+            >
+              Login
+            </Link>
+            <Link
+              to="/register"
+              className="rounded-xl bg-gradient-to-r from-amber-100 to-stone-200 px-4 py-2 text-stone-800 shadow-sm ring-1 ring-stone-200/80 transition hover:from-amber-200 hover:to-stone-300 hover:shadow-md"
+            >
+              Register
+            </Link>
+          </div>
         </div>
       </nav>
 
-      {/* Register Form */}
-      <div className="flex-grow flex justify-center items-center px-4 pt-20">
-        <div className="bg-gray-900/80 border border-gray-700 backdrop-blur-md shadow-2xl rounded-xl w-full max-w-md p-8">
-          <div className="text-center mb-6">
-            <div className="mx-auto w-16 h-16 flex items-center justify-center rounded-full bg-indigo-500/20 text-indigo-400 text-3xl font-bold shadow-inner">
-              📝
+      {/* Main content */}
+      <main className="relative z-10 flex flex-1 items-center justify-center px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+        <div className="w-full max-w-md sm:max-w-lg">
+          <div className="overflow-hidden rounded-2xl border border-stone-200/70 bg-stone-50/65 shadow-xl shadow-stone-300/25 backdrop-blur-md sm:rounded-3xl">
+            <div className="border-b border-stone-200/60 bg-gradient-to-r from-stone-100/85 via-amber-50/80 to-orange-50/75 px-5 py-6 text-center sm:px-8 sm:py-8">
+              <h1 className="text-2xl font-bold tracking-tight text-stone-800 sm:text-3xl">
+                Create your account
+              </h1>
+              <p className="mt-2 text-sm text-stone-600 sm:text-base">
+                Join Rentr as a renter, owner, or admin
+              </p>
             </div>
-            <h1 className="text-2xl font-semibold mt-4 text-white">
-              Sign Up
-            </h1>
+
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-4 px-5 py-6 sm:space-y-5 sm:px-8 sm:py-8"
+            >
+              <div>
+                <label
+                  htmlFor="register-name"
+                  className="mb-1.5 block text-sm font-medium text-stone-600"
+                >
+                  Full name
+                </label>
+                <input
+                  id="register-name"
+                  type="text"
+                  name="name"
+                  value={data.name}
+                  onChange={handleChange}
+                  placeholder="Renter or owner name"
+                  autoComplete="name"
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="register-email"
+                  className="mb-1.5 block text-sm font-medium text-stone-600"
+                >
+                  Email
+                </label>
+                <input
+                  id="register-email"
+                  type="email"
+                  name="email"
+                  value={data.email}
+                  onChange={handleChange}
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="register-password"
+                  className="mb-1.5 block text-sm font-medium text-stone-600"
+                >
+                  Password
+                </label>
+                <input
+                  id="register-password"
+                  type="password"
+                  name="password"
+                  value={data.password}
+                  onChange={handleChange}
+                  placeholder="Choose a secure password"
+                  autoComplete="new-password"
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="register-type"
+                  className="mb-1.5 block text-sm font-medium text-stone-600"
+                >
+                  Account type
+                </label>
+                <select
+                  id="register-type"
+                  name="type"
+                  value={data.type}
+                  onChange={handleChange}
+                  className={`${inputClass} cursor-pointer`}
+                >
+                  <option value="">Select user type</option>
+                  <option value="Renter">Renter</option>
+                  <option value="Owner">Owner</option>
+                  <option value="Admin">Admin</option>
+                </select>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full rounded-xl bg-gradient-to-r from-amber-200 via-stone-300 to-orange-200 py-3 text-base font-semibold text-stone-800 shadow-md shadow-stone-300/50 transition hover:from-amber-300 hover:via-stone-400 hover:to-orange-300 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-amber-200 focus:ring-offset-2 focus:ring-offset-stone-50/80 active:scale-[0.99] sm:py-3.5"
+              >
+                Sign up
+              </button>
+
+              <p className="text-center text-sm text-stone-600">
+                Already have an account?{" "}
+                <Link
+                  to="/login"
+                  className="font-semibold text-amber-800 underline-offset-2 transition hover:text-amber-950 hover:underline"
+                >
+                  Sign in
+                </Link>
+              </p>
+            </form>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <input
-              type="text"
-              name="name"
-              value={data.name}
-              onChange={handleChange}
-              placeholder="Renter Full Name / Owner Name"
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400"
-            />
-            <input
-              type="email"
-              name="email"
-              value={data.email}
-              onChange={handleChange}
-              placeholder="Email Address"
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400"
-            />
-            <input
-              type="password"
-              name="password"
-              value={data.password}
-              onChange={handleChange}
-              placeholder="Password"
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400"
-            />
-
-            <select
-              name="type"
-              value={data.type}
-              onChange={handleChange}
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400"
-            >
-              <option value="">Select User Type</option>
-              <option value="Renter">Renter</option>
-              <option value="Owner">Owner</option>
-              <option value="Admin">Admin</option>
-            </select>
-
-            <button
-              type="submit"
-              className="w-full bg-indigo-600 text-white py-2 rounded-lg font-medium hover:bg-indigo-700 transition duration-200"
-            >
-              Sign Up
-            </button>
-
-            <div className="text-center text-red-400 text-sm mt-4">
-              Have an account?{" "}
-              <Link to="/login" className="text-indigo-600 hover:underline">
-                Sign In
-              </Link>
-            </div>
-          </form>
+          <p className="mt-6 text-center text-xs text-stone-600/90 drop-shadow-sm sm:text-sm">
+            By signing up, you agree to use Rentr responsibly.
+          </p>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

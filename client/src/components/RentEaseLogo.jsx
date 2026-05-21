@@ -24,7 +24,7 @@ const RentEaseLogo = ({
     <div className={`flex items-center gap-2.5 sm:gap-3 ${className}`}>
       <img
         src="/nobgimage.png"
-        alt={showText ? "" : "RentEase"}
+        alt={showText ? "" : "Rentr"}
         className={`${sizeClasses[size]} w-auto shrink-0 object-contain`}
         aria-hidden={showText}
       />
@@ -33,7 +33,7 @@ const RentEaseLogo = ({
           <span
             className={`text-xl font-bold tracking-tight sm:text-2xl ${textColorClasses[variant]}`}
           >
-            RentEase
+            Rentr
           </span>
           {subtitle && (
             <p
