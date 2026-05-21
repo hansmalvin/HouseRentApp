@@ -102,3 +102,113 @@ export function parsePropertyAddress(propertyAddress) {
 
   return { ...empty, streetAddress: raw, postalCode };
 }
+
+/** First comma-separated segment of propertyAddress (trimmed). */
+export function getFirstPartBeforeComma(propertyAddress) {
+  const raw = String(propertyAddress ?? "").trim();
+  if (!raw.includes(",")) return null;
+  return raw.split(",")[0].trim() || null;
+}
+
+const cityLookup = new Set(INDONESIA_CITIES.map((c) => c.toLowerCase()));
+
+function isKnownCity(name) {
+  return cityLookup.has(String(name ?? "").trim().toLowerCase());
+}
+
+/** Labels for home-page rows from propertyAddress (city, district, first segment). */
+export function getHomePropertyGroupLabels(property) {
+  const address = String(property?.propertyAddress ?? "").trim();
+  if (!address.includes(",")) {
+    return { popular: null, stay: null, other: true };
+  }
+
+  const firstPart = getFirstPartBeforeComma(address);
+  const { city, district } = parsePropertyAddress(address);
+
+  let popularLabel = city || null;
+  let stayLabel = district || null;
+
+  if (!popularLabel && firstPart && isKnownCity(firstPart)) {
+    popularLabel = firstPart;
+  }
+  if (!stayLabel && firstPart && firstPart !== popularLabel) {
+    stayLabel = firstPart;
+  }
+  if (!popularLabel && !stayLabel && firstPart) {
+    stayLabel = firstPart;
+  }
+
+  return { popular: popularLabel, stay: stayLabel, other: false };
+}
+
+/** Pick one location: highest property count, then A–Z on ties. */
+function pickWinningLocation(groupMap) {
+  if (groupMap.size === 0) return null;
+
+  const maxCount = Math.max(
+    ...[...groupMap.values()].map((items) => items.length)
+  );
+
+  const tiedLabels = [...groupMap.entries()]
+    .filter(([, items]) => items.length === maxCount)
+    .map(([label]) => label)
+    .sort((a, b) => a.localeCompare(b, "id"));
+
+  return tiedLabels[0] ?? null;
+}
+
+export function groupPropertiesForHomeSections(properties) {
+  const popular = new Map();
+  const stay = new Map();
+  const other = [];
+
+  for (const property of properties) {
+    const { popular: popularLabel, stay: stayLabel, other: isOther } =
+      getHomePropertyGroupLabels(property);
+
+    if (isOther) {
+      other.push(property);
+      continue;
+    }
+
+    if (popularLabel) {
+      if (!popular.has(popularLabel)) popular.set(popularLabel, []);
+      popular.get(popularLabel).push(property);
+    }
+    if (stayLabel) {
+      if (!stay.has(stayLabel)) stay.set(stayLabel, []);
+      stay.get(stayLabel).push(property);
+    }
+  }
+
+  const sections = [];
+
+  const winningPopular = pickWinningLocation(popular);
+  if (winningPopular) {
+    sections.push({
+      id: `popular-${winningPopular}`,
+      title: `Popular homes in ${winningPopular}`,
+      properties: popular.get(winningPopular),
+    });
+  }
+
+  const winningStay = pickWinningLocation(stay);
+  if (winningStay) {
+    sections.push({
+      id: `stay-${winningStay}`,
+      title: `Stay in ${winningStay}`,
+      properties: stay.get(winningStay),
+    });
+  }
+
+  if (other.length > 0) {
+    sections.push({
+      id: "other-places",
+      title: "Other places",
+      properties: other,
+    });
+  }
+
+  return sections;
+}
