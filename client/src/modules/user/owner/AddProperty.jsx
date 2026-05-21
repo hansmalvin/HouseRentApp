@@ -3,7 +3,9 @@ import axios from "axios";
 import { message } from "antd";
 import { useNavigate } from "react-router-dom";
 import OwnerContactInput from "../../../components/OwnerContactInput";
+import IndonesiaPropertyAddressFields from "../../../components/IndonesiaPropertyAddressFields";
 import { formatPropertyAmount, parsePropertyAmountInput } from "../../../utils/propertyFormat";
+import { buildPropertyAddress } from "../../../utils/propertyAddress";
 import {
   buildOwnerContact,
   DEFAULT_DIAL_CODE,
@@ -21,11 +23,14 @@ function AddProperty() {
   const [propertyDetails, setPropertyDetails] = useState({
     propertyType: "residential",
     propertyAdType: "rent",
-    propertyAddress: "",
     ownerContact: "",
     propertyAmt: 0,
     additionalInfo: "",
   });
+  const [addressCity, setAddressCity] = useState("");
+  const [addressDistrict, setAddressDistrict] = useState("");
+  const [addressStreet, setAddressStreet] = useState("");
+  const [addressPostalCode, setAddressPostalCode] = useState("");
   const [contactDialCode, setContactDialCode] = useState(DEFAULT_DIAL_CODE);
   const [contactNumber, setContactNumber] = useState("");
   const navigate = useNavigate();
@@ -57,7 +62,15 @@ function AddProperty() {
     const formData = new FormData();
     formData.append("propertyType", propertyDetails.propertyType);
     formData.append("propertyAdType", propertyDetails.propertyAdType);
-    formData.append("propertyAddress", propertyDetails.propertyAddress);
+    formData.append(
+      "propertyAddress",
+      buildPropertyAddress({
+        city: addressCity,
+        district: addressDistrict,
+        streetAddress: addressStreet,
+        postalCode: addressPostalCode,
+      })
+    );
     formData.append("ownerContact", buildOwnerContact(contactDialCode, contactNumber));
     formData.append("propertyAmt", propertyDetails.propertyAmt);
     formData.append("additionalInfo", propertyDetails.additionalInfo);
@@ -80,11 +93,14 @@ function AddProperty() {
         setPropertyDetails({
           propertyType: "residential",
           propertyAdType: "rent",
-          propertyAddress: "",
           ownerContact: "",
           propertyAmt: 0,
           additionalInfo: "",
         });
+        setAddressCity("");
+        setAddressDistrict("");
+        setAddressStreet("");
+        setAddressPostalCode("");
         setContactDialCode(DEFAULT_DIAL_CODE);
         setContactNumber("");
         setImage(null);
@@ -113,7 +129,7 @@ function AddProperty() {
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2">
           <div>
             <label className={labelClass}>Property type</label>
             <select
@@ -142,20 +158,18 @@ function AddProperty() {
               <option value="sale">Sale</option>
             </select>
           </div>
-
-          <div>
-            <label className={labelClass}>Full address</label>
-            <input
-              type="text"
-              name="propertyAddress"
-              value={propertyDetails.propertyAddress}
-              onChange={handleChange}
-              placeholder="Street, city, postal code"
-              required
-              className={fieldClass}
-            />
-          </div>
         </div>
+
+        <IndonesiaPropertyAddressFields
+          city={addressCity}
+          district={addressDistrict}
+          streetAddress={addressStreet}
+          postalCode={addressPostalCode}
+          onCityChange={setAddressCity}
+          onDistrictChange={setAddressDistrict}
+          onStreetAddressChange={setAddressStreet}
+          onPostalCodeChange={setAddressPostalCode}
+        />
 
         <div className="grid gap-6 md:grid-cols-3">
           <div>

@@ -3,11 +3,16 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import DeletePropertyModal from "../../../components/DeletePropertyModal";
+import IndonesiaPropertyAddressFields from "../../../components/IndonesiaPropertyAddressFields";
 import OwnerContactInput from "../../../components/OwnerContactInput";
 import {
   formatPropertyAmount,
   parsePropertyAmountInput,
 } from "../../../utils/propertyFormat";
+import {
+  buildPropertyAddress,
+  parsePropertyAddress,
+} from "../../../utils/propertyAddress";
 import {
   buildOwnerContact,
   DEFAULT_DIAL_CODE,
@@ -30,6 +35,10 @@ const OwnerAllProperties = () => {
   const [show, setShow] = useState(false);
   const [editDialCode, setEditDialCode] = useState(DEFAULT_DIAL_CODE);
   const [editContactNumber, setEditContactNumber] = useState("");
+  const [editAddressCity, setEditAddressCity] = useState("");
+  const [editAddressDistrict, setEditAddressDistrict] = useState("");
+  const [editAddressStreet, setEditAddressStreet] = useState("");
+  const [editAddressPostalCode, setEditAddressPostalCode] = useState("");
   const [propertyToDelete, setPropertyToDelete] = useState(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
@@ -40,14 +49,23 @@ const OwnerAllProperties = () => {
     setImage(null);
     setEditDialCode(DEFAULT_DIAL_CODE);
     setEditContactNumber("");
+    setEditAddressCity("");
+    setEditAddressDistrict("");
+    setEditAddressStreet("");
+    setEditAddressPostalCode("");
   }, []);
 
   const handleShow = (property) => {
     const { dialCode, nationalNumber } = parseOwnerContact(property.ownerContact);
+    const address = parsePropertyAddress(property.propertyAddress);
     setEditingPropertyId(property._id);
     setEditingPropertyData(property);
     setEditDialCode(dialCode);
     setEditContactNumber(nationalNumber);
+    setEditAddressCity(address.city);
+    setEditAddressDistrict(address.district);
+    setEditAddressStreet(address.streetAddress);
+    setEditAddressPostalCode(address.postalCode);
     setShow(true);
   };
 
@@ -133,13 +151,22 @@ const OwnerAllProperties = () => {
         "additionalInfo",
       ];
       const ownerContact = buildOwnerContact(editDialCode, editContactNumber);
+      const builtAddress = buildPropertyAddress({
+        city: editAddressCity,
+        district: editAddressDistrict,
+        streetAddress: editAddressStreet,
+        postalCode: editAddressPostalCode,
+      });
+
       editableFields.forEach((field) => {
         const value =
           field === "ownerContact"
             ? ownerContact
-            : field === "propertyAmt"
-              ? editingPropertyData.propertyAmt ?? 0
-              : editingPropertyData[field] ?? "";
+            : field === "propertyAddress"
+              ? builtAddress
+              : field === "propertyAmt"
+                ? editingPropertyData.propertyAmt ?? 0
+                : editingPropertyData[field] ?? "";
         formData.append(field, value);
       });
       if (image) formData.append("propertyImage", image);
@@ -360,20 +387,19 @@ const OwnerAllProperties = () => {
             </div>
 
             <div className="rounded-xl border border-indigo-100 border-l-4 border-l-rose-300 bg-rose-50/40 p-4 shadow-sm">
-              <label
-                htmlFor="edit-propertyAddress"
-                className="text-sm font-semibold text-slate-700"
-              >
-                Property address
-              </label>
-              <input
-                id="edit-propertyAddress"
-                type="text"
-                name="propertyAddress"
-                value={editingPropertyData.propertyAddress}
-                onChange={handleChange}
-                placeholder="e.g. 12 Main Street, City"
-                className={editFieldClass}
+              <IndonesiaPropertyAddressFields
+                city={editAddressCity}
+                district={editAddressDistrict}
+                streetAddress={editAddressStreet}
+                postalCode={editAddressPostalCode}
+                onCityChange={setEditAddressCity}
+                onDistrictChange={setEditAddressDistrict}
+                onStreetAddressChange={setEditAddressStreet}
+                onPostalCodeChange={setEditAddressPostalCode}
+                cityId="edit-property-city"
+                districtId="edit-property-district"
+                streetId="edit-property-street"
+                postalId="edit-property-postal"
               />
             </div>
 
