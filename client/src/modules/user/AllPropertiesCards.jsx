@@ -40,14 +40,14 @@ const AllPropertiesCards = ({ loggedIn }) => {
       );
 
       if (res.data.success) {
-        showToast(res.data.message);
+        showToast("success", res.data.message);
         setShowModal(false);
       } else {
-        showToast(res.data.message);
+        showToast("error", res.data.message);
       }
     } catch (error) {
       console.log(error);
-      showToast("Booking failed");
+      showToast("error", "Booking failed");
     }
   };
 

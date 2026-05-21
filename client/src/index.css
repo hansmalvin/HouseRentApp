@@ -1,1 +1,69 @@
 @import "tailwindcss";
+
+@keyframes toast-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.toast-slide-in {
+  animation: toast-slide-in 0.35s ease-out;
+}
+
+/* Ant Design message — match owner/admin light theme */
+.ant-message .ant-message-notice-content {
+  border-radius: 0.75rem !important;
+  border: 1px solid rgb(224 231 255) !important;
+  box-shadow:
+    0 10px 15px -3px rgb(99 102 241 / 0.12),
+    0 4px 6px -4px rgb(99 102 241 / 0.08) !important;
+  padding: 0.625rem 1rem !important;
+  font-weight: 500 !important;
+}
+
+.ant-message-success .ant-message-notice-content {
+  background: rgb(236 253 245) !important;
+  border-color: rgb(167 243 208) !important;
+  color: rgb(6 78 59) !important;
+}
+
+.ant-message-success .anticon {
+  color: rgb(5 150 105) !important;
+}
+
+.ant-message-error .ant-message-notice-content {
+  background: rgb(255 241 242) !important;
+  border-color: rgb(254 205 211) !important;
+  color: rgb(136 19 55) !important;
+}
+
+.ant-message-error .anticon {
+  color: rgb(225 29 72) !important;
+}
+
+.ant-message-warning .ant-message-notice-content {
+  background: rgb(255 251 235) !important;
+  border-color: rgb(253 230 138) !important;
+  color: rgb(120 53 15) !important;
+}
+
+.ant-message-warning .anticon {
+  color: rgb(217 119 6) !important;
+}
+
+.ant-message-info .ant-message-notice-content,
+.ant-message-loading .ant-message-notice-content {
+  background: rgb(238 242 255) !important;
+  border-color: rgb(199 210 254) !important;
+  color: rgb(49 46 129) !important;
+}
+
+.ant-message-info .anticon,
+.ant-message-loading .anticon {
+  color: rgb(79 70 229) !important;
+}

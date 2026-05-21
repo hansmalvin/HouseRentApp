@@ -26,11 +26,11 @@ const AdminAllProperty = () => {
       }
     } catch (error) {
       console.error(error);
-      if (error.response && error.response.status === 401) {
+      if (error.response?.status === 401) {
         message.error("Session expired, please login again");
         navigate("/login");
       } else {
-        message.error("Failed to fetch Property");
+        message.error("Failed to fetch properties");
       }
     }
   };
@@ -40,62 +40,64 @@ const AdminAllProperty = () => {
   }, []);
 
   return (
-    <div className="overflow-x-auto mt-6">
-      <table className="min-w-full border border-gray-700 bg-gray-900/80 backdrop-blur-md shadow-2xl rounded-xl overflow-hidden">
-        <thead className="bg-indigo-600/80 text-white">
-          <tr>
-            <th className="py-3 px-4 text-left">Property ID</th>
-            <th className="py-3 px-4 text-center">Owner ID</th>
-            <th className="py-3 px-4 text-center">Property Type</th>
-            <th className="py-3 px-4 text-center">Property Ad Type</th>
-            <th className="py-3 px-4 text-center">Property Address</th>
-            <th className="py-3 px-4 text-center">Owner Contact</th>
-            <th className="py-3 px-4 text-center">Property Amt</th>
-          </tr>
-        </thead>
-        <tbody>
-          {allProperties.length > 0 ? (
-            allProperties.map((property, index) => (
-              <tr
-                key={property._id}
-                className={`transition duration-200 ${index % 2 === 0 ? "bg-gray-800/60" : "bg-gray-900/60"
-                  } hover:bg-indigo-500/20`}
-              >
-                <td className="py-2 px-4 border-b border-gray-700 text-gray-200">
-                  {property._id}
-                </td>
-                <td className="py-2 px-4 border-b border-gray-700 text-center text-gray-300">
-                  {property.ownerId}
-                </td>
-                <td className="py-2 px-4 border-b border-gray-700 text-center text-indigo-400 font-medium">
-                  {property.propertyType}
-                </td>
-                <td className="py-2 px-4 border-b border-gray-700 text-center text-gray-300">
-                  {property.propertyAdType || "N/A"}
-                </td>
-                <td className="py-2 px-4 border-b border-gray-700 text-center text-gray-300">
-                  {property.propertyAddress}
-                </td>
-                <td className="py-2 px-4 border-b border-gray-700 text-center text-gray-300">
-                  {formatOwnerContactDisplay(property.ownerContact)}
-                </td>
-                <td className="py-2 px-4 border-b border-gray-700 text-center font-semibold text-green-400">
-                  Rp {formatPropertyAmount(property.propertyAmt)}
+    <div>
+      <h2 className="mb-1 text-xl font-bold text-indigo-700">All properties</h2>
+      <p className="mb-6 text-sm text-slate-500">
+        Every listing published on the platform, across all owners.
+      </p>
+
+      <div className="overflow-x-auto rounded-2xl border border-indigo-100 bg-white shadow-sm">
+        <table className="w-full text-left text-sm text-slate-700">
+          <thead className="bg-indigo-100/90 text-indigo-900">
+            <tr>
+              <th className="px-4 py-3">Property ID</th>
+              <th className="px-4 py-3 text-center">Owner ID</th>
+              <th className="px-4 py-3 text-center">Property type</th>
+              <th className="px-4 py-3 text-center">Ad type</th>
+              <th className="px-4 py-3 text-center">Address</th>
+              <th className="px-4 py-3 text-center">Owner contact</th>
+              <th className="px-4 py-3 text-center">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {allProperties.length > 0 ? (
+              allProperties.map((property) => (
+                <tr
+                  key={property._id}
+                  className="border-t border-indigo-50 transition duration-200 even:bg-indigo-50/30 hover:bg-sky-50/50"
+                >
+                  <td className="px-4 py-3">{property._id}</td>
+                  <td className="px-4 py-3 text-center">{property.ownerId}</td>
+                  <td className="px-4 py-3 text-center font-medium text-indigo-700">
+                    {property.propertyType}
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    {property.propertyAdType || "N/A"}
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    {property.propertyAddress}
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    {formatOwnerContactDisplay(property.ownerContact)}
+                  </td>
+                  <td className="px-4 py-3 text-center font-semibold text-slate-800">
+                    Rp {formatPropertyAmount(property.propertyAmt)}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan={7}
+                  className="px-4 py-8 text-center text-slate-400"
+                >
+                  No properties found
                 </td>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td
-                colSpan="7"
-                className="text-center py-6 text-gray-400 font-medium italic"
-              >
-                No properties found
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
