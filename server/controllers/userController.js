@@ -7,6 +7,20 @@ const bookingSchema = require("../models/BookingSchema");
 //////////for registering/////////////////////////////
 const registerController = async (req, res) => {
   try {
+    if (req.body.type === "Admin") {
+      return res.status(403).send({
+        message: "Admin accounts cannot be registered",
+        success: false,
+      });
+    }
+
+    if (!["Renter", "Owner"].includes(req.body.type)) {
+      return res.status(400).send({
+        message: "Invalid account type",
+        success: false,
+      });
+    }
+
     let granted = "";
     const existsUser = await userSchema.findOne({ email: req.body.email });
     if (existsUser) {
@@ -44,6 +58,39 @@ const registerController = async (req, res) => {
 ////for the login
 const loginController = async (req, res) => {
   try {
+    const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    const loginEmail = req.body.email?.trim().toLowerCase();
+
+    if (
+      adminEmail &&
+      adminPassword &&
+      loginEmail === adminEmail &&
+      req.body.password === adminPassword
+    ) {
+      const token = jwt.sign({ id: "admin", role: "Admin" }, process.env.JWT_KEY, {
+        expiresIn: "1d",
+      });
+
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "strict",
+        maxAge: 24 * 60 * 60 * 1000,
+      });
+
+      return res.status(200).send({
+        message: "Login success successfully",
+        success: true,
+        user: {
+          _id: "admin",
+          name: "Admin",
+          email: process.env.ADMIN_EMAIL?.trim(),
+          type: "Admin",
+        },
+      });
+    }
+
     const user = await userSchema.findOne({ email: req.body.email });
     if (!user) {
       return res

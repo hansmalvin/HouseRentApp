@@ -116,7 +116,7 @@ const Register = () => {
                 Create your account
               </h1>
               <p className="mt-2 text-sm text-stone-600 sm:text-base">
-                Join Rentr as a renter, owner, or admin
+                Join Rentr as a renter or property owner
               </p>
             </div>
 
@@ -182,24 +182,32 @@ const Register = () => {
               </div>
 
               <div>
-                <label
-                  htmlFor="register-type"
-                  className="mb-1.5 block text-sm font-medium text-stone-600"
-                >
+                <span className="mb-2 block text-sm font-medium text-stone-600">
                   Account type
-                </label>
-                <select
-                  id="register-type"
-                  name="type"
-                  value={data.type}
-                  onChange={handleChange}
-                  className={`${inputClass} cursor-pointer`}
-                >
-                  <option value="">Select user type</option>
-                  <option value="Renter">Renter</option>
-                  <option value="Owner">Owner</option>
-                  <option value="Admin">Admin</option>
-                </select>
+                </span>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { value: "Renter", label: "Renter" },
+                    { value: "Owner", label: "Owner" },
+                  ].map(({ value, label }) => {
+                    const selected = data.type === value;
+                    return (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => setData({ ...data, type: value })}
+                        className={`rounded-xl border px-4 py-3 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-amber-200 focus:ring-offset-2 focus:ring-offset-stone-50/80 ${
+                          selected
+                            ? "border-amber-300 bg-gradient-to-r from-amber-100 via-stone-200 to-orange-100 text-stone-800 shadow-md ring-1 ring-amber-200/80"
+                            : "border-stone-200/90 bg-white/75 text-stone-600 hover:border-amber-200 hover:bg-amber-50/50"
+                        }`}
+                        aria-pressed={selected}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               <button

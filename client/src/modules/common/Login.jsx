@@ -205,7 +205,7 @@ const Login = () => {
           </div>
 
           <p className="mt-6 text-center text-xs text-stone-600/90 drop-shadow-sm sm:text-sm">
-            Secure access for renters, owners, and admins.
+            Secure access for renters, owners, and administrators.
           </p>
         </div>
       </main>
