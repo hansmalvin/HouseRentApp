@@ -94,7 +94,7 @@ const AdminHome = () => {
         </div>
 
         <div
-          className="rounded-b-2xl rounded-tr-2xl border border-indigo-100 bg-white/90 p-5 shadow-lg backdrop-blur-sm sm:p-8"
+          className="min-w-0 overflow-hidden rounded-b-2xl rounded-tr-2xl border border-indigo-100 bg-white/90 p-5 shadow-lg backdrop-blur-sm sm:p-8"
           role="tabpanel"
         >
           <p className="mb-6 text-sm text-slate-500">

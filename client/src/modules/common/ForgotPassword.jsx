@@ -6,6 +6,9 @@ import RentEaseLogo from "../../components/RentEaseLogo";
 
 axios.defaults.withCredentials = true;
 
+const inputClass =
+  "w-full rounded-xl border border-stone-200/90 bg-white/75 px-4 py-2.5 text-stone-700 shadow-sm placeholder:text-stone-400 backdrop-blur-sm transition focus:border-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-100/90 sm:py-3";
+
 const ForgotPassword = () => {
   const navigate = useNavigate();
   const [toast, setToast] = useState({ show: false, type: "", message: "" });
@@ -15,11 +18,9 @@ const ForgotPassword = () => {
     confirmPassword: "",
   });
 
-
   const showToast = (type, message) => {
     setToast({ show: true, type, message });
   };
-
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,22 +47,21 @@ const ForgotPassword = () => {
 
       if (res.data.success) {
         showToast("success", "Your password has been changed!");
-        navigate("/login");
+        setTimeout(() => navigate("/login"), 1000);
       } else {
         showToast("error", res.data.message);
       }
     } catch (err) {
-      if (err.response && err.response.status === 401) {
+      if (err.response?.status === 401) {
         showToast("error", "User doesn't exist");
       } else {
         showToast("error", "Something went wrong. Please try again.");
       }
-      navigate("/register");
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-800 via-gray-900 to-black flex flex-col">
+    <div className="relative flex min-h-[100dvh] flex-col overflow-x-hidden">
       {toast.show && (
         <Toast
           type={toast.type}
@@ -69,85 +69,153 @@ const ForgotPassword = () => {
           onClose={() => setToast({ ...toast, show: false })}
         />
       )}
-      {/* Navbar */}
-     <nav className="fixed top-0 left-0 w-full z-50 bg-black/30 backdrop-blur-lg shadow-md py-4 px-8 flex justify-between items-center">
-             <RentEaseLogo to="/" variant="dark" size="lg" />
-             <div className="space-x-8 text-lg">
-               <Link to="/" className="text-gray-200 hover:text-indigo-400 transition">
-                 Home
-               </Link>
-               <Link to="/login" className="text-gray-200 hover:text-indigo-400 transition">
-                 Login
-               </Link>
-               <Link
-                 to="/register"
-                 className="text-black bg-indigo-400 px-4 py-2 rounded-lg shadow hover:bg-indigo-500 transition"
-               >
-                 Register
-               </Link>
-             </div>
-           </nav>
 
-      {/* Forgot Password Form */}
-      <div className="flex-grow flex justify-center items-center px-4">
-        <div className="bg-gray-900/80 border border-gray-700 backdrop-blur-md shadow-2xl rounded-xl w-full max-w-md p-8">
-          <div className="text-center mb-6">
-            <div className="mx-auto w-16 h-16 flex items-center justify-center rounded-full bg-indigo-500/20 text-indigo-600 text-3xl font-bold shadow-inner">
-              🔑
+      <div
+        className="pointer-events-none absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/signin.png')" }}
+        aria-hidden
+      />
+
+      <div
+        className="pointer-events-none absolute inset-0 bg-gradient-to-br from-stone-100/35 via-amber-50/30 to-orange-50/25"
+        aria-hidden
+      />
+
+      <nav className="relative z-20 border-b border-stone-200/50 bg-stone-50/40 px-4 py-3 shadow-sm backdrop-blur-md sm:px-6 sm:py-4">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
+          <RentEaseLogo to="/" variant="light" size="md" className="shrink-0" />
+          <div className="flex flex-wrap items-center justify-end gap-2 text-sm font-medium sm:gap-6 sm:text-base">
+            <Link
+              to="/"
+              className="rounded-lg px-3 py-1.5 text-stone-700 transition hover:bg-white/50 hover:text-amber-900"
+            >
+              Home
+            </Link>
+            <Link
+              to="/login"
+              className="rounded-xl bg-gradient-to-r from-amber-100 to-stone-200 px-4 py-2 text-stone-800 shadow-sm ring-1 ring-stone-200/80 transition hover:from-amber-200 hover:to-stone-300 hover:shadow-md"
+            >
+              Login
+            </Link>
+            <Link
+              to="/register"
+              className="rounded-lg px-3 py-1.5 text-stone-700 transition hover:bg-white/50 hover:text-amber-900"
+            >
+              Register
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      <main className="relative z-10 flex flex-1 items-center justify-center px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+        <div className="w-full max-w-md sm:max-w-lg">
+          <div className="overflow-hidden rounded-2xl border border-stone-200/70 bg-stone-50/65 shadow-xl shadow-stone-300/25 backdrop-blur-md sm:rounded-3xl">
+            <div className="border-b border-stone-200/60 bg-gradient-to-r from-stone-100/85 via-amber-50/80 to-orange-50/75 px-5 py-6 text-center sm:px-8 sm:py-8">
+              <h1 className="text-2xl font-bold tracking-tight text-stone-800 sm:text-3xl">
+                Reset your password
+              </h1>
+              <p className="mt-2 text-sm text-stone-600 sm:text-base">
+                Enter your email and choose a new password
+              </p>
             </div>
-            <h1 className="text-2xl font-semibold mt-4 text-white">
-              Forgot Password?
-            </h1>
-            <p className="text-white text-sm mt-1">
-              Enter your email and new password to reset your account
-            </p>
+
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-4 px-5 py-6 sm:space-y-5 sm:px-8 sm:py-8"
+            >
+              <div>
+                <label
+                  htmlFor="forgot-email"
+                  className="mb-1.5 block text-sm font-medium text-stone-600"
+                >
+                  Email
+                </label>
+                <input
+                  id="forgot-email"
+                  type="email"
+                  name="email"
+                  value={data.email}
+                  onChange={handleChange}
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="forgot-password"
+                  className="mb-1.5 block text-sm font-medium text-stone-600"
+                >
+                  New password
+                </label>
+                <input
+                  id="forgot-password"
+                  type="password"
+                  name="password"
+                  value={data.password}
+                  onChange={handleChange}
+                  placeholder="Choose a secure password"
+                  autoComplete="new-password"
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="forgot-confirm-password"
+                  className="mb-1.5 block text-sm font-medium text-stone-600"
+                >
+                  Confirm password
+                </label>
+                <input
+                  id="forgot-confirm-password"
+                  type="password"
+                  name="confirmPassword"
+                  value={data.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="Re-enter your password"
+                  autoComplete="new-password"
+                  className={inputClass}
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full rounded-xl bg-gradient-to-r from-amber-200 via-stone-300 to-orange-200 py-3 text-base font-semibold text-stone-800 shadow-md shadow-stone-300/50 transition hover:from-amber-300 hover:via-stone-400 hover:to-orange-300 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-amber-200 focus:ring-offset-2 focus:ring-offset-stone-50/80 active:scale-[0.99] sm:py-3.5"
+              >
+                Change password
+              </button>
+
+              <p className="text-center text-sm text-stone-600">
+                Remember your password?{" "}
+                <Link
+                  to="/login"
+                  className="font-semibold text-amber-800 underline-offset-2 transition hover:text-amber-950 hover:underline"
+                >
+                  Sign in
+                </Link>
+              </p>
+
+              <p className="text-center text-sm text-stone-600">
+                Don&apos;t have an account?{" "}
+                <Link
+                  to="/register"
+                  className="font-semibold text-amber-800 underline-offset-2 transition hover:text-amber-950 hover:underline"
+                >
+                  Sign up
+                </Link>
+              </p>
+            </form>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <input
-              type="email"
-              name="email"
-              value={data.email}
-              onChange={handleChange}
-              placeholder="Email Address"
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400"
-            />
-            <input
-              type="password"
-              name="password"
-              value={data.password}
-              onChange={handleChange}
-              placeholder="New Password"
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400"
-            />
-            <input
-              type="password"
-              name="confirmPassword"
-              value={data.confirmPassword}
-              onChange={handleChange}
-              placeholder="Confirm Password"
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400"
-            />
-
-            <button
-              type="submit"
-              className="w-full bg-indigo-600 text-white py-2 rounded-lg font-medium hover:bg-indigo-700 transition duration-200"
-            >
-              Change Password
-            </button>
-
-            <div className="text-center text-red-400 text-sm mt-4">
-              Don't have an account?{" "}
-              <Link to="/register" className="text-indigo-600 hover:underline">
-                Sign Up
-              </Link>
-            </div>
-          </form>
+          <p className="mt-6 text-center text-xs text-stone-600/90 drop-shadow-sm sm:text-sm">
+            Use the email linked to your Rentr account.
+          </p>
         </div>
-      </div>
+      </main>
     </div>
   );
 };
 
 export default ForgotPassword;
-

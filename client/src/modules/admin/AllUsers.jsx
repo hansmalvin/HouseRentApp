@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import Toast from "../common/Toast";
 import { useNavigate } from "react-router-dom";
+import AdminTableToolbar from "../../components/AdminTableToolbar";
+import { applySearchAndSort } from "../../utils/adminTableFilters";
 
 axios.defaults.withCredentials = true;
 
 const AllUsers = () => {
   const [allUser, setAllUser] = useState([]);
+  const [search, setSearch] = useState("");
+  const [sortAsc, setSortAsc] = useState(true);
   const [toast, setToast] = useState({ show: false, type: "", message: "" });
   const navigate = useNavigate();
 
@@ -59,8 +63,22 @@ const AllUsers = () => {
     }
   };
 
+  const displayedUsers = useMemo(
+    () =>
+      applySearchAndSort(allUser, {
+        search,
+        sortAsc,
+        getSearchableText: (user) =>
+          [user.name, user.email, user.type, user.granted, user._id]
+            .filter(Boolean)
+            .join(" "),
+        getSortValue: (user) => user.name,
+      }),
+    [allUser, search, sortAsc]
+  );
+
   return (
-    <div>
+    <div className="min-w-0 w-full">
       {toast.show && (
         <Toast
           type={toast.type}
@@ -70,31 +88,40 @@ const AllUsers = () => {
       )}
 
       <h2 className="mb-1 text-xl font-bold text-indigo-700">All users</h2>
-      <p className="mb-6 text-sm text-slate-500">
+      <p className="mb-4 text-sm text-slate-500">
         Review accounts and grant or revoke owner access.
       </p>
 
-      <div className="overflow-x-auto rounded-2xl border border-indigo-100 bg-white shadow-sm">
+      <div className="w-full min-w-0 overflow-hidden rounded-2xl border border-indigo-100 bg-white shadow-sm">
+        <div className="border-b border-indigo-50 px-4 py-4 sm:px-5">
+          <AdminTableToolbar
+            search={search}
+            onSearchChange={setSearch}
+            sortAsc={sortAsc}
+            onSortToggle={() => setSortAsc((prev) => !prev)}
+            placeholder="Search by name, email, type…"
+          />
+        </div>
+        <div className="overflow-x-auto">
         <table className="w-full text-left text-sm text-slate-700">
           <thead className="bg-indigo-100/90 text-indigo-900">
             <tr>
-              <th className="px-4 py-3">User ID</th>
-              <th className="px-4 py-3 text-center">Name</th>
+              <th className="px-4 py-3">Name</th>
               <th className="px-4 py-3 text-center">Email</th>
               <th className="px-4 py-3 text-center">Type</th>
               <th className="px-4 py-3 text-center">Granted (owners only)</th>
               <th className="px-4 py-3 text-center">Actions</th>
+              <th className="whitespace-nowrap px-4 py-3 text-right">User ID</th>
             </tr>
           </thead>
           <tbody>
-            {allUser.length > 0 ? (
-              allUser.map((user) => (
+            {displayedUsers.length > 0 ? (
+              displayedUsers.map((user) => (
                 <tr
                   key={user._id}
                   className="border-t border-indigo-50 transition duration-200 even:bg-indigo-50/30 hover:bg-sky-50/50"
                 >
-                  <td className="px-4 py-3">{user._id}</td>
-                  <td className="px-4 py-3 text-center">{user.name}</td>
+                  <td className="px-4 py-3 font-medium">{user.name}</td>
                   <td className="px-4 py-3 text-center">{user.email}</td>
                   <td className="px-4 py-3 text-center font-medium text-indigo-700">
                     {user.type}
@@ -133,6 +160,9 @@ const AllUsers = () => {
                       )}
                     </div>
                   </td>
+                  <td className="whitespace-nowrap px-4 py-3 text-right font-mono text-xs text-slate-500">
+                    {user._id}
+                  </td>
                 </tr>
               ))
             ) : (
@@ -141,12 +171,13 @@ const AllUsers = () => {
                   colSpan={6}
                   className="px-4 py-8 text-center text-slate-400"
                 >
-                  No users found
+                  {allUser.length === 0 ? "No users found" : "No matching users"}
                 </td>
               </tr>
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );
