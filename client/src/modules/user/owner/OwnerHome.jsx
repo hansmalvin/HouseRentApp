@@ -10,21 +10,21 @@ import AddProperty from "./AddProperty";
 import AllProperties from "./AllProperties";
 import AllBookings from "./AllBookings";
 
-const tabs = [
+const buildTabs = (isAdmin) => [
   {
     name: "Add My Property",
     description: "List a new property for rent or sale",
-    component: <AddProperty />,
+    component: <AddProperty isAdmin={isAdmin} />,
   },
   {
     name: "My Properties",
     description: "View and manage your listings",
-    component: <AllProperties />,
+    component: <AllProperties isAdmin={isAdmin} />,
   },
   {
     name: "All Related Bookings",
     description: "Booking requests for your properties",
-    component: <AllBookings />,
+    component: <AllBookings isAdmin={isAdmin} />,
   },
 ];
 
@@ -35,6 +35,8 @@ const OwnerHome = () => {
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
 
   if (!user || !user.userData) return null;
+  const isAdmin = user.userData.type === "Admin";
+  const tabs = buildTabs(isAdmin);
 
   const handleLogOut = () => {
     document.cookie =

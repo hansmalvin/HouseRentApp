@@ -5,7 +5,7 @@ import { formatPropertyAmount } from "../../utils/propertyFormat";
 import { formatOwnerContactDisplay } from "../../utils/phoneContact";
 
 
-const AllPropertiesCards = ({ loggedIn }) => {
+const AllPropertiesCards = ({ loggedIn, isAdmin = false }) => {
   const [allProperties, setAllProperties] = useState([]);
   const [filterPropertyType, setPropertyType] = useState("");
   const [filterPropertyAdType, setPropertyAdType] = useState("");
@@ -166,7 +166,9 @@ const AllPropertiesCards = ({ loggedIn }) => {
                   loggedIn ? (
                     <button
                       onClick={() => openModal(property)}
-                      className="mt-3 w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition"
+                      disabled={isAdmin}
+                      title={isAdmin ? "Admins cannot book properties" : undefined}
+                      className="mt-3 w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       Get Info / Book
                     </button>
@@ -263,7 +265,9 @@ const AllPropertiesCards = ({ loggedIn }) => {
               />
               <button
                 type="submit"
-                className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition"
+                disabled={isAdmin}
+                title={isAdmin ? "Admins cannot book properties" : undefined}
+                className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Book Property
               </button>

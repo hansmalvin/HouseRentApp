@@ -16,6 +16,18 @@ import OwnerAllProperties from "./modules/user/owner/AllProperties";
 import AllPropertiesCards from "./modules/user/AllPropertiesCards";
 import { createContext, useEffect, useState } from "react";
 
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const stored = localStorage.getItem("user");
+  if (!stored) return <Navigate to="/login" replace />;
+  try {
+    const user = JSON.parse(stored);
+    if (!allowedRoles.includes(user.type)) return <Navigate to="/login" replace />;
+    return children;
+  } catch {
+    return <Navigate to="/login" replace />;
+  }
+};
+
 export const UserContext = createContext();
 
 function App() {
@@ -44,17 +56,46 @@ function App() {
           <Route path='/login' element={<Login />} />
           <Route path='/register' element={<Register />} />
           <Route path='/forgotpassword' element={<ForgotPassword />} />
-          <Route path='/adminhome' element={<AdminHome />} />
-          <Route path='/ownerhome' element={<OwnerHome />} />
-          <Route path='/renterhome' element={<RenterHome />} />
-          <Route path='/getallbookings' element={<AdminAllBookings />} />
-          <Route path='/getallproperties' element={<AdminAllProperty />} />
-          <Route path='/getallusers' element={<AllUsers />} />
-          <Route path='/postproperty' element={<AddProperty />} />
-          <Route path='/getallbookings' element={<OwnerAllBookings />} />
-          <Route path='/getallproperties' element={<OwnerAllProperties />} />
-          <Route path='/getallbookings' element={<RenterAllProperty />} />
-          <Route path='/getAllProperties' element={<AllPropertiesCards />} />
+          <Route path='/adminhome' element={
+            <ProtectedRoute allowedRoles={["Admin"]}>
+              <AdminHome />
+            </ProtectedRoute>
+          } />
+          <Route path='/ownerhome' element={
+            <ProtectedRoute allowedRoles={["Owner", "Admin"]}>
+              <OwnerHome />
+            </ProtectedRoute>
+          } />
+          <Route path='/renterhome' element={
+            <ProtectedRoute allowedRoles={["Renter", "Admin"]}>
+              <RenterHome />
+            </ProtectedRoute>
+          } />
+          <Route path='/getallbookings' element={
+            <ProtectedRoute allowedRoles={["Admin"]}>
+              <AdminAllBookings />
+            </ProtectedRoute>
+          } />
+          <Route path='/getallproperties' element={
+            <ProtectedRoute allowedRoles={["Admin"]}>
+              <AdminAllProperty />
+            </ProtectedRoute>
+          } />
+          <Route path='/getallusers' element={
+            <ProtectedRoute allowedRoles={["Admin"]}>
+              <AllUsers />
+            </ProtectedRoute>
+          } />
+          <Route path='/postproperty' element={
+            <ProtectedRoute allowedRoles={["Owner"]}>
+              <AddProperty />
+            </ProtectedRoute>
+          } />
+          <Route path='/getAllProperties' element={
+            <ProtectedRoute allowedRoles={["Renter"]}>
+              <AllPropertiesCards />
+            </ProtectedRoute>
+          } />
         </Routes>
       </BrowserRouter>
     </div>

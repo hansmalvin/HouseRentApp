@@ -20,7 +20,7 @@ import {
   parseOwnerContact,
 } from "../../../utils/phoneContact";
 
-const OwnerAllProperties = () => {
+const OwnerAllProperties = ({ isAdmin = false }) => {
   const [image, setImage] = useState(null);
   const [search, setSearch] = useState("");
   const [filterAvailable, setFilterAvailable] = useState("Available");
@@ -327,17 +327,21 @@ const OwnerAllProperties = () => {
             </td>
             <td className="px-4 py-3 font-mono text-xs text-slate-500">{property._id}</td>
             <td className="px-4 py-3 flex gap-2 justify-center">
-              <button
+            <button
                 type="button"
                 onClick={() => handleShow(property)}
-                className="rounded-lg border border-indigo-300 bg-indigo-50 px-3 py-1 text-sm font-medium text-indigo-700 transition hover:bg-indigo-100"
+                disabled={isAdmin}
+                title={isAdmin ? "Admins cannot edit listings" : undefined}
+                className="rounded-lg border border-indigo-300 bg-indigo-50 px-3 py-1 text-sm font-medium text-indigo-700 transition hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Edit
               </button>
               <button
                 type="button"
                 onClick={() => openDeleteModal(property)}
-                className="rounded-lg border border-rose-300 bg-rose-50 px-3 py-1 text-sm font-medium text-rose-700 transition hover:bg-rose-100"
+                disabled={isAdmin}
+                title={isAdmin ? "Admins cannot delete listings" : undefined}
+                className="rounded-lg border border-rose-300 bg-rose-50 px-3 py-1 text-sm font-medium text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Delete
               </button>

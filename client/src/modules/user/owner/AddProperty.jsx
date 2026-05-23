@@ -18,7 +18,7 @@ const fieldClass =
 
 const labelClass = "mb-2 block text-sm font-medium text-slate-600";
 
-function AddProperty() {
+function AddProperty({ isAdmin = false }) {
   const [image, setImage] = useState(null);
   const [propertyDetails, setPropertyDetails] = useState({
     propertyType: "residential",
@@ -230,7 +230,9 @@ function AddProperty() {
         <div className="flex justify-end border-t border-indigo-100 pt-6">
           <button
             type="submit"
-            className="rounded-xl bg-indigo-400 px-8 py-2.5 font-semibold text-white shadow-md transition hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2"
+            disabled={isAdmin}
+            title={isAdmin ? "Admins cannot publish listings" : undefined}
+            className="rounded-xl bg-indigo-400 px-8 py-2.5 font-semibold text-white shadow-md transition hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40"
           >
             Publish listing
           </button>

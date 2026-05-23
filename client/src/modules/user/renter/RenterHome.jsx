@@ -76,7 +76,7 @@ const RenterHome = () => {
         {/* Tab Panels */}
         <CustomTabPanel value={value} index={0}>
           <div className="mt-6">
-            <AllPropertiesCards loggedIn={user.userLoggedIn} />
+          <AllPropertiesCards loggedIn={user.userLoggedIn} isAdmin={user.userData?.type === "Admin"} />
           </div>
         </CustomTabPanel>
 

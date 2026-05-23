@@ -6,7 +6,7 @@ import { ArrowsUpDownIcon } from "@heroicons/react/24/outline";
 
 axios.defaults.withCredentials = true;
 
-const OwnerAllBookings = () => {
+const OwnerAllBookings = ({ isAdmin = false }) => {
   const [allBookings, setAllBookings] = useState([]);
   const [search, setSearch] = useState("");
   const [sortAsc, setSortAsc] = useState(true);
@@ -146,7 +146,9 @@ const OwnerAllBookings = () => {
                         onClick={() =>
                           handleStatus(booking._id, booking.propertyId, "booked")
                         }
-                        className="rounded-lg bg-emerald-200 px-4 py-1.5 text-sm font-medium text-emerald-800 shadow-sm transition hover:bg-emerald-300"
+                        disabled={isAdmin}
+                        title={isAdmin ? "Admins cannot change booking status" : undefined}
+                        className="rounded-lg bg-emerald-200 px-4 py-1.5 text-sm font-medium text-emerald-800 shadow-sm transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         Mark booked
                       </button>
@@ -160,7 +162,9 @@ const OwnerAllBookings = () => {
                             "pending"
                           )
                         }
-                        className="rounded-lg bg-amber-200 px-4 py-1.5 text-sm font-medium text-amber-800 shadow-sm transition hover:bg-amber-300"
+                        disabled={isAdmin}
+                        title={isAdmin ? "Admins cannot change booking status" : undefined}
+                        className="rounded-lg bg-amber-200 px-4 py-1.5 text-sm font-medium text-amber-800 shadow-sm transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         Mark pending
                       </button>
