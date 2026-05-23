@@ -1,26 +1,21 @@
 const userSchema = require("../models/UserSchema");
 const propertySchema = require("../models/PropertySchema");
 const bookingSchema = require("../models/BookingSchema");
+const { cloudinary } = require("../config/cloudinary");
 
 //////////adding property by owner////////
 const addPropertyController = async (req, res) => {
   try {
-    let propertyImage;
-    if (req.files) {
-      const firstFile = req.files[0];
-      if (firstFile) {
-        propertyImage = {
-          filename: firstFile.filename,
-          path: `/uploads/${firstFile.filename}`,
-        };
-      }
-    }
+    const propertyImages = (req.files || []).map((file) => ({
+      url: file.path,
+      publicId: file.filename,
+    }));
 
-    const user = await userSchema.findById({ _id: req.body.userId });
+    const user = await userSchema.findById(req.body.userId);
 
     const newPropertyData = new propertySchema({
       ...req.body,
-      propertyImage,
+      propertyImages,
       ownerId: user._id,
       ownerName: user.name,
       isAvailable: "Available",
@@ -33,7 +28,7 @@ const addPropertyController = async (req, res) => {
       message: "New Property has been stored",
     });
   } catch (error) {
-    console.log("Error in get All Users Controller ", error);
+    console.log("Error in addPropertyController:", error);
     return res.status(500).send({
       success: false,
       message: "Failed to add property",
@@ -56,9 +51,7 @@ const getAllOwnerPropertiesController = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .send({ message: "Internal server error", success: false });
+    return res.status(500).send({ message: "Internal server error", success: false });
   }
 };
 
@@ -66,9 +59,21 @@ const getAllOwnerPropertiesController = async (req, res) => {
 const deletePropertyController = async (req, res) => {
   const propertyId = req.params.propertyid;
   try {
-    await propertySchema.findByIdAndDelete({
-      _id: propertyId,
-    });
+    const property = await propertySchema.findById(propertyId);
+    if (!property) {
+      return res.status(404).send({ success: false, message: "Property not found" });
+    }
+
+    // Delete all images from Cloudinary
+    if (property.propertyImages?.length) {
+      await Promise.all(
+        property.propertyImages.map((img) =>
+          cloudinary.uploader.destroy(img.publicId)
+        )
+      );
+    }
+
+    await propertySchema.findByIdAndDelete(propertyId);
 
     return res.status(200).send({
       success: true,
@@ -76,9 +81,7 @@ const deletePropertyController = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .send({ message: "Internal server error", success: false });
+    return res.status(500).send({ message: "Internal server error", success: false });
   }
 };
 
@@ -86,17 +89,24 @@ const deletePropertyController = async (req, res) => {
 const updatePropertyController = async (req, res) => {
   const { propertyid } = req.params;
   try {
-    const updateData = {
-      ...req.body,
-    };
-
+    const updateData = { ...req.body };
     delete updateData.userId;
 
-    if (req.file) {
-      updateData.propertyImage = {
-        filename: req.file.filename,
-        path: `/uploads/${req.file.filename}`,
-      };
+    if (req.files && req.files.length > 0) {
+      // Delete old images from Cloudinary
+      const existing = await propertySchema.findById(propertyid);
+      if (existing?.propertyImages?.length) {
+        await Promise.all(
+          existing.propertyImages.map((img) =>
+            cloudinary.uploader.destroy(img.publicId)
+          )
+        );
+      }
+
+      updateData.propertyImages = req.files.map((file) => ({
+        url: file.path,
+        publicId: file.filename,
+      }));
     }
 
     const property = await propertySchema.findOneAndUpdate(
@@ -138,9 +148,7 @@ const getAllBookingsController = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .send({ message: "Internal server error", success: false });
+    return res.status(500).send({ message: "Internal server error", success: false });
   }
 };
 
@@ -148,35 +156,28 @@ const getAllBookingsController = async (req, res) => {
 const handleAllBookingstatusController = async (req, res) => {
   const { bookingId, propertyId, status } = req.body;
   try {
-    const booking = await bookingSchema.findByIdAndUpdate(
+    await bookingSchema.findByIdAndUpdate(
       { _id: bookingId },
-      {
-        bookingStatus: status,
-      },
-      {
-        returnDocument: "after",
-      }
+      { bookingStatus: status },
+      { returnDocument: "after" }
     );
 
-    const property = await propertySchema.findByIdAndUpdate(
+    await propertySchema.findByIdAndUpdate(
       { _id: propertyId },
-      {
-        isAvailable: status === 'booked' ? 'Unavailable' : 'Available', 
-      },
+      { isAvailable: status === "booked" ? "Unavailable" : "Available" },
       { returnDocument: "after" }
     );
 
     return res.status(200).send({
       success: true,
-      message: `changed the status of property to ${status}`,
+      message: `Changed the status of property to ${status}`,
     });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .send({ message: "Internal server error", success: false });
+    return res.status(500).send({ message: "Internal server error", success: false });
   }
 };
+
 module.exports = {
   addPropertyController,
   getAllOwnerPropertiesController,

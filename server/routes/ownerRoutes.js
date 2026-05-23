@@ -1,25 +1,23 @@
 const express = require("express");
 const multer = require("multer");
 const { authMiddleware } = require("../middlewares/authMiddleware");
-const { addPropertyController, getAllOwnerPropertiesController, handleAllBookingstatusController, deletePropertyController, updatePropertyController, getAllBookingsController } = require("../controllers/ownerController");
-
+const {
+  addPropertyController,
+  getAllOwnerPropertiesController,
+  handleAllBookingstatusController,
+  deletePropertyController,
+  updatePropertyController,
+  getAllBookingsController,
+} = require("../controllers/ownerController");
+const { storage } = require("../config/cloudinary");
 
 const router = express.Router();
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "./uploads/");
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
-  },
-});
-
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
 router.post(
   "/postproperty",
-  upload.array("propertyImages"),
+  upload.array("propertyImages", 10),
   authMiddleware,
   addPropertyController
 );
@@ -38,7 +36,7 @@ router.delete(
 
 router.patch(
   "/updateproperty/:propertyid",
-  upload.single("propertyImage"),
+  upload.array("propertyImages", 10),
   authMiddleware,
   updatePropertyController
 );

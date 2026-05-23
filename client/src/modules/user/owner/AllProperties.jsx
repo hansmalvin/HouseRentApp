@@ -134,11 +134,8 @@ const OwnerAllProperties = ({ isAdmin = false }) => {
   };
 
   const getPropertyImagePath = (property) => {
-    if (!property?.propertyImage) return "";
-    if (Array.isArray(property.propertyImage)) {
-      return property.propertyImage[0]?.path || "";
-    }
-    return property.propertyImage.path || "";
+    if (!property?.propertyImages?.length) return "";
+    return property.propertyImages[0].url;
   };
 
   const saveChanges = async (propertyId, status) => {
@@ -523,7 +520,7 @@ const OwnerAllProperties = ({ isAdmin = false }) => {
                     Current image
                   </p>
                   <img
-                    src={`http://localhost:8001${getPropertyImagePath(editingPropertyData)}`}
+                    src={getPropertyImagePath(editingPropertyData)}
                     alt="Current property"
                     className="h-40 w-full rounded-xl border border-indigo-200 object-cover shadow-md sm:h-44"
                   />

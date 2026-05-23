@@ -84,11 +84,8 @@ const AllPropertiesCards = ({ loggedIn, isAdmin = false }) => {
   };
 
   const getPropertyImagePath = (property) => {
-    if (!property?.propertyImage) return "";
-    if (Array.isArray(property.propertyImage)) {
-      return property.propertyImage[0]?.path || "";
-    }
-    return property.propertyImage.path || "";
+    if (!property?.propertyImages?.length) return "";
+    return property.propertyImages[0].url;
   };
 
   return (
@@ -140,7 +137,7 @@ const AllPropertiesCards = ({ loggedIn, isAdmin = false }) => {
               className="bg-gray-800/70 border border-gray-700 rounded-lg shadow-lg hover:shadow-indigo-600/40 transition transform hover:-translate-y-1 overflow-hidden"
             >
               <img
-                src={`http://localhost:8001${getPropertyImagePath(property)}`}
+                src={getPropertyImagePath(property)}
                 alt="Property"
                 className="w-full h-40 object-cover"
               />

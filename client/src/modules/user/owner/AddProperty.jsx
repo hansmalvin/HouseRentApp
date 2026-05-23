@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { message } from "antd";
 import { useNavigate } from "react-router-dom";
@@ -20,6 +20,7 @@ const labelClass = "mb-2 block text-sm font-medium text-slate-600";
 
 function AddProperty({ isAdmin = false }) {
   const [image, setImage] = useState(null);
+  const fileInputRef = useRef(null);
   const [propertyDetails, setPropertyDetails] = useState({
     propertyType: "residential",
     propertyAdType: "rent",
@@ -49,13 +50,6 @@ function AddProperty({ isAdmin = false }) {
     setPropertyDetails((prev) => ({ ...prev, propertyAmt }));
   };
 
-  useEffect(() => {
-    setPropertyDetails((prev) => ({
-      ...prev,
-      propertyImages: image,
-    }));
-  }, [image]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -75,9 +69,10 @@ function AddProperty({ isAdmin = false }) {
     formData.append("propertyAmt", propertyDetails.propertyAmt);
     formData.append("additionalInfo", propertyDetails.additionalInfo);
 
-    if (image) {
-      for (let i = 0; i < image.length; i++) {
-        formData.append("propertyImages", image[i]);
+    const files = fileInputRef.current?.files;
+    if (files && files.length > 0) {
+      for (let i = 0; i < files.length; i++) {
+        formData.append("propertyImages", files[i]);
       }
     }
 
@@ -104,6 +99,7 @@ function AddProperty({ isAdmin = false }) {
         setContactDialCode(DEFAULT_DIAL_CODE);
         setContactNumber("");
         setImage(null);
+        if (fileInputRef.current) fileInputRef.current.value = "";
       } else {
         message.error(res.data.message || "Unauthorized access");
         navigate("/login");
@@ -175,6 +171,7 @@ function AddProperty({ isAdmin = false }) {
           <div>
             <label className={labelClass}>Property images</label>
             <input
+              ref={fileInputRef}
               type="file"
               accept="image/*"
               multiple

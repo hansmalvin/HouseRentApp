@@ -25,8 +25,14 @@ const propertyModel = mongoose.Schema({
       type :Number ,
       default: 0,
    },
-   propertyImage: {
-      type: Object
+   propertyImages:{
+      type: [
+         {
+            url: { type: String },
+            publicId: { type: String },
+         }
+      ],
+      default: [],
    },
    additionalInfo:{
       type: String,

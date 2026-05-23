@@ -3,14 +3,9 @@ import { HeartIcon } from "@heroicons/react/24/outline";
 import { formatPropertyAmount } from "../utils/propertyFormat";
 import { parsePropertyAddress } from "../utils/propertyAddress";
 
-const API_BASE = "http://localhost:8001";
-
 function getPropertyImagePath(property) {
-  if (!property?.propertyImage) return "";
-  if (Array.isArray(property.propertyImage)) {
-    return property.propertyImage[0]?.path || "";
-  }
-  return property.propertyImage.path || "";
+  if (!property?.propertyImages?.length) return "";
+  return property.propertyImages[0].url;
 }
 
 function getCardTitle(property) {
@@ -41,7 +36,7 @@ const HomePropertyCard = ({ property }) => {
       <div className="relative aspect-[20/19] overflow-hidden rounded-xl bg-gray-100">
         {imagePath ? (
           <img
-            src={`${API_BASE}${imagePath}`}
+            src={imagePath}
             alt={getCardTitle(property)}
             className="h-full w-full object-cover"
             loading="lazy"
