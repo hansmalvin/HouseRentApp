@@ -2,11 +2,14 @@ import { message } from "antd";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { ArrowsUpDownIcon } from "@heroicons/react/24/outline";
 
 axios.defaults.withCredentials = true;
 
 const OwnerAllBookings = () => {
   const [allBookings, setAllBookings] = useState([]);
+  const [search, setSearch] = useState("");
+  const [sortAsc, setSortAsc] = useState(true);
   const navigate = useNavigate();
 
   const getAllProperty = async () => {
@@ -57,6 +60,21 @@ const OwnerAllBookings = () => {
     }
   };
 
+  const displayedBookings = allBookings
+  .filter((b) =>
+    !search ||
+    [b.userName, b.phone, b._id, b.propertyId, b.bookingStatus]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  )
+  .sort((a, b) =>
+    sortAsc
+      ? (a.userName ?? "").localeCompare(b.userName ?? "")
+      : (b.userName ?? "").localeCompare(a.userName ?? "")
+  );
+
   return (
     <div>
       <h2 className="mb-1 text-xl font-bold text-indigo-700">Booking requests</h2>
@@ -65,35 +83,53 @@ const OwnerAllBookings = () => {
         status as needed.
       </p>
 
+      <div className="mb-4 flex gap-2">
+        <input
+          type="search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by tenant, booking ID, status…"
+          className="min-w-0 flex-[85] rounded-xl border border-indigo-200/90 bg-white px-4 py-2.5 text-sm text-slate-700 shadow-sm placeholder:text-slate-400 transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+        />
+        <button
+          type="button"
+          onClick={() => setSortAsc((prev) => !prev)}
+          className="flex flex-[15] items-center justify-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2.5 text-sm font-semibold text-indigo-800 shadow-sm transition hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+        >
+          <ArrowsUpDownIcon className="h-4 w-4 shrink-0" aria-hidden />
+          {sortAsc ? "A → Z" : "Z → A"}
+        </button>
+      </div>
+
       <div className="overflow-x-auto rounded-2xl border border-indigo-100 bg-white shadow-sm">
         <table className="min-w-full text-left text-sm text-slate-700">
           <thead className="bg-indigo-100/90 text-indigo-900">
             <tr>
-              <th className="px-4 py-3 font-semibold">Booking ID</th>
-              <th className="px-4 py-3 text-center font-semibold">Property ID</th>
               <th className="px-4 py-3 text-center font-semibold">Tenant name</th>
               <th className="px-4 py-3 text-center font-semibold">Tenant phone</th>
+              <th className="px-4 py-3 text-center font-semibold">Booking ID</th>
+              <th className="px-4 py-3 text-center font-semibold">Property ID</th>
               <th className="px-4 py-3 text-center font-semibold">Status</th>
               <th className="px-4 py-3 text-center font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {allBookings.length > 0 ? (
-              allBookings.map((booking, idx) => (
+            {displayedBookings.length > 0 ? (
+              displayedBookings.map((booking, idx) => (
                 <tr
                   key={booking._id}
                   className={`border-t border-indigo-50 transition hover:bg-sky-50/60 ${
                     idx % 2 === 0 ? "bg-white" : "bg-indigo-50/30"
                   }`}
                 >
-                  <td className="px-4 py-3 font-mono text-xs sm:text-sm">
+                  <td className="px-4 py-3 text-center">{booking.userName}</td>
+                  <td className="px-4 py-3 text-center">{booking.phone}</td>
+                  <td className="px-4 py-3 text-center font-mono text-xs sm:text-sm">
                     {booking._id}
                   </td>
                   <td className="px-4 py-3 text-center font-mono text-xs">
                     {booking.propertyId}
                   </td>
-                  <td className="px-4 py-3 text-center">{booking.userName}</td>
-                  <td className="px-4 py-3 text-center">{booking.phone}</td>
                   <td
                     className={`px-4 py-3 text-center font-semibold capitalize ${
                       booking.bookingStatus === "booked"

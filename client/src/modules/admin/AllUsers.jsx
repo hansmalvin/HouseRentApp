@@ -111,7 +111,7 @@ const AllUsers = () => {
               <th className="px-4 py-3 text-center">Type</th>
               <th className="px-4 py-3 text-center">Granted (owners only)</th>
               <th className="px-4 py-3 text-center">Actions</th>
-              <th className="whitespace-nowrap px-4 py-3 text-right">User ID</th>
+              <th className="whitespace-nowrap px-4 py-3 text-center">User ID</th>
             </tr>
           </thead>
           <tbody>

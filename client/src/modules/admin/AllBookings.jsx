@@ -93,10 +93,10 @@ const AdminAllBookings = () => {
               <th className="px-4 py-3">Tenant name</th>
               <th className="px-4 py-3 text-center">Tenant contact</th>
               <th className="px-4 py-3 text-center">Status</th>
-              <th className="whitespace-nowrap px-4 py-3 text-right">Booking ID</th>
-              <th className="whitespace-nowrap px-4 py-3 text-right">Owner ID</th>
-              <th className="whitespace-nowrap px-4 py-3 text-right">Property ID</th>
-              <th className="whitespace-nowrap px-4 py-3 text-right">Tenant ID</th>
+              <th className="whitespace-nowrap px-4 py-3 text-center">Booking ID</th>
+              <th className="whitespace-nowrap px-4 py-3 text-center">Owner ID</th>
+              <th className="whitespace-nowrap px-4 py-3 text-center">Property ID</th>
+              <th className="whitespace-nowrap px-4 py-3 text-center">Tenant ID</th>
             </tr>
           </thead>
           <tbody>

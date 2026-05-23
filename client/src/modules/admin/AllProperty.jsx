@@ -121,8 +121,8 @@ const AdminAllProperty = () => {
               <th className="px-4 py-3 text-center">Owner name</th>
               <th className="px-4 py-3 text-center">Owner contact</th>
               <th className="min-w-[9rem] px-4 py-3 text-center">Amount</th>
-              <th className="whitespace-nowrap px-4 py-3 text-right">Property ID</th>
-              <th className="whitespace-nowrap px-4 py-3 text-right">Owner ID</th>
+              <th className="whitespace-nowrap px-4 py-3 text-center">Property ID</th>
+              <th className="whitespace-nowrap px-4 py-3 text-center">Owner ID</th>
             </tr>
           </thead>
           <tbody>
@@ -134,7 +134,7 @@ const AdminAllProperty = () => {
                 >
                   <td className="px-4 py-3 text-center font-medium text-indigo-700">
                     {property.propertyType}
-                  </td>
+                  </td> 
                   <td className="px-4 py-3 text-center">
                     {property.propertyAdType || "N/A"}
                   </td>

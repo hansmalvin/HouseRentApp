@@ -20,13 +20,13 @@ const AdminTableToolbar = ({
         value={search}
         onChange={(e) => onSearchChange(e.target.value)}
         placeholder={placeholder}
-        className={`${inputClass} flex-[7] basis-0`}
+        className={`${inputClass} flex-[8] basis-0`}
         aria-label="Search table"
       />
       <button
         type="button"
         onClick={onSortToggle}
-        className="flex min-w-0 flex-[3] basis-0 items-center justify-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50 px-2 py-2.5 text-sm font-semibold text-indigo-800 shadow-sm transition hover:border-indigo-300 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-200 sm:px-3"
+        className="flex min-w-0 flex-[2] basis-0 items-center justify-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50 px-2 py-2.5 text-sm font-semibold text-indigo-800 shadow-sm transition hover:border-indigo-300 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-200 sm:px-3"
         aria-label={sortAsc ? "Sort ascending" : "Sort descending"}
       >
         <ArrowsUpDownIcon className="h-4 w-4 shrink-0" aria-hidden />

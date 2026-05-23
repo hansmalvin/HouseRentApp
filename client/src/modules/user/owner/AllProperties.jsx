@@ -22,6 +22,8 @@ import {
 
 const OwnerAllProperties = () => {
   const [image, setImage] = useState(null);
+  const [search, setSearch] = useState("");
+  const [filterAvailable, setFilterAvailable] = useState("Available");
   const [editingPropertyId, setEditingPropertyId] = useState(null);
   const [editingPropertyData, setEditingPropertyData] = useState({
     propertyType: "",
@@ -231,10 +233,23 @@ const OwnerAllProperties = () => {
     }
   };
 
-
   const editFieldClass =
     "mt-2 w-full rounded-xl border border-indigo-200 bg-white px-3 py-2.5 text-slate-800 shadow-sm transition placeholder:text-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200";
-
+  
+  const displayedProperties = allProperties
+  .filter((p) => {
+    const matchesSearch =
+      !search ||
+      [p.propertyType, p.propertyAdType, p.propertyAddress, p._id, p.ownerContact, String(p.propertyAmt ?? "")]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(search.toLowerCase());
+    const matchesAvail =
+      !filterAvailable || p.isAvailable === filterAvailable;
+    return matchesSearch && matchesAvail;
+  });
+    
   return (
     <div>
       <h2 className="mb-1 text-xl font-bold text-indigo-700">Your listings</h2>
@@ -242,6 +257,31 @@ const OwnerAllProperties = () => {
         Edit or remove properties you have published. Availability updates when
         you save changes.
       </p>
+
+      <div className="mb-4 flex gap-2">
+        <input
+          type="search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by type, address, ID…"
+          className="min-w-0 flex-[85] rounded-xl border border-indigo-200/90 bg-white px-4 py-2.5 text-sm text-slate-700 shadow-sm placeholder:text-slate-400 transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+        />
+        <button
+          type="button"
+          onClick={() =>
+            setFilterAvailable((prev) =>
+              prev === "Available" ? "Unavailable" : "Available"
+            )
+          }
+          className={`flex-[15] rounded-xl border px-3 py-2.5 text-sm font-semibold shadow-sm transition focus:outline-none focus:ring-2 focus:ring-indigo-200 ${
+            filterAvailable === "Available"
+              ? "border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100"
+              : "border-rose-300 bg-rose-50 text-rose-800 hover:bg-rose-100"
+          }`}
+        >
+          {filterAvailable === "Available" ? "Available" : "Unavailable"}
+        </button>
+      </div>
 
       <div
         className={`overflow-x-auto rounded-2xl border border-indigo-100 bg-white shadow-sm transition-[min-height] duration-300 ease-out ${
@@ -251,23 +291,22 @@ const OwnerAllProperties = () => {
         <table className="w-full text-left text-sm text-slate-700">
           <thead className="bg-indigo-100/90 text-indigo-900">
         <tr>
-          <th className="px-4 py-3">Property ID</th>
           <th className="px-4 py-3 text-center">Property Type</th>
           <th className="px-4 py-3 text-center">Ad Type</th>
           <th className="px-4 py-3 text-center">Address</th>
           <th className="px-4 py-3 text-center">Owner Contact</th>
           <th className="px-4 py-3 text-center">Amount</th>
           <th className="px-4 py-3 text-center">Availability</th>
+          <th className="px-4 py-3 text-center">Property ID</th>
           <th className="px-4 py-3 text-center">Actions</th>
         </tr>
       </thead>
       <tbody>
-        {allProperties.map((property) => (
+        {displayedProperties.map((property) => (
           <tr
             key={property._id}
             className="border-t border-indigo-50 transition duration-200 even:bg-indigo-50/30 hover:bg-sky-50/50"
           >
-            <td className="px-4 py-3">{property._id}</td>
             <td className="px-4 py-3 text-center">{property.propertyType}</td>
             <td className="px-4 py-3 text-center">{property.propertyAdType}</td>
             <td className="px-4 py-3 text-center">{property.propertyAddress}</td>
@@ -286,6 +325,7 @@ const OwnerAllProperties = () => {
             >
               {property.isAvailable}
             </td>
+            <td className="px-4 py-3 font-mono text-xs text-slate-500">{property._id}</td>
             <td className="px-4 py-3 flex gap-2 justify-center">
               <button
                 type="button"
