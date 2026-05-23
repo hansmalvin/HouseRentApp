@@ -8,11 +8,8 @@ import OwnerHome from "./modules/user/owner/OwnerHome";
 import RenterHome from "./modules/user/renter/RenterHome";
 import AllUsers from "./modules/admin/AllUsers";
 import AddProperty from "./modules/user/owner/AddProperty";
-import OwnerAllBookings from "./modules/user/owner/AllBookings";
-import RenterAllProperty from "./modules/user/renter/AllProperties";
 import AdminAllBookings from "./modules/admin/AllBookings";
 import AdminAllProperty from "./modules/admin/AllProperty";
-import OwnerAllProperties from "./modules/user/owner/AllProperties";
 import AllPropertiesCards from "./modules/user/AllPropertiesCards";
 import { createContext, useEffect, useState } from "react";
 
