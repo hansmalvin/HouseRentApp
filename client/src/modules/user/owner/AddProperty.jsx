@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
 import { message } from "antd";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +10,20 @@ import {
   buildOwnerContact,
   DEFAULT_DIAL_CODE,
 } from "../../../utils/phoneContact";
+import {
+  Utensils,
+  Wifi,
+  Waves,
+  AirVent,
+  Trees,
+  ParkingSquare,
+  Tv,
+  BuildingIcon,
+  Wind,
+  ChevronDown,
+  ChevronUp,
+  SoapDispenserDroplet,
+} from "lucide-react";
 
 axios.defaults.withCredentials = true;
 
@@ -17,6 +31,54 @@ const fieldClass =
   "w-full rounded-xl border border-indigo-200 bg-white px-3 py-2.5 text-slate-800 shadow-sm transition placeholder:text-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200";
 
 const labelClass = "mb-2 block text-sm font-medium text-slate-600";
+
+// Amenity options matching the image provided
+const AMENITIES = [
+  { label: "Kitchen",                 Icon: Utensils         },
+  { label: "Wifi",                    Icon: Wifi             },
+  { label: "Dedicated workspace",     Icon: BuildingIcon     },
+  { label: "Free parking on premises",Icon: ParkingSquare    },
+  { label: "Pool",                    Icon: Waves            },
+  { label: "TV",                      Icon: Tv               },
+  { label: "Air conditioning",        Icon: AirVent          },
+  { label: "Patio or balcony",        Icon: Wind             },
+  { label: "Backyard",                Icon: Trees            },
+  { label: "Hair dryer",              Icon: Wind             },
+  { label: "Shampoo",                 Icon: SoapDispenserDroplet},
+];
+
+// Parse which amenity labels are currently embedded in additionalInfo text
+function parseSelectedAmenities(text) {
+  return AMENITIES
+    .filter(({ label }) => text.includes(label))
+    .map(({ label }) => label);
+}
+
+// Add or remove an amenity label from the additionalInfo string
+function toggleAmenityInText(currentText, label) {
+  if (currentText.includes(label)) {
+    // Remove: strip the label (and any surrounding comma+space or leading comma+space)
+    let updated = currentText
+      .replace(new RegExp(`,?\\s*${escapeRegex(label)}\\s*,?`, "g"), (match) => {
+        // keep a comma if it was between two items
+        if (match.startsWith(",") && match.endsWith(",")) return ",";
+        return "";
+      })
+      .trim()
+      .replace(/^,\s*/, "")
+      .replace(/,\s*$/, "")
+      .trim();
+    return updated;
+  } else {
+    // Append
+    const base = currentText.trim();
+    return base ? `${base}, ${label}` : label;
+  }
+}
+
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
 function AddProperty({ isAdmin = false }) {
   const [image, setImage] = useState(null);
@@ -34,7 +96,10 @@ function AddProperty({ isAdmin = false }) {
   const [addressPostalCode, setAddressPostalCode] = useState("");
   const [contactDialCode, setContactDialCode] = useState(DEFAULT_DIAL_CODE);
   const [contactNumber, setContactNumber] = useState("");
+  const [amenitiesOpen, setAmenitiesOpen] = useState(false);
   const navigate = useNavigate();
+
+  const selectedAmenities = parseSelectedAmenities(propertyDetails.additionalInfo);
 
   const handleImageChange = (e) => {
     setImage(e.target.files);
@@ -48,6 +113,13 @@ function AddProperty({ isAdmin = false }) {
   const handleAmountChange = (e) => {
     const propertyAmt = parsePropertyAmountInput(e.target.value);
     setPropertyDetails((prev) => ({ ...prev, propertyAmt }));
+  };
+
+  const handleAmenityToggle = (label) => {
+    setPropertyDetails((prev) => ({
+      ...prev,
+      additionalInfo: toggleAmenityInText(prev.additionalInfo, label),
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -68,6 +140,7 @@ function AddProperty({ isAdmin = false }) {
     formData.append("ownerContact", buildOwnerContact(contactDialCode, contactNumber));
     formData.append("propertyAmt", propertyDetails.propertyAmt);
     formData.append("additionalInfo", propertyDetails.additionalInfo);
+    formData.append("amenities", JSON.stringify(selectedAmenities));
 
     const files = fileInputRef.current?.files;
     if (files && files.length > 0) {
@@ -212,8 +285,57 @@ function AddProperty({ isAdmin = false }) {
           </div>
         </div>
 
+        {/* ── Additional Details ── */}
         <div>
           <label className={labelClass}>Additional details</label>
+
+          {/* Amenities dropdown */}
+          <div className="mb-2">
+            <button
+              type="button"
+              onClick={() => setAmenitiesOpen((prev) => !prev)}
+              className="flex w-full items-center justify-between rounded-xl border border-indigo-200 bg-white px-3 py-2.5 text-sm text-slate-600 shadow-sm transition hover:border-indigo-400 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+            >
+              <span className="font-medium">
+                {selectedAmenities.length > 0
+                  ? `${selectedAmenities.length} amenit${selectedAmenities.length === 1 ? "y" : "ies"} selected`
+                  : "Select amenities (optional)"}
+              </span>
+              {amenitiesOpen ? (
+                <ChevronUp className="h-4 w-4 text-indigo-400" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-indigo-400" />
+              )}
+            </button>
+
+            {amenitiesOpen && (
+              <div className="mt-1 rounded-xl border border-indigo-200 bg-white p-3 shadow-md">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                  {AMENITIES.map(({ label, Icon }) => {
+                    const active = selectedAmenities.includes(label);
+                    return (
+                      <button
+                        key={label}
+                        type="button"
+                        onClick={() => handleAmenityToggle(label)}
+                        className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition
+                          ${
+                            active
+                              ? "border-indigo-400 bg-indigo-50 text-indigo-700"
+                              : "border-slate-200 bg-white text-slate-600 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600"
+                          }`}
+                      >
+                        <Icon className={`h-4 w-4 shrink-0 ${active ? "text-indigo-500" : "text-slate-400"}`} />
+                        <span className="truncate leading-tight">{label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Free-text input */}
           <textarea
             name="additionalInfo"
             value={propertyDetails.additionalInfo}

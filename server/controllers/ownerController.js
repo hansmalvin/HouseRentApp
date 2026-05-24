@@ -13,9 +13,20 @@ const addPropertyController = async (req, res) => {
 
     const user = await userSchema.findById(req.body.userId);
 
+    // amenities is sent as a JSON string from FormData; parse it back to an array
+    let amenities = [];
+    if (req.body.amenities) {
+      try {
+        amenities = JSON.parse(req.body.amenities);
+      } catch {
+        amenities = [];
+      }
+    }
+
     const newPropertyData = new propertySchema({
       ...req.body,
       propertyImages,
+      amenities,
       ownerId: user._id,
       ownerName: user.name,
       isAvailable: "Available",
@@ -91,6 +102,15 @@ const updatePropertyController = async (req, res) => {
   try {
     const updateData = { ...req.body };
     delete updateData.userId;
+
+    // amenities is sent as a JSON string from FormData; parse it back to an array
+    if (updateData.amenities) {
+      try {
+        updateData.amenities = JSON.parse(updateData.amenities);
+      } catch {
+        updateData.amenities = [];
+      }
+    }
 
     if (req.files && req.files.length > 0) {
       // Delete old images from Cloudinary

@@ -37,6 +37,10 @@ const propertyModel = mongoose.Schema({
    additionalInfo:{
       type: String,
    },
+   amenities: {
+      type: [String],
+      default: [],
+   },
    ownerName: {
       type: String,
    }
