@@ -23,6 +23,15 @@ import {
   ChevronDown,
   ChevronUp,
   SoapDispenserDroplet,
+  LayoutPanelTop,
+  SprayCan,
+  Droplets,
+  Thermometer,
+  Archive,
+  Dices,
+  Refrigerator,
+  FlameKindling,
+  BriefcaseMedical,
 } from "lucide-react";
 
 axios.defaults.withCredentials = true;
@@ -34,17 +43,26 @@ const labelClass = "mb-2 block text-sm font-medium text-slate-600";
 
 // Amenity options matching the image provided
 const AMENITIES = [
-  { label: "Kitchen",                 Icon: Utensils         },
-  { label: "Wifi",                    Icon: Wifi             },
-  { label: "Dedicated workspace",     Icon: BuildingIcon     },
-  { label: "Free parking on premises",Icon: ParkingSquare    },
-  { label: "Pool",                    Icon: Waves            },
-  { label: "TV",                      Icon: Tv               },
-  { label: "Air conditioning",        Icon: AirVent          },
-  { label: "Patio or balcony",        Icon: Wind             },
-  { label: "Backyard",                Icon: Trees            },
-  { label: "Hair dryer",              Icon: Wind             },
-  { label: "Shampoo",                 Icon: SoapDispenserDroplet},
+  { label: "Kitchen",                  Icon: Utensils        },
+  { label: "Wifi",                     Icon: Wifi            },
+  { label: "Dedicated workspace",      Icon: BuildingIcon    },
+  { label: "Free parking on premises", Icon: ParkingSquare   },
+  { label: "Pool",                     Icon: Waves           },
+  { label: "TV",                       Icon: Tv              },
+  { label: "Air conditioning",         Icon: AirVent         },
+  { label: "Patio or balcony",         Icon: LayoutPanelTop  },
+  { label: "Backyard",                 Icon: Trees           },
+  { label: "Hair dryer",               Icon: Wind            },
+  { label: "Cleaning products",        Icon: SprayCan        },
+  { label: "Body soap",                Icon: Droplets        },
+  { label: "Shampoo",                  Icon: SoapDispenserDroplet},
+  { label: "Hot water",                Icon: Thermometer     },
+  { label: "Drying rack for clothing", Icon: Wind            },
+  { label: "Clothing storage",         Icon: Archive         },
+  { label: "Board games",              Icon: Dices           },
+  { label: "Refrigerator",             Icon: Refrigerator    },
+  { label: "Fire extinguisher",        Icon: FlameKindling   },
+  { label: "First aid kit",            Icon: BriefcaseMedical},
 ];
 
 // Parse which amenity labels are currently embedded in additionalInfo text
