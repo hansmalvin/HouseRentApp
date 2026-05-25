@@ -242,10 +242,13 @@ const getAllPropertiesController = async (req, res) => {
 const getPropertyByIdController = async (req, res) => {
   try {
     const { id } = req.params;
-    const property = await propertySchema.findById(id);
+    const property = await propertySchema.findById(id).lean();
     if (!property) {
       return res.status(404).send({ success: false, message: "Property not found" });
     }
+    // Populate owner email from UserSchema via ownerId
+    const owner = await userSchema.findById(property.ownerId).select("email").lean();
+    property.ownerEmail = owner?.email || null;
     return res.status(200).send({ success: true, data: property });
   } catch (error) {
     console.error("Error fetching property by ID:", error);

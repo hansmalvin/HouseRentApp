@@ -5,8 +5,8 @@ import {
   ArrowLeftIcon,
   HeartIcon,
   ShareIcon,
-//   StarIcon,
   PhoneIcon,
+  EnvelopeIcon,
   MapPinIcon,
   HomeIcon,
   TagIcon,
@@ -20,6 +20,7 @@ import {
   Archive, Dices, Refrigerator, FlameKindling, BriefcaseMedical,
   LayoutPanelTop,SoapDispenserDroplet,
 } from "lucide-react";
+import emailjs from "@emailjs/browser";
 import { formatPropertyAmount } from "../../utils/propertyFormat";
 import { parsePropertyAddress } from "../../utils/propertyAddress";
 import { UserContext } from "../../App";
@@ -200,6 +201,51 @@ const PropertyDetail = () => {
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [emailModal, setEmailModal] = useState(false);
+  const [emailForm, setEmailForm] = useState({ from_name: "", from_email: "", message: "" });
+  const [emailSending, setEmailSending] = useState(false);
+  const [emailStatus, setEmailStatus] = useState(null); // "success" | "error" | null
+
+  const handleSendEmail = async (e) => {
+    e.preventDefault();
+    setEmailSending(true);
+    setEmailStatus(null);
+
+    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+    if (!serviceId || !templateId || !publicKey) {
+      console.error(
+        "EmailJS env missing. Add VITE_EMAILJS_* to client/.env and restart the dev server.",
+      );
+      setEmailStatus("error");
+      setEmailSending(false);
+      return;
+    }
+
+    try {
+      await emailjs.send(
+        serviceId,
+        templateId,
+        {
+          from_name: emailForm.from_name,
+          from_email: emailForm.from_email,
+          message: emailForm.message,
+          to_email: property.ownerEmail,
+          property_title: property ? getPageTitle(property) : "",
+        },
+        { publicKey },
+      );
+      setEmailStatus("success");
+      setEmailForm({ from_name: "", from_email: "", message: "" });
+    } catch (err) {
+      console.error("EmailJS error:", err);
+      setEmailStatus("error");
+    } finally {
+      setEmailSending(false);
+    }
+  };
 
   useEffect(() => {
     const fetch = async () => {
@@ -398,16 +444,110 @@ const PropertyDetail = () => {
             )}
 
             {/* Contact */}
-            {property.ownerContact && (
+            {(property.ownerContact || property.ownerEmail) && (
               <div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-3">Contact owner</h2>
-                <a
-                  href={`tel:${property.ownerContact}`}
-                  className="inline-flex items-center gap-2 rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-gray-900 hover:shadow-sm transition"
+                <div className="flex flex-wrap gap-3">
+                  {property.ownerContact && (
+                    <a
+                      href={`tel:${property.ownerContact}`}
+                      className="inline-flex items-center gap-2 rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-gray-900 hover:shadow-sm transition"
+                    >
+                      <PhoneIcon className="h-4 w-4" />
+                      {property.ownerContact}
+                    </a>
+                  )}
+                  {property.ownerEmail && (
+                    <button
+                      type="button"
+                      onClick={() => { setEmailModal(true); setEmailStatus(null); }}
+                      className="inline-flex items-center gap-2 rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-gray-900 hover:shadow-sm transition"
+                    >
+                      <EnvelopeIcon className="h-4 w-4" />
+                      Email owner
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Email Modal */}
+            {emailModal && (
+              <div
+                className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center px-4"
+                onClick={() => setEmailModal(false)}
+              >
+                <div
+                  className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <PhoneIcon className="h-4 w-4" />
-                  {property.ownerContact}
-                </a>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-gray-900">Email owner</h3>
+                    <button
+                      type="button"
+                      onClick={() => setEmailModal(false)}
+                      className="text-gray-400 hover:text-gray-600 text-xl leading-none"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  <p className="text-sm text-gray-500">
+                    Sending about: <span className="font-medium text-gray-700">{title}</span>
+                  </p>
+
+                  {emailStatus === "success" ? (
+                    <div className="rounded-xl bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700 text-center">
+                      ✓ Message sent successfully!
+                    </div>
+                  ) : (
+                    <form onSubmit={handleSendEmail} className="space-y-3">
+                      <div>
+                        <label className="mb-1 block text-xs font-medium text-gray-600">Your name</label>
+                        <input
+                          type="text"
+                          required
+                          value={emailForm.from_name}
+                          onChange={(e) => setEmailForm((p) => ({ ...p, from_name: e.target.value }))}
+                          placeholder="John Doe"
+                          className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-800 placeholder:text-gray-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs font-medium text-gray-600">Your email</label>
+                        <input
+                          type="email"
+                          required
+                          value={emailForm.from_email}
+                          onChange={(e) => setEmailForm((p) => ({ ...p, from_email: e.target.value }))}
+                          placeholder="you@example.com"
+                          className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-800 placeholder:text-gray-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs font-medium text-gray-600">Message</label>
+                        <textarea
+                          required
+                          rows={4}
+                          value={emailForm.message}
+                          onChange={(e) => setEmailForm((p) => ({ ...p, message: e.target.value }))}
+                          placeholder="Hi, I'm interested in this property..."
+                          className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-800 placeholder:text-gray-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                        />
+                      </div>
+                      {emailStatus === "error" && (
+                        <p className="text-xs text-red-500">Failed to send. Please try again.</p>
+                      )}
+                      <button
+                        type="submit"
+                        disabled={emailSending}
+                        className="w-full rounded-xl bg-indigo-500 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {emailSending ? "Sending…" : "Send message"}
+                      </button>
+                    </form>
+                  )}
+                </div>
               </div>
             )}
           </div>
