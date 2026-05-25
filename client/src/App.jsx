@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, BrowserRouter } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, BrowserRouter, Navigate } from "react-router-dom";
 import Home from "./modules/common/Home";
 import Login from "./modules/common/Login";
 import Register from "./modules/common/Register";
@@ -11,6 +11,7 @@ import AddProperty from "./modules/user/owner/AddProperty";
 import AdminAllBookings from "./modules/admin/AllBookings";
 import AdminAllProperty from "./modules/admin/AllProperty";
 import AllPropertiesCards from "./modules/user/AllPropertiesCards";
+import PropertyDetail from "./modules/common/PropertyDetail";
 import { createContext, useEffect, useState } from "react";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -45,59 +46,63 @@ function App() {
   }, []);
 
   return (
-     <UserContext.Provider value={{ userData, setUserData, userLoggedIn, setUserLoggedIn }}>
-    <div>
-      <BrowserRouter>
-        <Routes>
-          <Route path='/' element={<Home />} />
-          <Route path='/login' element={<Login />} />
-          <Route path='/register' element={<Register />} />
-          <Route path='/forgotpassword' element={<ForgotPassword />} />
-          <Route path='/adminhome' element={
-            <ProtectedRoute allowedRoles={["Admin"]}>
-              <AdminHome />
-            </ProtectedRoute>
-          } />
-          <Route path='/ownerhome' element={
-            <ProtectedRoute allowedRoles={["Owner", "Admin"]}>
-              <OwnerHome />
-            </ProtectedRoute>
-          } />
-          <Route path='/renterhome' element={
-            <ProtectedRoute allowedRoles={["Renter", "Admin"]}>
-              <RenterHome />
-            </ProtectedRoute>
-          } />
-          <Route path='/getallbookings' element={
-            <ProtectedRoute allowedRoles={["Admin"]}>
-              <AdminAllBookings />
-            </ProtectedRoute>
-          } />
-          <Route path='/getallproperties' element={
-            <ProtectedRoute allowedRoles={["Admin"]}>
-              <AdminAllProperty />
-            </ProtectedRoute>
-          } />
-          <Route path='/getallusers' element={
-            <ProtectedRoute allowedRoles={["Admin"]}>
-              <AllUsers />
-            </ProtectedRoute>
-          } />
-          <Route path='/postproperty' element={
-            <ProtectedRoute allowedRoles={["Owner"]}>
-              <AddProperty />
-            </ProtectedRoute>
-          } />
-          <Route path='/getAllProperties' element={
-            <ProtectedRoute allowedRoles={["Renter"]}>
-              <AllPropertiesCards />
-            </ProtectedRoute>
-          } />
-        </Routes>
-      </BrowserRouter>
-    </div>
+    <UserContext.Provider value={{ userData, setUserData, userLoggedIn, setUserLoggedIn }}>
+      <div>
+        <BrowserRouter>
+          <Routes>
+            <Route path='/' element={<Home />} />
+            <Route path='/login' element={<Login />} />
+            <Route path='/register' element={<Register />} />
+            <Route path='/forgotpassword' element={<ForgotPassword />} />
+
+            {/* Property detail — public, no auth required */}
+            <Route path='/rooms/:id' element={<PropertyDetail />} />
+
+            <Route path='/adminhome' element={
+              <ProtectedRoute allowedRoles={["Admin"]}>
+                <AdminHome />
+              </ProtectedRoute>
+            } />
+            <Route path='/ownerhome' element={
+              <ProtectedRoute allowedRoles={["Owner", "Admin"]}>
+                <OwnerHome />
+              </ProtectedRoute>
+            } />
+            <Route path='/renterhome' element={
+              <ProtectedRoute allowedRoles={["Renter", "Admin"]}>
+                <RenterHome />
+              </ProtectedRoute>
+            } />
+            <Route path='/getallbookings' element={
+              <ProtectedRoute allowedRoles={["Admin"]}>
+                <AdminAllBookings />
+              </ProtectedRoute>
+            } />
+            <Route path='/getallproperties' element={
+              <ProtectedRoute allowedRoles={["Admin"]}>
+                <AdminAllProperty />
+              </ProtectedRoute>
+            } />
+            <Route path='/getallusers' element={
+              <ProtectedRoute allowedRoles={["Admin"]}>
+                <AllUsers />
+              </ProtectedRoute>
+            } />
+            <Route path='/postproperty' element={
+              <ProtectedRoute allowedRoles={["Owner"]}>
+                <AddProperty />
+              </ProtectedRoute>
+            } />
+            <Route path='/getAllProperties' element={
+              <ProtectedRoute allowedRoles={["Renter"]}>
+                <AllPropertiesCards />
+              </ProtectedRoute>
+            } />
+          </Routes>
+        </BrowserRouter>
+      </div>
     </UserContext.Provider>
-  )
+  );
 }
 
-export default App
+export default App;

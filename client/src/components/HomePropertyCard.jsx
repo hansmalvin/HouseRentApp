@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { HeartIcon } from "@heroicons/react/24/outline";
 import { formatPropertyAmount } from "../utils/propertyFormat";
 import { parsePropertyAddress } from "../utils/propertyAddress";
@@ -30,9 +31,13 @@ function getPriceLabel(property) {
 const HomePropertyCard = ({ property }) => {
   const imagePath = getPropertyImagePath(property);
   const isAvailable = property.isAvailable === "Available";
+  const navigate = useNavigate();
 
   return (
-    <article className="w-[280px] shrink-0 snap-start sm:w-[300px]">
+    <article
+      className="w-[280px] shrink-0 snap-start sm:w-[300px] cursor-pointer"
+      onClick={() => navigate(`/rooms/${property._id}`)}
+    >
       <div className="relative aspect-[20/19] overflow-hidden rounded-xl bg-gray-100">
         {imagePath ? (
           <img

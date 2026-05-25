@@ -41,11 +41,7 @@ const registerController = async (req, res) => {
       const newUser = new userSchema(req.body);
       await newUser.save();
     }
-    ///////////aur you can do this////////
-    //     if (req.body.type === "Owner") {
-    //       newUser.set("granted", "pending", { strict: false });
-    //     }
-    //////////////////// for this, then you need to remove strict keyword from schema//////////////////////
+
     return res.status(201).send({ message: "Register Success", success: true });
   } catch (error) {
     console.log(error);
@@ -99,7 +95,7 @@ const loginController = async (req, res) => {
     }
 
     const isMatch = await bcrypt.compare(req.body.password, user.password);
-    
+
     if (!isMatch) {
       return res
         .status(200)
@@ -116,8 +112,8 @@ const loginController = async (req, res) => {
       httpOnly: true,
       secure: false,
       sameSite: "strict",
-      maxAge: 24 * 60 * 60 * 1000
-    })
+      maxAge: 24 * 60 * 60 * 1000,
+    });
     return res.status(200).send({
       message: "Login success successfully",
       success: true,
@@ -136,7 +132,6 @@ const forgotPasswordController = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Hash the new password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -225,6 +220,7 @@ const authController = async (req, res) => {
       .send({ message: "auth error", success: false, error });
   }
 };
+
 /////////get all properties in home
 const getAllPropertiesController = async (req, res) => {
   try {
@@ -242,6 +238,21 @@ const getAllPropertiesController = async (req, res) => {
   }
 };
 
+/////////get single property by ID (for detail page)
+const getPropertyByIdController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const property = await propertySchema.findById(id);
+    if (!property) {
+      return res.status(404).send({ success: false, message: "Property not found" });
+    }
+    return res.status(200).send({ success: true, data: property });
+  } catch (error) {
+    console.error("Error fetching property by ID:", error);
+    return res.status(500).send({ success: false, message: "Failed to fetch property" });
+  }
+};
+
 ///////////booking handle///////////////
 const bookingHandleController = async (req, res) => {
   const { propertyid } = req.params;
@@ -251,7 +262,7 @@ const bookingHandleController = async (req, res) => {
     const booking = new bookingSchema({
       propertyId: propertyid,
       userID: userId,
-      ownerID: ownerId, 
+      ownerID: ownerId,
       userName: userDetails.fullName,
       phone: userDetails.phone,
       bookingStatus: status,
@@ -270,7 +281,7 @@ const bookingHandleController = async (req, res) => {
   }
 };
 
-/////get all bookings for sing tenents//////
+/////get all bookings for single tenants//////
 const getAllBookingsController = async (req, res) => {
   const { userId } = req.body;
   try {
@@ -289,6 +300,7 @@ const getAllBookingsController = async (req, res) => {
       .send({ message: "Internal server error", success: false });
   }
 };
+
 module.exports = {
   registerController,
   loginController,
@@ -296,6 +308,7 @@ module.exports = {
   updateProfileController,
   authController,
   getAllPropertiesController,
+  getPropertyByIdController,
   bookingHandleController,
   getAllBookingsController,
 };
