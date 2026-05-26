@@ -10,13 +10,12 @@ function getPropertyImagePath(property) {
 }
 
 function getCardTitle(property) {
-  const { propertyType, propertyAdType } = property;
   const { district, city } = parsePropertyAddress(property.propertyAddress);
   const area = district || city;
-  if (area && propertyType) {
-    return `${propertyType} in ${area}`;
-  }
-  return property.propertyAddress || "Property";
+  const raw = area && property.propertyType
+    ? `${property.propertyType} in ${area}`
+    : property.propertyAddress || "Property";
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
 }
 
 function getPriceLabel(property) {
