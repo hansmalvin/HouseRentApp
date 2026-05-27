@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const bookingModel = mongoose.Schema(
   {
-    propertId: {
+    propertyId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "propertyschema",
     },
@@ -25,6 +25,23 @@ const bookingModel = mongoose.Schema(
     bookingStatus: {
       type: String,
       required: [true, "Please provide a booking Type"],
+    },
+    // ── Date fields (rent listings only) ──────────────────────────
+    checkIn: {
+      type: Date,
+      default: null,
+    },
+    checkOut: {
+      type: Date,
+      default: null,
+    },
+    totalDays: {
+      type: Number,
+      default: null,
+    },
+    totalPrice: {
+      type: Number,
+      default: null,
     },
   },
   {

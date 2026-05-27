@@ -259,9 +259,28 @@ const getPropertyByIdController = async (req, res) => {
 ///////////booking handle///////////////
 const bookingHandleController = async (req, res) => {
   const { propertyid } = req.params;
-  const { userDetails, status, userId, ownerId } = req.body;
+  const { userDetails, status, userId, ownerId, checkIn, checkOut } = req.body;
 
   try {
+    // ── Prorated price calculation ────────────────────────────────
+    let totalDays = null;
+    let totalPrice = null;
+
+    if (checkIn && checkOut) {
+      const inDate = new Date(checkIn);
+      const outDate = new Date(checkOut);
+      const diffMs = outDate.getTime() - inDate.getTime();
+      totalDays = Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24)));
+
+      // Fetch the property to get its monthly price
+      const property = await propertySchema.findById(propertyid).lean();
+      if (property && property.propertyAmt) {
+        // Price per day = monthly price / 30
+        const dailyRate = property.propertyAmt / 30;
+        totalPrice = Math.round(dailyRate * totalDays);
+      }
+    }
+
     const booking = new bookingSchema({
       propertyId: propertyid,
       userID: userId,
@@ -269,13 +288,19 @@ const bookingHandleController = async (req, res) => {
       userName: userDetails.fullName,
       phone: userDetails.phone,
       bookingStatus: status,
+      checkIn: checkIn ? new Date(checkIn) : null,
+      checkOut: checkOut ? new Date(checkOut) : null,
+      totalDays,
+      totalPrice,
     });
 
     await booking.save();
 
-    return res
-      .status(200)
-      .send({ success: true, message: "Booking status updated" });
+    return res.status(200).send({
+      success: true,
+      message: "Booking status updated",
+      data: { totalDays, totalPrice },
+    });
   } catch (error) {
     console.error("Error handling booking:", error);
     return res
