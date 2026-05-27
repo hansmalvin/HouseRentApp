@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useRef, useCallback, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { UserContext } from "../../App";
 import { AnimatedBackground } from "animated-backgrounds";
 import {
   MagnifyingGlassIcon,
@@ -325,6 +326,12 @@ const WhereDropdown = ({ properties, onSelect }) => {
 
 // ─── Main Home Component ──────────────────────────────────────────────────────
 const Home = () => {
+  const { userData } = useContext(UserContext);
+  const navigate = useNavigate();
+
+  const isRenter = userData?.type === "Renter";
+  const renterName = userData?.name?.split(" ")[0] ?? "";
+
   const [searchWhere, setSearchWhere] = useState("");
   const [checkIn, setCheckIn] = useState(null);
   const [checkOut, setCheckOut] = useState(null);
@@ -397,11 +404,18 @@ const Home = () => {
             <button type="button" className="hidden rounded-full p-2 hover:bg-gray-100 sm:inline-flex" aria-label="Language">
               <GlobeAltIcon className="h-5 w-5" />
             </button>
-            <div className="flex items-center gap-2 rounded-full border border-gray-300 py-1 pl-3 pr-1 shadow-sm hover:shadow-md">
+            <div
+              className="flex items-center gap-2 rounded-full border border-gray-300 py-1 pl-3 pr-1 shadow-sm hover:shadow-md cursor-pointer"
+              onClick={() => navigate(isRenter ? "/renterhome" : "/login")}
+              title={isRenter ? `${userData.name} — Go to dashboard` : "Log in"}
+            >
               <Bars3Icon className="h-4 w-4" />
-              <Link to="/login" className="rounded-full p-0.5" aria-label="Account menu">
-                <UserCircleIcon className="h-8 w-8 text-gray-500" />
-              </Link>
+              <div className="rounded-full p-0.5 relative" aria-label="Account menu">
+                <UserCircleIcon className={`h-8 w-8 ${isRenter ? "text-indigo-500" : "text-gray-500"}`} />
+                {isRenter && (
+                  <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-green-400 border-2 border-white" />
+                )}
+              </div>
             </div>
           </div>
         </nav>
@@ -498,7 +512,19 @@ const Home = () => {
                 Clear filters
               </button>
             )}
-            <Link to="/login" className="text-sm font-medium text-gray-700 underline-offset-2 hover:underline">Log in to book</Link>
+            {isRenter ? (
+              <button
+                type="button"
+                onClick={() => navigate("/renterhome")}
+                className="text-sm font-medium text-indigo-600 underline-offset-2 hover:underline"
+              >
+                {renterName}, see your booked places →
+              </button>
+            ) : (
+              <Link to="/login" className="text-sm font-medium text-gray-700 underline-offset-2 hover:underline">
+                Log in to book
+              </Link>
+            )}
           </div>
         </div>
         <HomePropertySections searchQuery={searchWhere} dateFilter={dateFilter} />
