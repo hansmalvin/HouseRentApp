@@ -16,6 +16,8 @@ const RenterHome = () => {
   const handleLogOut = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    user.setUserData(null);
+    user.setUserLoggedIn(false);
     navigate("/");
   };
 

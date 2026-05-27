@@ -17,6 +17,7 @@ import { formatPropertyAmount } from "../../utils/propertyFormat";
 import { parsePropertyAddress } from "../../utils/propertyAddress";
 import { UserContext } from "../../App";
 import RentEaseLogo from "../../components/RentEaseLogo";
+import { message } from "antd";
 
 // ── Amenity icon map ────────────────────────────────────────────────
 const AMENITY_ICONS = {
@@ -47,19 +48,16 @@ function formatDateDisplay(date) {
 }
 function formatDateInput(date) {
   if (!date) return "";
-  const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
+  const y = date.getFullYear();
   return `${m}/${d}/${y}`;
 }
 
-const DAYS_SHORT = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-const MONTH_NAMES = [
-  "January","February","March","April","May","June",
-  "July","August","September","October","November","December",
-];
+const DAYS_SHORT = ["Su","Mo","Tu","We","Th","Fr","Sa"];
+const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
-// ── Inline Calendar ─────────────────────────────────────────────────
+// ── Calendar month grid ─────────────────────────────────────────────
 const CalendarMonth = ({ year, month, checkIn, checkOut, hoveredDate, onDayClick, onDayHover, today }) => {
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -69,9 +67,7 @@ const CalendarMonth = ({ year, month, checkIn, checkOut, hoveredDate, onDayClick
 
   return (
     <div className="flex-1">
-      <p className="mb-2 text-center text-sm font-semibold text-gray-900">
-        {MONTH_NAMES[month]} {year}
-      </p>
+      <p className="mb-2 text-center text-sm font-semibold text-gray-900">{MONTH_NAMES[month]} {year}</p>
       <div className="grid grid-cols-7 mb-1">
         {DAYS_SHORT.map((d) => (
           <div key={d} className="text-center text-[10px] font-medium text-gray-400 py-1">{d}</div>
@@ -115,7 +111,7 @@ const CalendarMonth = ({ year, month, checkIn, checkOut, hoveredDate, onDayClick
   );
 };
 
-// ── Booking Date Picker (inline in card) ────────────────────────────
+// ── Inline booking date picker ──────────────────────────────────────
 const BookingDatePicker = ({ checkIn, checkOut, onChange }) => {
   const today = startOfDay(new Date());
   const [offset, setOffset] = useState(0);
@@ -137,41 +133,25 @@ const BookingDatePicker = ({ checkIn, checkOut, onChange }) => {
 
   return (
     <div className="rounded-xl border border-gray-200 p-3 bg-gray-50">
-      {/* Navigation */}
       <div className="flex items-center justify-between mb-2">
-        <button
-          type="button"
-          onClick={() => setOffset((o) => o - 1)}
-          disabled={offset === 0}
-          className="p-1 rounded-full hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition"
-        >
+        <button type="button" onClick={() => setOffset((o) => o - 1)} disabled={offset === 0}
+          className="p-1 rounded-full hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition">
           <ChevronLeft className="h-3.5 w-3.5 text-gray-700" />
         </button>
-        <button
-          type="button"
-          onClick={() => setOffset((o) => o + 1)}
-          className="p-1 rounded-full hover:bg-gray-200 transition"
-        >
+        <button type="button" onClick={() => setOffset((o) => o + 1)}
+          className="p-1 rounded-full hover:bg-gray-200 transition">
           <ChevronRight className="h-3.5 w-3.5 text-gray-700" />
         </button>
       </div>
-      {/* Show one month at a time in the narrow card */}
       <CalendarMonth
-        year={months[0].year}
-        month={months[0].month}
-        checkIn={checkIn}
-        checkOut={checkOut}
-        hoveredDate={hoveredDate}
-        onDayClick={handleDayClick}
-        onDayHover={setHoveredDate}
-        today={today}
+        year={months[0].year} month={months[0].month}
+        checkIn={checkIn} checkOut={checkOut}
+        hoveredDate={hoveredDate} onDayClick={handleDayClick}
+        onDayHover={setHoveredDate} today={today}
       />
       {(checkIn || checkOut) && (
-        <button
-          type="button"
-          onClick={() => onChange(null, null)}
-          className="mt-2 w-full text-center text-xs text-gray-400 underline underline-offset-2 hover:text-gray-600"
-        >
+        <button type="button" onClick={() => onChange(null, null)}
+          className="mt-2 w-full text-center text-xs text-gray-400 underline underline-offset-2 hover:text-gray-600">
           Clear dates
         </button>
       )}
@@ -198,25 +178,23 @@ function parseAdditionalInfo(property) {
     return { amenities, notes: text };
   }
   const parts = (property.additionalInfo || "").split(",").map((s) => s.trim()).filter(Boolean);
-  const foundAmenities = parts.filter((p) => knownLabels.includes(p));
-  const notes = parts.filter((p) => !knownLabels.includes(p)).join(", ");
-  return { amenities: foundAmenities, notes };
+  return {
+    amenities: parts.filter((p) => knownLabels.includes(p)),
+    notes: parts.filter((p) => !knownLabels.includes(p)).join(", "),
+  };
 }
 
 // ── Image Gallery ────────────────────────────────────────────────────
 const ImageGallery = ({ images, title }) => {
   const [lightboxIndex, setLightboxIndex] = useState(null);
-  const closeLightbox = () => setLightboxIndex(null);
   const prev = () => setLightboxIndex((i) => (i - 1 + images.length) % images.length);
   const next = () => setLightboxIndex((i) => (i + 1) % images.length);
 
-  if (!images?.length) {
-    return (
-      <div className="h-[420px] w-full rounded-2xl bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
-        No images available
-      </div>
-    );
-  }
+  if (!images?.length) return (
+    <div className="h-[420px] w-full rounded-2xl bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
+      No images available
+    </div>
+  );
 
   return (
     <>
@@ -234,15 +212,14 @@ const ImageGallery = ({ images, title }) => {
             )}
           </div>
         ))}
-        {images.length < 5 &&
-          Array.from({ length: 4 - Math.min(images.length - 1, 4) }).map((_, i) => (
-            <div key={`empty-${i}`} className="col-span-1 row-span-1 bg-gray-100" />
-          ))}
+        {images.length < 5 && Array.from({ length: 4 - Math.min(images.length - 1, 4) }).map((_, i) => (
+          <div key={`empty-${i}`} className="col-span-1 row-span-1 bg-gray-100" />
+        ))}
       </div>
 
       {lightboxIndex !== null && (
-        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center" onClick={closeLightbox}>
-          <button className="absolute top-4 right-4 text-white hover:text-gray-300 p-2" onClick={closeLightbox}>✕</button>
+        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center" onClick={() => setLightboxIndex(null)}>
+          <button className="absolute top-4 right-4 text-white p-2" onClick={() => setLightboxIndex(null)}>✕</button>
           <button className="absolute left-4 text-white p-3 rounded-full bg-white/10 hover:bg-white/20" onClick={(e) => { e.stopPropagation(); prev(); }}>
             <ChevronLeftIcon className="h-6 w-6" />
           </button>
@@ -267,6 +244,9 @@ const PropertyDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Existing booking for this property+user (if any)
+  const [existingBooking, setExistingBooking] = useState(null);
+
   // Email modal
   const [emailModal, setEmailModal] = useState(false);
   const [emailForm, setEmailForm] = useState({ from_name: "", from_email: "", message: "" });
@@ -276,23 +256,89 @@ const PropertyDetail = () => {
   // Booking state
   const [checkIn, setCheckIn] = useState(null);
   const [checkOut, setCheckOut] = useState(null);
-  const [bookingStatus, setBookingStatus] = useState("idle"); // idle | loading | success | error
+  const [bookingStatus, setBookingStatus] = useState("idle"); // idle|loading|success|error
   const [bookingMessage, setBookingMessage] = useState("");
   const [showCalendar, setShowCalendar] = useState(false);
+
+  const isRenter = userData?.type === "Renter";
+
+  // Derive whether dates have changed from the existing booking
+  const existingCheckIn  = existingBooking?.checkIn  ? new Date(existingBooking.checkIn)  : null;
+  const existingCheckOut = existingBooking?.checkOut ? new Date(existingBooking.checkOut) : null;
+  const datesChanged =
+    existingBooking &&
+    (
+      (checkIn  && !isSameDay(checkIn,  existingCheckIn))  ||
+      (checkOut && !isSameDay(checkOut, existingCheckOut)) ||
+      (!checkIn && existingCheckIn) ||
+      (!checkOut && existingCheckOut)
+    );
+
+  // Booking card CTA label
+  const ctaLabel = () => {
+    if (bookingStatus === "loading") return existingBooking ? (datesChanged ? "Updating…" : "Cancelling…") : "Booking…";
+    if (existingBooking) return datesChanged ? "Update your booking" : "Cancel your booking";
+    if (isRent && (!checkIn || !checkOut)) return "Check availability";
+    return "Reserve";
+  };
+
+  const ctaStyle = () => {
+    if (existingBooking && !datesChanged) {
+      // Cancel — red
+      return "bg-red-500 hover:bg-red-600";
+    }
+    // Reserve / Update — indigo gradient
+    return "bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600";
+  };
 
   const handleDateChange = (newIn, newOut) => {
     setCheckIn(newIn);
     setCheckOut(newOut);
     if (newIn && newOut) setShowCalendar(false);
+    // Reset any previous booking result message when dates change
+    if (bookingStatus === "success" || bookingStatus === "error") setBookingStatus("idle");
   };
+
+  // Load property
+  useEffect(() => {
+    const fetchProp = async () => {
+      try {
+        const res = await axios.get(`http://localhost:8001/api/user/property/${id}`, { withCredentials: true });
+        if (res.data.success) setProperty(res.data.data);
+        else setError("Property not found.");
+      } catch { setError("Failed to load property."); }
+      finally { setLoading(false); }
+    };
+    fetchProp();
+  }, [id]);
+
+  // Load existing booking for this renter + property
+  useEffect(() => {
+    if (!isRenter) return;
+    const fetchBooking = async () => {
+      try {
+        const res = await axios.get("http://localhost:8001/api/user/getallbookings", { withCredentials: true });
+        if (res.data.success) {
+          const match = res.data.data.find((b) => b.propertyId?.toString() === id);
+          if (match) {
+            setExistingBooking(match);
+            // Pre-fill dates from existing booking
+            if (match.checkIn)  setCheckIn(new Date(match.checkIn));
+            if (match.checkOut) setCheckOut(new Date(match.checkOut));
+          }
+        }
+      } catch { /* silent — not critical */ }
+    };
+    fetchBooking();
+  }, [id, isRenter]);
 
   const handleSendEmail = async (e) => {
     e.preventDefault();
     setEmailSending(true);
     setEmailStatus(null);
-    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+    const serviceId  = import.meta.env.VITE_EMAILJS_SERVICE_ID;
     const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+    const publicKey  = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
     if (!serviceId || !templateId || !publicKey) { setEmailStatus("error"); setEmailSending(false); return; }
     try {
       await emailjs.send(serviceId, templateId, {
@@ -306,13 +352,58 @@ const PropertyDetail = () => {
     finally { setEmailSending(false); }
   };
 
-  // Booking submission
-  const handleReserve = async () => {
+  // ── Reserve / Update / Cancel handler ──────────────────────────────
+  const handleCTA = async () => {
     if (!userData) { navigate("/login"); return; }
-    if (isRent && (!checkIn || !checkOut)) { setShowCalendar(true); return; }
 
     setBookingStatus("loading");
+
     try {
+      // ── CANCEL ─────────────────────────────────────────────────
+      if (existingBooking && !datesChanged) {
+        const res = await axios.delete(
+          `http://localhost:8001/api/user/cancelbooking/${existingBooking._id}`,
+          { withCredentials: true }
+        );
+        if (res.data.success) {
+          setBookingStatus("success");
+          setBookingMessage("Booking cancelled successfully.");
+          setExistingBooking(null);
+          setCheckIn(null);
+          setCheckOut(null);
+        } else {
+          setBookingStatus("error");
+          setBookingMessage(res.data.message || "Failed to cancel booking.");
+        }
+        return;
+      }
+
+      // ── UPDATE ─────────────────────────────────────────────────
+      if (existingBooking && datesChanged) {
+        if (!checkIn || !checkOut) { setShowCalendar(true); setBookingStatus("idle"); return; }
+        const res = await axios.patch(
+          `http://localhost:8001/api/user/updatebooking/${existingBooking._id}`,
+          { userId: userData._id, checkIn: checkIn.toISOString(), checkOut: checkOut.toISOString() },
+          { withCredentials: true }
+        );
+        if (res.data.success) {
+          const { totalDays, totalPrice } = res.data.data ?? {};
+          setBookingStatus("success");
+          setBookingMessage(
+            totalDays && totalPrice
+              ? `Booking updated! ${totalDays} night${totalDays > 1 ? "s" : ""} · Rp${Number(totalPrice).toLocaleString("id-ID")}`
+              : "Booking updated!"
+          );
+          setExistingBooking((prev) => ({ ...prev, checkIn: checkIn.toISOString(), checkOut: checkOut.toISOString(), totalDays, totalPrice }));
+        } else {
+          setBookingStatus("error");
+          setBookingMessage(res.data.message || "Failed to update booking.");
+        }
+        return;
+      }
+
+      // ── NEW RESERVE ────────────────────────────────────────────
+      if (isRent && (!checkIn || !checkOut)) { setShowCalendar(true); setBookingStatus("idle"); return; }
       const res = await axios.post(
         `http://localhost:8001/api/user/bookinghandle/${id}`,
         {
@@ -325,37 +416,26 @@ const PropertyDetail = () => {
         },
         { withCredentials: true }
       );
-
       if (res.data.success) {
+        const { totalDays, totalPrice, bookingId } = res.data.data ?? {};
         setBookingStatus("success");
-        const { totalDays, totalPrice } = res.data.data ?? {};
         setBookingMessage(
           totalDays && totalPrice
-            ? `Booking confirmed for ${totalDays} day${totalDays > 1 ? "s" : ""}! Total: Rp${Number(totalPrice).toLocaleString("id-ID")}`
+            ? `Booking confirmed for ${totalDays} night${totalDays > 1 ? "s" : ""}! Total: Rp${Number(totalPrice).toLocaleString("id-ID")}`
             : "Booking confirmed!"
         );
+        setExistingBooking({ _id: bookingId, propertyId: id, checkIn: checkIn?.toISOString(), checkOut: checkOut?.toISOString(), totalDays, totalPrice });
       } else {
         setBookingStatus("error");
         setBookingMessage("Booking failed. Please try again.");
       }
     } catch {
       setBookingStatus("error");
-      setBookingMessage("Booking failed. Please try again.");
+      setBookingMessage("Something went wrong. Please try again.");
     }
   };
 
-  useEffect(() => {
-    const fetchProp = async () => {
-      try {
-        const res = await axios.get(`http://localhost:8001/api/user/property/${id}`, { withCredentials: true });
-        if (res.data.success) setProperty(res.data.data);
-        else setError("Property not found.");
-      } catch { setError("Failed to load property."); }
-      finally { setLoading(false); }
-    };
-    fetchProp();
-  }, [id]);
-
+  // ── Render guards ────────────────────────────────────────────────
   if (loading) return (
     <div className="min-h-screen bg-white flex items-center justify-center">
       <div className="text-center space-y-3">
@@ -399,10 +479,10 @@ const PropertyDetail = () => {
           <RentEaseLogo to="/" variant="light" size="md" />
           <div className="flex items-center gap-3">
             <button type="button" className="flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition">
-              <ShareIcon className="h-4 w-4" /> Share
+              <ShareIcon className="h-4 w-4" />Share
             </button>
             <button type="button" className="flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition">
-              <HeartIcon className="h-4 w-4" /> Save
+              <HeartIcon className="h-4 w-4" />Save
             </button>
           </div>
         </div>
@@ -410,7 +490,7 @@ const PropertyDetail = () => {
 
       <main className="mx-auto max-w-[1200px] px-6 py-8">
         <button onClick={() => navigate(-1)} className="mb-4 flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition">
-          <ArrowLeftIcon className="h-4 w-4" /> Back
+          <ArrowLeftIcon className="h-4 w-4" />Back
         </button>
 
         <h1 className="mb-2 text-2xl font-semibold text-gray-900 md:text-3xl">{title}</h1>
@@ -423,45 +503,31 @@ const PropertyDetail = () => {
           </span>
         </div>
 
-        <div className="mb-10">
-          <ImageGallery images={property.propertyImages} title={title} />
-        </div>
+        <div className="mb-10"><ImageGallery images={property.propertyImages} title={title} /></div>
 
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_380px]">
-          {/* Left column */}
+          {/* ── Left column ── */}
           <div className="space-y-8">
             <div className="border-b border-gray-200 pb-8">
-              <div className="flex items-center gap-3 mb-1">
-                <span className="text-lg font-semibold text-gray-900 capitalize">
-                  {property.propertyType} · {property.propertyAdType}
-                </span>
-              </div>
-              {property.ownerName && <p className="text-gray-500 text-sm">Hosted by {property.ownerName}</p>}
+              <span className="text-lg font-semibold text-gray-900 capitalize">{property.propertyType} · {property.propertyAdType}</span>
+              {property.ownerName && <p className="text-gray-500 text-sm mt-1">Hosted by {property.ownerName}</p>}
             </div>
 
             <div className="border-b border-gray-200 pb-8 space-y-4">
               <div className="flex items-start gap-4">
                 <HomeIcon className="h-6 w-6 text-gray-600 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-medium text-gray-900">Entire property</p>
-                  <p className="text-sm text-gray-500">You'll have the whole place to yourself.</p>
-                </div>
+                <div><p className="font-medium text-gray-900">Entire property</p><p className="text-sm text-gray-500">You'll have the whole place to yourself.</p></div>
               </div>
               <div className="flex items-start gap-4">
                 <TagIcon className="h-6 w-6 text-gray-600 shrink-0 mt-0.5" />
                 <div>
                   <p className="font-medium text-gray-900">Great value</p>
-                  <p className="text-sm text-gray-500">
-                    Rp{formatPropertyAmount(monthlyPrice)} per month — competitively priced for this area.
-                  </p>
+                  <p className="text-sm text-gray-500">Rp{formatPropertyAmount(monthlyPrice)} per month — competitively priced for this area.</p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
                 <MapPinIcon className="h-6 w-6 text-gray-600 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-medium text-gray-900">Great location</p>
-                  <p className="text-sm text-gray-500">{fullAddress || "Indonesia"}</p>
-                </div>
+                <div><p className="font-medium text-gray-900">Great location</p><p className="text-sm text-gray-500">{fullAddress || "Indonesia"}</p></div>
               </div>
             </div>
 
@@ -499,7 +565,8 @@ const PropertyDetail = () => {
                     </a>
                   )}
                   {property.ownerEmail && (
-                    <button type="button" onClick={() => { setEmailModal(true); setEmailStatus(null); }} className="inline-flex items-center gap-2 rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-gray-900 hover:shadow-sm transition">
+                    <button type="button" onClick={() => { setEmailModal(true); setEmailStatus(null); }}
+                      className="inline-flex items-center gap-2 rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-gray-900 hover:shadow-sm transition">
                       <EnvelopeIcon className="h-4 w-4" />Email owner
                     </button>
                   )}
@@ -507,13 +574,13 @@ const PropertyDetail = () => {
               </div>
             )}
 
-            {/* Email Modal */}
+            {/* Email modal */}
             {emailModal && (
               <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center px-4" onClick={() => setEmailModal(false)}>
                 <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold text-gray-900">Email owner</h3>
-                    <button type="button" onClick={() => setEmailModal(false)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
+                    <button type="button" onClick={() => setEmailModal(false)} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
                   </div>
                   <p className="text-sm text-gray-500">Sending about: <span className="font-medium text-gray-700">{title}</span></p>
                   {emailStatus === "success" ? (
@@ -522,18 +589,18 @@ const PropertyDetail = () => {
                     <form onSubmit={handleSendEmail} className="space-y-3">
                       <div>
                         <label className="mb-1 block text-xs font-medium text-gray-600">Your name</label>
-                        <input type="text" required value={emailForm.from_name} onChange={(e) => setEmailForm((p) => ({ ...p, from_name: e.target.value }))} placeholder="John Doe" className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-800 placeholder:text-gray-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200" />
+                        <input type="text" required value={emailForm.from_name} onChange={(e) => setEmailForm((p) => ({ ...p, from_name: e.target.value }))} placeholder="John Doe" className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200" />
                       </div>
                       <div>
                         <label className="mb-1 block text-xs font-medium text-gray-600">Your email</label>
-                        <input type="email" required value={emailForm.from_email} onChange={(e) => setEmailForm((p) => ({ ...p, from_email: e.target.value }))} placeholder="you@example.com" className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-800 placeholder:text-gray-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200" />
+                        <input type="email" required value={emailForm.from_email} onChange={(e) => setEmailForm((p) => ({ ...p, from_email: e.target.value }))} placeholder="you@example.com" className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200" />
                       </div>
                       <div>
                         <label className="mb-1 block text-xs font-medium text-gray-600">Message</label>
-                        <textarea required rows={4} value={emailForm.message} onChange={(e) => setEmailForm((p) => ({ ...p, message: e.target.value }))} placeholder="Hi, I'm interested in this property..." className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-800 placeholder:text-gray-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200" />
+                        <textarea required rows={4} value={emailForm.message} onChange={(e) => setEmailForm((p) => ({ ...p, message: e.target.value }))} placeholder="Hi, I'm interested in this property..." className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200" />
                       </div>
                       {emailStatus === "error" && <p className="text-xs text-red-500">Failed to send. Please try again.</p>}
-                      <button type="submit" disabled={emailSending} className="w-full rounded-xl bg-indigo-500 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-600 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                      <button type="submit" disabled={emailSending} className="w-full rounded-xl bg-indigo-500 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-600 transition disabled:opacity-50">
                         {emailSending ? "Sending…" : "Send message"}
                       </button>
                     </form>
@@ -547,7 +614,7 @@ const PropertyDetail = () => {
           <div className="lg:sticky lg:top-24 lg:self-start">
             <div className="rounded-2xl border border-gray-200 p-6 shadow-xl space-y-4">
 
-              {/* Price — updates live with selected dates */}
+              {/* Price */}
               <div className="flex items-end justify-between">
                 <div>
                   <span className="text-2xl font-bold text-gray-900 underline">{displayPrice}</span>
@@ -558,7 +625,14 @@ const PropertyDetail = () => {
                 </div>
               </div>
 
-              {/* Check-in / Check-out date row — rent listings only */}
+              {/* Existing booking notice */}
+              {existingBooking && (
+                <div className="rounded-xl bg-indigo-50 border border-indigo-200 px-4 py-2.5 text-sm text-indigo-700 text-center font-medium">
+                  ✓ You have an active booking for this property
+                </div>
+              )}
+
+              {/* Check-in / Check-out — rent listings only */}
               {isRent && (
                 <div>
                   <div
@@ -579,13 +653,12 @@ const PropertyDetail = () => {
                     </div>
                   </div>
 
-                  {/* Guests row */}
+                  {/* Guests */}
                   <div className="rounded-xl border border-gray-300 border-t-0 -mt-px px-3 py-2.5">
                     <p className="text-[10px] font-bold uppercase text-gray-500 tracking-wider">Guests</p>
                     <p className="text-sm text-gray-900">1 guest</p>
                   </div>
 
-                  {/* Inline calendar */}
                   {showCalendar && (
                     <div className="mt-2">
                       <BookingDatePicker checkIn={checkIn} checkOut={checkOut} onChange={handleDateChange} />
@@ -595,13 +668,13 @@ const PropertyDetail = () => {
               )}
 
               {/* Free cancellation notice */}
-              {isRent && (
+              {isRent && !existingBooking && (
                 <div className="rounded-xl bg-gray-50 border border-gray-200 px-3 py-2.5 text-xs text-gray-600 text-center">
                   Rp 0 today · Free cancellation before check-in
                 </div>
               )}
 
-              {/* Availability badge */}
+              {/* Availability */}
               <div className={`rounded-xl px-4 py-2.5 text-sm font-medium text-center ${isAvailable ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-600 border border-red-200"}`}>
                 {isAvailable ? "✓ Available now" : "Currently unavailable"}
               </div>
@@ -612,7 +685,7 @@ const PropertyDetail = () => {
                 <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 capitalize">For {property.propertyAdType}</span>
               </div>
 
-              {/* Booking success */}
+              {/* Feedback messages */}
               {bookingStatus === "success" && (
                 <div className="rounded-xl bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700 text-center">
                   ✓ {bookingMessage}
@@ -624,30 +697,27 @@ const PropertyDetail = () => {
                 </div>
               )}
 
-              {/* Reserve CTA */}
-              {bookingStatus !== "success" && (
+              {/* CTA button */}
+              {isAvailable && (
                 userData ? (
-                  isAvailable ? (
-                    <button
-                      type="button"
-                      onClick={handleReserve}
-                      disabled={bookingStatus === "loading"}
-                      className="block w-full rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 px-6 py-3.5 text-center text-sm font-semibold text-white shadow-md hover:from-pink-600 hover:to-rose-600 transition disabled:opacity-60 disabled:cursor-not-allowed"
-                    >
-                      {bookingStatus === "loading" ? "Booking…"
-                        : isRent && (!checkIn || !checkOut) ? "Check availability"
-                        : "Reserve"}
-                    </button>
-                  ) : (
-                    <button disabled className="w-full rounded-xl bg-gray-200 px-6 py-3 text-sm font-semibold text-gray-400 cursor-not-allowed">
-                      Not available
-                    </button>
-                  )
+                  <button
+                    type="button"
+                    onClick={handleCTA}
+                    disabled={bookingStatus === "loading"}
+                    className={`block w-full rounded-xl px-6 py-3.5 text-center text-sm font-semibold text-white shadow-md transition disabled:opacity-60 disabled:cursor-not-allowed ${ctaStyle()}`}
+                  >
+                    {ctaLabel()}
+                  </button>
                 ) : (
                   <Link to="/login" className="block w-full rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 px-6 py-3.5 text-center text-sm font-semibold text-white shadow-md hover:from-pink-600 hover:to-rose-600 transition">
                     Log in to book
                   </Link>
                 )
+              )}
+              {!isAvailable && (
+                <button disabled className="w-full rounded-xl bg-gray-200 px-6 py-3 text-sm font-semibold text-gray-400 cursor-not-allowed">
+                  Not available
+                </button>
               )}
 
               <p className="text-center text-xs text-gray-400">You won't be charged yet</p>
@@ -656,16 +726,14 @@ const PropertyDetail = () => {
               {isRent && nights && (
                 <div className="border-t border-gray-100 pt-4 space-y-2 text-sm">
                   <div className="flex justify-between text-gray-600">
-                    <span>Rp{formatPropertyAmount(monthlyPrice)} ÷ 30 days × {nights} night{nights > 1 ? "s" : ""}</span>
+                    <span>Rp{formatPropertyAmount(monthlyPrice)} ÷ 30 × {nights} night{nights > 1 ? "s" : ""}</span>
                     <span>{displayPrice}</span>
                   </div>
                   <div className="flex justify-between font-semibold text-gray-900 border-t border-gray-100 pt-2">
-                    <span>Total</span>
-                    <span>{displayPrice}</span>
+                    <span>Total</span><span>{displayPrice}</span>
                   </div>
                 </div>
               )}
-
               {isRent && !nights && (
                 <div className="border-t border-gray-100 pt-4 space-y-2 text-sm">
                   <div className="flex justify-between text-gray-600">
@@ -673,8 +741,7 @@ const PropertyDetail = () => {
                     <span>Rp{formatPropertyAmount(monthlyPrice)}</span>
                   </div>
                   <div className="flex justify-between font-semibold text-gray-900 border-t border-gray-100 pt-2">
-                    <span>Total</span>
-                    <span>Rp{formatPropertyAmount(monthlyPrice)}</span>
+                    <span>Total</span><span>Rp{formatPropertyAmount(monthlyPrice)}</span>
                   </div>
                 </div>
               )}
