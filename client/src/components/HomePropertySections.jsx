@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import HomePropertyScrollRow from "./HomePropertyScrollRow";
-import { groupPropertiesForHomeSections } from "../utils/propertyAddress";
+import { groupPropertiesForHomeSections, parsePropertyAddress } from "../utils/propertyAddress";
+import { getMaxGuestsFromProperty } from "../utils/propertyFormat";
 
-const HomePropertySections = ({ searchQuery = "", dateFilter = null }) => {
+const HomePropertySections = ({ searchQuery = "", dateFilter = null, guestFilter = null }) => {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -39,15 +40,32 @@ const HomePropertySections = ({ searchQuery = "", dateFilter = null }) => {
       );
     }
 
-    // Apply location search query
+    // Apply location search query (match on full address, city, or district)
     if (query) {
-      filtered = filtered.filter((p) =>
-        String(p.propertyAddress ?? "").toLowerCase().includes(query)
-      );
+      filtered = filtered.filter((p) => {
+        const rawAddress = String(p.propertyAddress ?? "");
+        const { city, district } = parsePropertyAddress(rawAddress);
+        const haystack = [
+          rawAddress,
+          city,
+          district,
+        ]
+          .join(" ")
+          .toLowerCase();
+        return haystack.includes(query);
+      });
+    }
+
+    // Filter by minimum guest capacity (only keep properties with explicit capacity)
+    if (guestFilter) {
+      filtered = filtered.filter((p) => {
+        const max = getMaxGuestsFromProperty(p);
+        return max > 0 && max >= guestFilter;
+      });
     }
 
     return groupPropertiesForHomeSections(filtered);
-  }, [properties, searchQuery, dateFilter]);
+  }, [properties, searchQuery, dateFilter, guestFilter]);
 
   if (loading) {
     return <div className="py-12 text-center text-gray-500">Loading properties…</div>;
@@ -58,6 +76,8 @@ const HomePropertySections = ({ searchQuery = "", dateFilter = null }) => {
       <div className="py-12 text-center text-gray-500">
         {dateFilter
           ? "No rent listings found for the selected dates and location."
+          : guestFilter
+          ? `No properties found that accommodate ${guestFilter} guest${guestFilter > 1 ? "s" : ""}.`
           : "No properties available at the moment."}
       </div>
     );

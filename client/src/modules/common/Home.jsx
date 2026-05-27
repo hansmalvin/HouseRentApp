@@ -341,6 +341,9 @@ const Home = () => {
 
   const whereRef = useRef(null);
   const whenRef = useRef(null);
+  const whoRef = useRef(null);
+  const [whoOpen, setWhoOpen] = useState(false);
+  const [guestCount, setGuestCount] = useState(0); // 0 = any
 
   useEffect(() => {
     axios
@@ -353,6 +356,7 @@ const Home = () => {
     const handler = (e) => {
       if (whereRef.current && !whereRef.current.contains(e.target)) setWhereOpen(false);
       if (whenRef.current && !whenRef.current.contains(e.target)) setWhenOpen(false);
+      if (whoRef.current && !whoRef.current.contains(e.target)) setWhoOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -376,9 +380,10 @@ const Home = () => {
     document.getElementById("listings")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const clearAll = () => { setSearchWhere(""); setCheckIn(null); setCheckOut(null); };
+  const clearAll = () => { setSearchWhere(""); setCheckIn(null); setCheckOut(null); setGuestCount(0); };
 
   const dateFilter = checkIn && checkOut ? { checkIn, checkOut } : null;
+  const guestFilter = guestCount > 0 ? guestCount : null;
   const whenLabel = formatDateLabel(checkIn, checkOut);
   const nights = checkIn && checkOut ? diffDays(checkIn, checkOut) : null;
 
@@ -470,9 +475,47 @@ const Home = () => {
                 </div>
 
                 {/* WHO */}
-                <div className="hidden flex-1 flex-col px-4 py-2 sm:flex">
-                  <span className="text-xs font-semibold text-gray-900">Who</span>
-                  <span className="text-sm text-gray-400">Add guests</span>
+                <div className="relative hidden flex-1 sm:block" ref={whoRef}>
+                  <button
+                    type="button"
+                    onClick={() => { setWhoOpen((o) => !o); setWhereOpen(false); setWhenOpen(false); }}
+                    className="flex w-full flex-col px-4 py-2 text-left"
+                  >
+                    <span className="text-xs font-semibold text-gray-900">Who</span>
+                    <span className={`text-sm ${guestCount > 0 ? "text-gray-800 font-medium" : "text-gray-400"}`}>
+                      {guestCount > 0 ? `${guestCount} guest${guestCount > 1 ? "s" : ""}` : "Add guests"}
+                    </span>
+                  </button>
+                  {whoOpen && (
+                    <div
+                      className="absolute right-0 top-[calc(100%+8px)] z-[200] w-56 rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
+                      onMouseDown={(e) => e.preventDefault()}
+                    >
+                      <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Guests</p>
+                      <div className="flex items-center justify-between gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setGuestCount((n) => Math.max(0, n - 1))}
+                          className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-300 text-gray-700 hover:border-gray-900 transition text-lg font-light"
+                        >−</button>
+                        <span className="min-w-[3ch] text-center text-sm font-semibold text-gray-900">
+                          {guestCount === 0 ? "Any" : guestCount}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setGuestCount((n) => Math.min(20, n + 1))}
+                          className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-300 text-gray-700 hover:border-gray-900 transition text-lg font-light"
+                        >+</button>
+                      </div>
+                      {guestCount > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => { setGuestCount(0); setWhoOpen(false); }}
+                          className="mt-3 w-full text-center text-xs text-gray-400 underline underline-offset-2 hover:text-gray-600"
+                        >Clear</button>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <button
@@ -507,7 +550,7 @@ const Home = () => {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            {(searchWhere || checkIn) && (
+            {(searchWhere || checkIn || guestCount > 0) && (
               <button type="button" onClick={clearAll} className="text-sm font-medium text-gray-500 underline-offset-2 hover:underline">
                 Clear filters
               </button>
@@ -527,7 +570,11 @@ const Home = () => {
             )}
           </div>
         </div>
-        <HomePropertySections searchQuery={searchWhere} dateFilter={dateFilter} />
+        <HomePropertySections
+          searchQuery={searchWhere}
+          dateFilter={dateFilter}
+          guestFilter={guestFilter}
+        />
       </main>
     </div>
   );

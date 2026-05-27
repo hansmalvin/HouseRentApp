@@ -13,7 +13,7 @@ import {
   LayoutPanelTop, SoapDispenserDroplet, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import emailjs from "@emailjs/browser";
-import { formatPropertyAmount } from "../../utils/propertyFormat";
+import { formatPropertyAmount, getMaxGuestsFromProperty } from "../../utils/propertyFormat";
 import { parsePropertyAddress } from "../../utils/propertyAddress";
 import { UserContext } from "../../App";
 import RentEaseLogo from "../../components/RentEaseLogo";
@@ -458,6 +458,7 @@ const PropertyDetail = () => {
   const fullAddress = [streetAddress, district, city].filter(Boolean).join(", ");
   const isRent = String(property.propertyAdType).toLowerCase() === "rent";
   const isAvailable = property.isAvailable === "Available";
+  const maxGuests = getMaxGuestsFromProperty(property);
 
   // Price calculation
   const monthlyPrice = property.propertyAmt || 0;
@@ -656,7 +657,11 @@ const PropertyDetail = () => {
                   {/* Guests */}
                   <div className="rounded-xl border border-gray-300 border-t-0 -mt-px px-3 py-2.5">
                     <p className="text-[10px] font-bold uppercase text-gray-500 tracking-wider">Guests</p>
-                    <p className="text-sm text-gray-900">1 guest</p>
+                    <p className="text-sm text-gray-900">
+                      {maxGuests > 0
+                        ? `Up to ${maxGuests} guest${maxGuests > 1 ? "s" : ""}`
+                        : "1 guest"}
+                    </p>
                   </div>
 
                   {showCalendar && (

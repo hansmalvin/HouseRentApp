@@ -6,6 +6,13 @@ import { ArrowsUpDownIcon } from "@heroicons/react/24/outline";
 
 axios.defaults.withCredentials = true;
 
+function fmtDate(dateStr) {
+  if (!dateStr) return <span className="text-slate-400">—</span>;
+  return new Date(dateStr).toLocaleDateString("en-GB", {
+    day: "numeric", month: "short", year: "numeric",
+  });
+}
+
 const OwnerAllBookings = ({ isAdmin = false }) => {
   const [allBookings, setAllBookings] = useState([]);
   const [search, setSearch] = useState("");
@@ -18,7 +25,6 @@ const OwnerAllBookings = ({ isAdmin = false }) => {
         "http://localhost:8001/api/owner/getallbookings",
         { withCredentials: true }
       );
-
       if (response.data.success) {
         setAllBookings(response.data.data);
       } else {
@@ -36,9 +42,7 @@ const OwnerAllBookings = ({ isAdmin = false }) => {
     }
   };
 
-  useEffect(() => {
-    getAllProperty();
-  }, []);
+  useEffect(() => { getAllProperty(); }, []);
 
   const handleStatus = async (bookingId, propertyId, status) => {
     try {
@@ -47,7 +51,6 @@ const OwnerAllBookings = ({ isAdmin = false }) => {
         { bookingId, propertyId, status },
         { withCredentials: true }
       );
-
       if (res.data.success) {
         message.success(res.data.message);
         getAllProperty();
@@ -61,26 +64,23 @@ const OwnerAllBookings = ({ isAdmin = false }) => {
   };
 
   const displayedBookings = allBookings
-  .filter((b) =>
-    !search ||
-    [b.userName, b.phone, b._id, b.propertyId, b.bookingStatus]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase()
-      .includes(search.toLowerCase())
-  )
-  .sort((a, b) =>
-    sortAsc
-      ? (a.userName ?? "").localeCompare(b.userName ?? "")
-      : (b.userName ?? "").localeCompare(a.userName ?? "")
-  );
+    .filter((b) =>
+      !search ||
+      [b.userName, b.phone, b._id, b.propertyId, b.bookingStatus]
+        .filter(Boolean).join(" ").toLowerCase()
+        .includes(search.toLowerCase())
+    )
+    .sort((a, b) =>
+      sortAsc
+        ? (a.userName ?? "").localeCompare(b.userName ?? "")
+        : (b.userName ?? "").localeCompare(a.userName ?? "")
+    );
 
   return (
     <div>
       <h2 className="mb-1 text-xl font-bold text-indigo-700">Booking requests</h2>
       <p className="mb-6 text-sm text-slate-500">
-        Tenants who applied to your properties appear here. Approve or change
-        status as needed.
+        Tenants who applied to your properties appear here. Approve or change status as needed.
       </p>
 
       <div className="mb-4 flex gap-2">
@@ -107,6 +107,9 @@ const OwnerAllBookings = ({ isAdmin = false }) => {
             <tr>
               <th className="px-4 py-3 text-center font-semibold">Tenant name</th>
               <th className="px-4 py-3 text-center font-semibold">Tenant phone</th>
+              <th className="px-4 py-3 text-center font-semibold">Check-in</th>
+              <th className="px-4 py-3 text-center font-semibold">Checkout</th>
+              <th className="px-4 py-3 text-center font-semibold">Nights</th>
               <th className="px-4 py-3 text-center font-semibold">Booking ID</th>
               <th className="px-4 py-3 text-center font-semibold">Property ID</th>
               <th className="px-4 py-3 text-center font-semibold">Status</th>
@@ -124,6 +127,24 @@ const OwnerAllBookings = ({ isAdmin = false }) => {
                 >
                   <td className="px-4 py-3 text-center">{booking.userName}</td>
                   <td className="px-4 py-3 text-center">{booking.phone}</td>
+
+                  {/* ── Check-in ── */}
+                  <td className="px-4 py-3 text-center text-slate-700">
+                    {fmtDate(booking.checkIn)}
+                  </td>
+
+                  {/* ── Checkout ── */}
+                  <td className="px-4 py-3 text-center text-slate-700">
+                    {fmtDate(booking.checkOut)}
+                  </td>
+
+                  {/* ── Nights ── */}
+                  <td className="px-4 py-3 text-center text-slate-600">
+                    {booking.totalDays
+                      ? `${booking.totalDays}n`
+                      : <span className="text-slate-400">—</span>}
+                  </td>
+
                   <td className="px-4 py-3 text-center font-mono text-xs sm:text-sm">
                     {booking._id}
                   </td>
@@ -143,9 +164,7 @@ const OwnerAllBookings = ({ isAdmin = false }) => {
                     {booking.bookingStatus === "pending" ? (
                       <button
                         type="button"
-                        onClick={() =>
-                          handleStatus(booking._id, booking.propertyId, "booked")
-                        }
+                        onClick={() => handleStatus(booking._id, booking.propertyId, "booked")}
                         disabled={isAdmin}
                         title={isAdmin ? "Admins cannot change booking status" : undefined}
                         className="rounded-lg bg-emerald-200 px-4 py-1.5 text-sm font-medium text-emerald-800 shadow-sm transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-40"
@@ -155,13 +174,7 @@ const OwnerAllBookings = ({ isAdmin = false }) => {
                     ) : (
                       <button
                         type="button"
-                        onClick={() =>
-                          handleStatus(
-                            booking._id,
-                            booking.propertyId,
-                            "pending"
-                          )
-                        }
+                        onClick={() => handleStatus(booking._id, booking.propertyId, "pending")}
                         disabled={isAdmin}
                         title={isAdmin ? "Admins cannot change booking status" : undefined}
                         className="rounded-lg bg-amber-200 px-4 py-1.5 text-sm font-medium text-amber-800 shadow-sm transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-40"
@@ -174,12 +187,8 @@ const OwnerAllBookings = ({ isAdmin = false }) => {
               ))
             ) : (
               <tr>
-                <td
-                  colSpan={6}
-                  className="px-4 py-10 text-center text-slate-500"
-                >
-                  No booking requests yet. When tenants apply to your
-                  listings, they will show up here.
+                <td colSpan={9} className="px-4 py-10 text-center text-slate-500">
+                  No booking requests yet. When tenants apply to your listings, they will show up here.
                 </td>
               </tr>
             )}
