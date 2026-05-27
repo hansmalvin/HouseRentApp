@@ -14,16 +14,14 @@ import HomePropertySections from "../../components/HomePropertySections";
 import { parsePropertyAddress } from "../../utils/propertyAddress";
 import axios from "axios";
 
-// ─── Reverse-geocode lat/lng → city name ─────────────────────────────────────
+// ─── Reverse-geocode lat/lng → city name (via backend proxy) ─────────────────
 async function reverseGeocode(lat, lng) {
   try {
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=id`,
-      { headers: { "User-Agent": "RentrApp/1.0" } }
-    );
-    const data = await res.json();
-    const addr = data.address ?? {};
-    return addr.city || addr.town || addr.county || addr.state_district || addr.state || null;
+    const res = await axios.get("http://localhost:8001/api/user/reversegeocode", {
+      params: { lat, lng },
+      withCredentials: true,
+    });
+    return res.data?.success ? res.data.city || null : null;
   } catch {
     return null;
   }

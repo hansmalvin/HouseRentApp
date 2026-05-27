@@ -267,6 +267,55 @@ const getAllBookingsController = async (req, res) => {
   }
 };
 
+///////////reverse geocode via server (avoids browser CORS issues)///////////////
+const reverseGeocodeController = async (req, res) => {
+  try {
+    const { lat, lng } = req.query;
+    const latitude = Number(lat);
+    const longitude = Number(lng);
+
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+      return res.status(400).send({ success: false, message: "Invalid lat/lng" });
+    }
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+
+    let response;
+    try {
+      response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=id`,
+        {
+          headers: {
+            "User-Agent": "Rentr/1.0 (server reverse geocode proxy)",
+          },
+          signal: controller.signal,
+        }
+      );
+    } finally {
+      clearTimeout(timeout);
+    }
+
+    if (!response.ok) {
+      return res.status(502).send({ success: false, message: "Geocoding provider unavailable" });
+    }
+
+    const data = await response.json();
+    const addr = data?.address ?? {};
+    const city =
+      addr.city ||
+      addr.town ||
+      addr.county ||
+      addr.state_district ||
+      addr.state ||
+      "";
+
+    return res.status(200).send({ success: true, city });
+  } catch (error) {
+    return res.status(500).send({ success: false, message: "Failed to reverse geocode" });
+  }
+};
+
 module.exports = {
   registerController,
   loginController,
@@ -279,4 +328,5 @@ module.exports = {
   cancelBookingController,
   updateBookingController,
   getAllBookingsController,
+  reverseGeocodeController,
 };

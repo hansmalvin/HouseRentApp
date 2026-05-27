@@ -12,6 +12,7 @@ const {
   cancelBookingController,
   updateBookingController,
   getAllBookingsController,
+  reverseGeocodeController,
 } = require("../controllers/userController");
 
 const router = express.Router();
@@ -33,5 +34,6 @@ router.delete("/cancelbooking/:bookingid", authMiddleware, cancelBookingControll
 router.patch("/updatebooking/:bookingid", authMiddleware, updateBookingController);
 
 router.get("/getallbookings", authMiddleware, getAllBookingsController);
+router.get("/reversegeocode", reverseGeocodeController);
 
 module.exports = router;
