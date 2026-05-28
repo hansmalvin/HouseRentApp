@@ -13,6 +13,7 @@ const {
   updateBookingController,
   getAllBookingsController,
   reverseGeocodeController,
+  getPropertyBookingsController,
 } = require("../controllers/userController");
 
 const router = express.Router();
@@ -24,6 +25,7 @@ router.get("/getAllProperties", getAllPropertiesController);
 
 // Single property detail — public, no auth required
 router.get("/property/:id", getPropertyByIdController);
+router.get("/property/:id/bookings", getPropertyBookingsController);
 
 router.post("/getuserdata", authMiddleware, authController);
 router.patch("/updateprofile", authMiddleware, updateProfileController);

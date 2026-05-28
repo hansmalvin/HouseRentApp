@@ -54,11 +54,36 @@ function formatDateInput(date) {
   return `${m}/${d}/${y}`;
 }
 
+// ── NEW: Check if a date falls within any booked range ──────────────
+// bookedRanges: Array of { checkIn: Date, checkOut: Date }
+function isDateBooked(date, bookedRanges) {
+  const t = startOfDay(date).getTime();
+  return bookedRanges.some(({ checkIn, checkOut }) => {
+    const inT  = startOfDay(checkIn).getTime();
+    const outT = startOfDay(checkOut).getTime();
+    // A date is "booked" if it falls on or between checkIn and checkOut (inclusive)
+    return t >= inT && t <= outT;
+  });
+}
+
+// ── NEW: Check if a proposed range overlaps with any booked range ───
+function rangeOverlapsBooked(start, end, bookedRanges) {
+  if (!start || !end) return false;
+  const s = startOfDay(start).getTime();
+  const e = startOfDay(end).getTime();
+  return bookedRanges.some(({ checkIn, checkOut }) => {
+    const inT  = startOfDay(checkIn).getTime();
+    const outT = startOfDay(checkOut).getTime();
+    return s < outT && e > inT; // overlap condition
+  });
+}
+
 const DAYS_SHORT = ["Su","Mo","Tu","We","Th","Fr","Sa"];
 const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
 // ── Calendar month grid ─────────────────────────────────────────────
-const CalendarMonth = ({ year, month, checkIn, checkOut, hoveredDate, onDayClick, onDayHover, today }) => {
+// CHANGED: now accepts bookedRanges prop
+const CalendarMonth = ({ year, month, checkIn, checkOut, hoveredDate, onDayClick, onDayHover, today, bookedRanges }) => {
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const cells = [];
@@ -76,33 +101,53 @@ const CalendarMonth = ({ year, month, checkIn, checkOut, hoveredDate, onDayClick
       <div className="grid grid-cols-7">
         {cells.map((date, i) => {
           if (!date) return <div key={`e-${i}`} />;
-          const isPast = startOfDay(date) < startOfDay(today);
-          const isStart = isSameDay(date, checkIn);
-          const isEnd = isSameDay(date, checkOut);
-          const inRange = isBetween(date, checkIn, checkOut || hoveredDate);
+          const isPast   = startOfDay(date) < startOfDay(today);
+          // NEW: check if this date is within a confirmed booking
+          const isBooked = isDateBooked(date, bookedRanges);
+          const isStart  = isSameDay(date, checkIn);
+          const isEnd    = isSameDay(date, checkOut);
+          const inRange  = isBetween(date, checkIn, checkOut || hoveredDate);
           const isHoverEnd = !checkOut && isSameDay(date, hoveredDate);
-          const isToday = isSameDay(date, today);
+          const isToday  = isSameDay(date, today);
 
-          let cls = "relative flex items-center justify-center h-7 text-xs select-none transition-colors ";
-          if (isPast) cls += "text-gray-300 cursor-not-allowed ";
-          else if (isStart || isEnd) cls += "bg-gray-900 text-white rounded-full font-semibold z-10 cursor-pointer ";
-          else if (inRange || isHoverEnd) cls += "bg-indigo-100 text-indigo-800 cursor-pointer ";
-          else if (isToday) cls += "text-indigo-600 font-semibold hover:bg-gray-100 rounded-full cursor-pointer ";
-          else cls += "text-gray-800 hover:bg-gray-100 rounded-full cursor-pointer ";
+          // Disabled if past OR booked by another renter
+          const isDisabled = isPast || isBooked;
+
+          let cls = "relative flex flex-col items-center justify-center h-8 text-xs select-none transition-colors ";
+
+          if (isBooked && !isStart && !isEnd) {
+            // Booked by someone else — visually distinct: red-ish strikethrough style
+            cls += "text-red-300 cursor-not-allowed line-through decoration-red-300 bg-red-50 ";
+          } else if (isPast) {
+            cls += "text-gray-300 cursor-not-allowed ";
+          } else if (isStart || isEnd) {
+            cls += "bg-gray-900 text-white rounded-full font-semibold z-10 cursor-pointer ";
+          } else if (inRange || isHoverEnd) {
+            cls += "bg-indigo-100 text-indigo-800 cursor-pointer ";
+          } else if (isToday) {
+            cls += "text-indigo-600 font-semibold hover:bg-gray-100 rounded-full cursor-pointer ";
+          } else {
+            cls += "text-gray-800 hover:bg-gray-100 rounded-full cursor-pointer ";
+          }
 
           const rangeBar =
             (isStart && checkOut) ? "after:absolute after:inset-y-0 after:right-0 after:left-1/2 after:bg-indigo-100 after:-z-10 " :
-            (isEnd && checkIn)    ? "after:absolute after:inset-y-0 after:left-0 after:right-1/2 after:bg-indigo-100 after:-z-10 " : "";
+            (isEnd   && checkIn)  ? "after:absolute after:inset-y-0 after:left-0 after:right-1/2 after:bg-indigo-100 after:-z-10 " : "";
 
           return (
             <div
               key={date.toISOString()}
               className={cls + rangeBar}
-              onClick={() => !isPast && onDayClick(date)}
-              onMouseEnter={() => !isPast && onDayHover(date)}
+              onClick={() => !isDisabled && onDayClick(date)}
+              onMouseEnter={() => !isDisabled && onDayHover(date)}
               onMouseLeave={() => onDayHover(null)}
+              title={isBooked ? "Already booked" : undefined}
             >
               {date.getDate()}
+              {/* NEW: tiny dot indicator under booked dates */}
+              {isBooked && (
+                <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-red-400" />
+              )}
             </div>
           );
         })}
@@ -112,10 +157,13 @@ const CalendarMonth = ({ year, month, checkIn, checkOut, hoveredDate, onDayClick
 };
 
 // ── Inline booking date picker ──────────────────────────────────────
-const BookingDatePicker = ({ checkIn, checkOut, onChange }) => {
+// CHANGED: passes bookedRanges down and validates range selection
+const BookingDatePicker = ({ checkIn, checkOut, onChange, bookedRanges }) => {
   const today = startOfDay(new Date());
   const [offset, setOffset] = useState(0);
   const [hoveredDate, setHoveredDate] = useState(null);
+  // NEW: warning shown when user tries to select a range that overlaps a booking
+  const [overlapWarning, setOverlapWarning] = useState(false);
 
   const months = [0, 1].map((i) => {
     const d = new Date(today.getFullYear(), today.getMonth() + offset + i, 1);
@@ -123,11 +171,22 @@ const BookingDatePicker = ({ checkIn, checkOut, onChange }) => {
   });
 
   const handleDayClick = (date) => {
+    setOverlapWarning(false);
     if (!checkIn || (checkIn && checkOut)) {
       onChange(date, null);
     } else {
-      if (startOfDay(date) <= startOfDay(checkIn)) onChange(date, null);
-      else onChange(checkIn, date);
+      if (startOfDay(date) <= startOfDay(checkIn)) {
+        onChange(date, null);
+      } else {
+        // NEW: reject if the proposed range spans over a booked period
+        if (rangeOverlapsBooked(checkIn, date, bookedRanges)) {
+          setOverlapWarning(true);
+          // Reset so user can pick again
+          onChange(null, null);
+          return;
+        }
+        onChange(checkIn, date);
+      }
     }
   };
 
@@ -148,9 +207,28 @@ const BookingDatePicker = ({ checkIn, checkOut, onChange }) => {
         checkIn={checkIn} checkOut={checkOut}
         hoveredDate={hoveredDate} onDayClick={handleDayClick}
         onDayHover={setHoveredDate} today={today}
+        bookedRanges={bookedRanges}
       />
+
+      {/* NEW: legend + overlap warning */}
+      <div className="mt-3 flex items-center gap-3 text-[10px] text-gray-400">
+        <span className="flex items-center gap-1">
+          <span className="inline-block w-2.5 h-2.5 rounded-full bg-red-300" />
+          Already booked
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="inline-block w-2.5 h-2.5 rounded-full bg-gray-900" />
+          Your selection
+        </span>
+      </div>
+      {overlapWarning && (
+        <p className="mt-2 text-xs text-red-500 text-center">
+          Your selected range includes already-booked dates. Please choose different dates.
+        </p>
+      )}
+
       {(checkIn || checkOut) && (
-        <button type="button" onClick={() => onChange(null, null)}
+        <button type="button" onClick={() => { onChange(null, null); setOverlapWarning(false); }}
           className="mt-2 w-full text-center text-xs text-gray-400 underline underline-offset-2 hover:text-gray-600">
           Clear dates
         </button>
@@ -247,6 +325,9 @@ const PropertyDetail = () => {
   // Existing booking for this property+user (if any)
   const [existingBooking, setExistingBooking] = useState(null);
 
+  // NEW: booked date ranges from confirmed bookings on this property
+  const [bookedRanges, setBookedRanges] = useState([]);
+
   // Email modal
   const [emailModal, setEmailModal] = useState(false);
   const [emailForm, setEmailForm] = useState({ from_name: "", from_email: "", message: "" });
@@ -261,6 +342,9 @@ const PropertyDetail = () => {
   const [showCalendar, setShowCalendar] = useState(false);
 
   const isRenter = userData?.type === "Renter";
+  const isOwner  = userData?.type === "Owner";
+  const isAdmin  = userData?.type === "Admin";
+  const canBook  = isRenter;
 
   // Derive whether dates have changed from the existing booking
   const existingCheckIn  = existingBooking?.checkIn  ? new Date(existingBooking.checkIn)  : null;
@@ -284,10 +368,8 @@ const PropertyDetail = () => {
 
   const ctaStyle = () => {
     if (existingBooking && !datesChanged) {
-      // Cancel — red
       return "bg-red-500 hover:bg-red-600";
     }
-    // Reserve / Update — indigo gradient
     return "bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600";
   };
 
@@ -295,7 +377,6 @@ const PropertyDetail = () => {
     setCheckIn(newIn);
     setCheckOut(newOut);
     if (newIn && newOut) setShowCalendar(false);
-    // Reset any previous booking result message when dates change
     if (bookingStatus === "success" || bookingStatus === "error") setBookingStatus("idle");
   };
 
@@ -312,6 +393,24 @@ const PropertyDetail = () => {
     fetchProp();
   }, [id]);
 
+  // NEW: Load booked date ranges for this property (public endpoint, no auth)
+  useEffect(() => {
+    const fetchBookedRanges = async () => {
+      try {
+        const res = await axios.get(`http://localhost:8001/api/user/property/${id}/bookings`);
+        if (res.data.success) {
+          // Convert ISO strings to Date objects
+          const ranges = res.data.data.map((b) => ({
+            checkIn:  new Date(b.checkIn),
+            checkOut: new Date(b.checkOut),
+          }));
+          setBookedRanges(ranges);
+        }
+      } catch { /* silent — calendar still works, just no blocking */ }
+    };
+    fetchBookedRanges();
+  }, [id]);
+
   // Load existing booking for this renter + property
   useEffect(() => {
     if (!isRenter) return;
@@ -322,12 +421,11 @@ const PropertyDetail = () => {
           const match = res.data.data.find((b) => b.propertyId?.toString() === id);
           if (match) {
             setExistingBooking(match);
-            // Pre-fill dates from existing booking
             if (match.checkIn)  setCheckIn(new Date(match.checkIn));
             if (match.checkOut) setCheckOut(new Date(match.checkOut));
           }
         }
-      } catch { /* silent — not critical */ }
+      } catch { /* silent */ }
     };
     fetchBooking();
   }, [id, isRenter]);
@@ -664,9 +762,15 @@ const PropertyDetail = () => {
                     </p>
                   </div>
 
+                  {/* CHANGED: pass bookedRanges into the date picker */}
                   {showCalendar && (
                     <div className="mt-2">
-                      <BookingDatePicker checkIn={checkIn} checkOut={checkOut} onChange={handleDateChange} />
+                      <BookingDatePicker
+                        checkIn={checkIn}
+                        checkOut={checkOut}
+                        onChange={handleDateChange}
+                        bookedRanges={bookedRanges}
+                      />
                     </div>
                   )}
                 </div>
@@ -705,14 +809,20 @@ const PropertyDetail = () => {
               {/* CTA button */}
               {isAvailable && (
                 userData ? (
-                  <button
-                    type="button"
-                    onClick={handleCTA}
-                    disabled={bookingStatus === "loading"}
-                    className={`block w-full rounded-xl px-6 py-3.5 text-center text-sm font-semibold text-white shadow-md transition disabled:opacity-60 disabled:cursor-not-allowed ${ctaStyle()}`}
-                  >
-                    {ctaLabel()}
-                  </button>
+                  canBook ? (
+                    <button
+                      type="button"
+                      onClick={handleCTA}
+                      disabled={bookingStatus === "loading"}
+                      className={`block w-full rounded-xl px-6 py-3.5 text-center text-sm font-semibold text-white shadow-md transition disabled:opacity-60 disabled:cursor-not-allowed ${ctaStyle()}`}
+                    >
+                      {ctaLabel()}
+                    </button>
+                  ) : (
+                    <div className="rounded-xl bg-gray-100 border border-gray-200 px-4 py-3 text-sm text-gray-400 text-center cursor-not-allowed select-none">
+                      Booking is for renters only
+                    </div>
+                  )
                 ) : (
                   <Link to="/login" className="block w-full rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 px-6 py-3.5 text-center text-sm font-semibold text-white shadow-md hover:from-pink-600 hover:to-rose-600 transition">
                     Log in to book

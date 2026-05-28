@@ -19,9 +19,5 @@ You can either add port 8001 into the .env or not
 
 And make JWT_KEY in the .env file for unique key JWT Token
 
-migrate database for dummy db
-
-npm run migrate
-
 Note before updating the code:
 Update the 0.0.0.0/0 connection in atlas

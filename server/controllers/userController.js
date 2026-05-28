@@ -136,6 +136,27 @@ const getPropertyByIdController = async (req, res) => {
   }
 };
 
+/////////get booked date ranges for a property (public — no auth needed)
+const getPropertyBookingsController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    // Only return bookings with status "booked" (confirmed by owner)
+    const bookings = await bookingSchema.find({
+      propertyId: id,
+      bookingStatus: "booked",
+      checkIn: { $ne: null },
+      checkOut: { $ne: null },
+    })
+      .select("checkIn checkOut -_id")
+      .lean();
+
+    return res.status(200).send({ success: true, data: bookings });
+  } catch (error) {
+    console.error("Error fetching property bookings:", error);
+    return res.status(500).send({ success: false, message: "Failed to fetch bookings" });
+  }
+};
+
 ///////////booking handle (create) ///////////////
 const bookingHandleController = async (req, res) => {
   const { propertyid } = req.params;
@@ -226,7 +247,7 @@ const updateBookingController = async (req, res) => {
         totalDays,
         totalPrice,
       },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     return res.status(200).send({ success: true, message: "Booking updated", data: { totalDays, totalPrice } });
@@ -329,4 +350,5 @@ module.exports = {
   updateBookingController,
   getAllBookingsController,
   reverseGeocodeController,
+  getPropertyBookingsController,
 };

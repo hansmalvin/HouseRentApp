@@ -132,6 +132,7 @@ function AddProperty({ isAdmin = false }) {
   const [contactDialCode, setContactDialCode] = useState(DEFAULT_DIAL_CODE);
   const [contactNumber, setContactNumber] = useState("");
   const [amenitiesOpen, setAmenitiesOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const selectedAmenities = parseSelectedAmenities(propertyDetails.additionalInfo);
@@ -185,6 +186,7 @@ function AddProperty({ isAdmin = false }) {
       for (let i = 0; i < files.length; i++) formData.append("propertyImages", files[i]);
     }
 
+    setSubmitting(true);
     try {
       const res = await axios.post("http://localhost:8001/api/owner/postproperty", formData, { withCredentials: true });
       if (res.data.success) {
@@ -203,6 +205,8 @@ function AddProperty({ isAdmin = false }) {
       console.error("Error adding property:", error);
       if (error.response?.status === 401) { message.error("Session expired, please login again"); navigate("/login"); }
       else message.error("Failed to add property");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -339,10 +343,10 @@ function AddProperty({ isAdmin = false }) {
         </div>
 
         <div className="flex justify-end border-t border-indigo-100 pt-6">
-          <button type="submit" disabled={isAdmin}
-            title={isAdmin ? "Admins cannot publish listings" : undefined}
+          <button type="submit" disabled={isAdmin || submitting}
+            title={isAdmin ? "Admins cannot publish listings" : submitting ? "Uploading…" : undefined}
             className="rounded-xl bg-indigo-400 px-8 py-2.5 font-semibold text-white shadow-md transition hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40">
-            Publish listing
+            {submitting ? "Publishing…" : "Publish listing"}
           </button>
         </div>
       </form>

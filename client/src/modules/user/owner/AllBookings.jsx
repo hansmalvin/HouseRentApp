@@ -110,6 +110,7 @@ const OwnerAllBookings = ({ isAdmin = false }) => {
               <th className="px-4 py-3 text-center font-semibold">Check-in</th>
               <th className="px-4 py-3 text-center font-semibold">Checkout</th>
               <th className="px-4 py-3 text-center font-semibold">Nights</th>
+              <th className="px-4 py-3 text-center font-semibold">Total price</th>
               <th className="px-4 py-3 text-center font-semibold">Booking ID</th>
               <th className="px-4 py-3 text-center font-semibold">Property ID</th>
               <th className="px-4 py-3 text-center font-semibold">Status</th>
@@ -142,6 +143,13 @@ const OwnerAllBookings = ({ isAdmin = false }) => {
                   <td className="px-4 py-3 text-center text-slate-600">
                     {booking.totalDays
                       ? `${booking.totalDays}n`
+                      : <span className="text-slate-400">—</span>}
+                  </td>
+
+                  {/* ── Total price ── */}
+                  <td className="px-4 py-3 text-center text-slate-700">
+                    {booking.totalPrice
+                      ? `Rp${Number(booking.totalPrice).toLocaleString("id-ID")}`
                       : <span className="text-slate-400">—</span>}
                   </td>
 
@@ -187,7 +195,7 @@ const OwnerAllBookings = ({ isAdmin = false }) => {
               ))
             ) : (
               <tr>
-                <td colSpan={9} className="px-4 py-10 text-center text-slate-500">
+                <td colSpan={10} className="px-4 py-10 text-center text-slate-500">
                   No booking requests yet. When tenants apply to your listings, they will show up here.
                 </td>
               </tr>

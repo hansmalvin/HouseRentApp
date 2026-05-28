@@ -37,10 +37,21 @@ const Login = () => {
         { withCredentials: true }
       );
       if (res.data.success) {
-        showToast("success", res.data.message);
-        localStorage.setItem("user", JSON.stringify(res.data.user));
-
         const user = res.data.user;
+
+        // Ungranted owner — show the review toast for longer before reloading
+        if (user.type === "Owner" && user.granted === "ungranted") {
+          showToast("error", "Your owner account is being reviewed by the admin");
+          setTimeout(() => {
+            window.location.reload();
+          }, 3000); // 3 seconds so the message is readable
+          return;
+        }
+
+        // Everyone else — short success toast then navigate
+        showToast("success", res.data.message);
+        localStorage.setItem("user", JSON.stringify(user));
+
         setTimeout(() => {
           switch (user.type) {
             case "Admin":
@@ -50,20 +61,12 @@ const Login = () => {
               navigate("/renterhome");
               break;
             case "Owner":
-              if (user.granted === "ungranted") {
-                showToast(
-                  "error",
-                  "Your account is not yet confirmed by the admin"
-                );
-              } else {
-                navigate("/ownerhome");
-              }
+              navigate("/ownerhome");
               break;
             default:
               navigate("/login");
               break;
           }
-
           window.location.reload();
         }, 1000);
       } else {
