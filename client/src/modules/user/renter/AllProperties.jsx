@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { message } from "antd";
+import { message, Popconfirm } from "antd";
 import { useNavigate } from "react-router-dom";
 import {
   CalendarDays, Phone, Mail, Clock,
@@ -55,15 +55,24 @@ const BookingCard = ({ booking, onCancel }) => {
           <StatusBadge status={booking.bookingStatus} />
           {/* Cancel button — only for pending/booked */}
           {!["rejected","cancelled"].includes(String(booking.bookingStatus).toLowerCase()) && (
-            <button
-              type="button"
-              onClick={() => onCancel(booking._id)}
-              className="flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium text-red-500 hover:bg-red-50 transition"
-              title="Cancel booking"
+            <Popconfirm
+              title="Cancel this booking?"
+              description="Your reservation will be removed and the dates freed up."
+              onConfirm={() => onCancel(booking._id)}
+              okText="Yes, cancel"
+              okButtonProps={{ danger: true }}
+              cancelText="Keep booking"
+              placement="top"
             >
-              <Trash2 className="h-3.5 w-3.5" />
-              Cancel
-            </button>
+              <button
+                type="button"
+                className="flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium text-red-500 hover:bg-red-50 transition"
+                title="Cancel booking"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Cancel
+              </button>
+            </Popconfirm>
           )}
         </div>
 

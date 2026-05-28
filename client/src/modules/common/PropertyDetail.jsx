@@ -17,7 +17,7 @@ import { formatPropertyAmount, getMaxGuestsFromProperty } from "../../utils/prop
 import { parsePropertyAddress } from "../../utils/propertyAddress";
 import { UserContext } from "../../App";
 import RentEaseLogo from "../../components/RentEaseLogo";
-import { message } from "antd";
+import { message, Popconfirm } from "antd";
 
 // ── Amenity icon map ────────────────────────────────────────────────
 const AMENITY_ICONS = {
@@ -810,14 +810,34 @@ const PropertyDetail = () => {
               {isAvailable && (
                 userData ? (
                   canBook ? (
-                    <button
-                      type="button"
-                      onClick={handleCTA}
-                      disabled={bookingStatus === "loading"}
-                      className={`block w-full rounded-xl px-6 py-3.5 text-center text-sm font-semibold text-white shadow-md transition disabled:opacity-60 disabled:cursor-not-allowed ${ctaStyle()}`}
-                    >
-                      {ctaLabel()}
-                    </button>
+                    existingBooking && !datesChanged ? (
+                      <Popconfirm
+                        title="Cancel your booking?"
+                        description="This will permanently cancel your reservation for these dates."
+                        onConfirm={handleCTA}
+                        okText="Yes, cancel it"
+                        okButtonProps={{ danger: true }}
+                        cancelText="Keep it"
+                        placement="top"
+                      >
+                        <button
+                          type="button"
+                          disabled={bookingStatus === "loading"}
+                          className="block w-full rounded-xl px-6 py-3.5 text-center text-sm font-semibold text-white shadow-md transition disabled:opacity-60 disabled:cursor-not-allowed bg-red-500 hover:bg-red-600"
+                        >
+                          {ctaLabel()}
+                        </button>
+                      </Popconfirm>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleCTA}
+                        disabled={bookingStatus === "loading"}
+                        className={`block w-full rounded-xl px-6 py-3.5 text-center text-sm font-semibold text-white shadow-md transition disabled:opacity-60 disabled:cursor-not-allowed ${ctaStyle()}`}
+                      >
+                        {ctaLabel()}
+                      </button>
+                    )
                   ) : (
                     <div className="rounded-xl bg-gray-100 border border-gray-200 px-4 py-3 text-sm text-gray-400 text-center cursor-not-allowed select-none">
                       Booking is for renters only

@@ -1,4 +1,4 @@
-import { message } from "antd";
+import { message, Popconfirm } from "antd";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -210,21 +210,31 @@ const OwnerAllBookings = ({ isAdmin = false }) => {
                         </button>
                       )}
                       {/* Terminate — only enabled on pending bookings */}
-                      <button
-                        type="button"
-                        onClick={() => handleTerminate(booking._id)}
+                      <Popconfirm
+                        title="Terminate this booking?"
+                        description="The pending booking request will be permanently removed."
+                        onConfirm={() => handleTerminate(booking._id)}
+                        okText="Terminate"
+                        okButtonProps={{ danger: true }}
+                        cancelText="Keep it"
+                        placement="topRight"
                         disabled={isAdmin || booking.bookingStatus === "booked"}
-                        title={
-                          isAdmin
-                            ? "Admins cannot terminate bookings"
-                            : booking.bookingStatus === "booked"
-                            ? "Cannot terminate a confirmed booking"
-                            : "Terminate this booking request"
-                        }
-                        className="rounded-lg bg-rose-200 px-4 py-1.5 text-sm font-medium text-rose-800 shadow-sm transition hover:bg-rose-300 disabled:cursor-not-allowed disabled:opacity-40"
                       >
-                        Terminate
-                      </button>
+                        <button
+                          type="button"
+                          disabled={isAdmin || booking.bookingStatus === "booked"}
+                          title={
+                            isAdmin
+                              ? "Admins cannot terminate bookings"
+                              : booking.bookingStatus === "booked"
+                              ? "Cannot terminate a confirmed booking"
+                              : "Terminate this booking request"
+                          }
+                          className="rounded-lg bg-rose-200 px-4 py-1.5 text-sm font-medium text-rose-800 shadow-sm transition hover:bg-rose-300 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          Terminate
+                        </button>
+                      </Popconfirm>
                     </div>
                   </td>
                 </tr>
