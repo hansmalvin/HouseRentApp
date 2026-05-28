@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import Toast from "../common/Toast";
+import { Popconfirm } from "antd";
 import { useNavigate } from "react-router-dom";
 import AdminTableToolbar from "../../components/AdminTableToolbar";
 import { applySearchAndSort } from "../../utils/adminTableFilters";
+import { Trash2 } from "lucide-react";
 
 axios.defaults.withCredentials = true;
 
@@ -41,6 +43,24 @@ const AllUsers = () => {
       } else {
         showToast("error", "Failed to fetch users");
       }
+    }
+  };
+
+const handleDelete = async (userid) => {
+    try {
+      const res = await axios.delete(
+        `http://localhost:8001/api/admin/deleteuser/${userid}`,
+        { withCredentials: true }
+      );
+      if (res.data.success) {
+        showToast("success", res.data.message);
+        setAllUser((prev) => prev.filter((u) => u._id !== userid));
+      } else {
+        showToast("error", res.data.message || "Failed to delete user");
+      }
+    } catch (error) {
+      console.error(error);
+      showToast("error", "Failed to delete user");
     }
   };
 
@@ -158,6 +178,24 @@ const AllUsers = () => {
                           Ungrant
                         </button>
                       )}
+                      <Popconfirm
+                        title="Delete this user?"
+                        description="This will permanently remove the account and all their bookings."
+                        onConfirm={() => handleDelete(user._id)}
+                        okText="Delete"
+                        okButtonProps={{ danger: true }}
+                        cancelText="Cancel"
+                        placement="topRight"
+                      >
+                        <button
+                          type="button"
+                          className="flex items-center gap-1 rounded-lg border border-rose-300 bg-rose-50 px-3 py-1 text-sm font-medium text-rose-700 transition hover:bg-rose-100"
+                          title="Delete user"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          Delete
+                        </button>
+                      </Popconfirm>
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-right font-mono text-xs text-slate-500">

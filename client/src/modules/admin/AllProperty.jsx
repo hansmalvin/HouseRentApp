@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import { message } from "antd";
+import { Popconfirm } from "antd";
 import { useNavigate } from "react-router-dom";
+import Toast from "../common/Toast";
+import { Trash2 } from "lucide-react";
 import { formatPropertyAmount } from "../../utils/propertyFormat";
 import { formatOwnerContactDisplay } from "../../utils/phoneContact";
 import AdminTableToolbar from "../../components/AdminTableToolbar";
@@ -21,7 +23,10 @@ const AdminAllProperty = () => {
   const [ownerNameById, setOwnerNameById] = useState({});
   const [search, setSearch] = useState("");
   const [sortAsc, setSortAsc] = useState(true);
+  const [toast, setToast] = useState({ show: false, type: "", message: "" });
   const navigate = useNavigate();
+
+  const showToast = (type, message) => setToast({ show: true, type, message });
 
   const getAllProperty = async () => {
     try {
@@ -34,10 +39,10 @@ const AdminAllProperty = () => {
         }),
       ]);
 
-      if (propertiesRes.data.success) {
+    if (propertiesRes.data.success) {
         setAllProperties(propertiesRes.data.data);
       } else {
-        message.error(propertiesRes.data.message || "Unauthorized access");
+        showToast("error", propertiesRes.data.message || "Unauthorized access");
         navigate("/login");
         return;
       }
@@ -54,11 +59,29 @@ const AdminAllProperty = () => {
     } catch (error) {
       console.error(error);
       if (error.response?.status === 401) {
-        message.error("Session expired, please login again");
+        showToast("error", "Session expired, please login again");
         navigate("/login");
       } else {
-        message.error("Failed to fetch properties");
+        showToast("error", "Failed to fetch properties");
       }
+    }
+  };
+
+const handleDelete = async (propertyid) => {
+    try {
+      const res = await axios.delete(
+        `http://localhost:8001/api/admin/deleteproperty/${propertyid}`,
+        { withCredentials: true }
+      );
+      if (res.data.success) {
+        showToast("success", res.data.message);
+        setAllProperties((prev) => prev.filter((p) => p._id !== propertyid));
+      } else {
+        showToast("error", res.data.message || "Failed to delete property");
+      }
+    } catch (error) {
+      console.error(error);
+      showToast("error", "Failed to delete property");
     }
   };
 
@@ -94,6 +117,13 @@ const AdminAllProperty = () => {
 
   return (
     <div className="min-w-0 w-full">
+      {toast.show && (
+        <Toast
+          type={toast.type}
+          message={toast.message}
+          onClose={() => setToast({ ...toast, show: false })}
+        />
+      )}
       <h2 className="mb-1 text-xl font-bold text-indigo-700">All properties</h2>
       <p className="mb-4 text-sm text-slate-500">
         Every listing published on the platform, across all owners.
@@ -123,6 +153,7 @@ const AdminAllProperty = () => {
               <th className="min-w-[9rem] px-4 py-3 text-center">Amount</th>
               <th className="whitespace-nowrap px-4 py-3 text-center">Property ID</th>
               <th className="whitespace-nowrap px-4 py-3 text-center">Owner ID</th>
+              <th className="px-4 py-3 text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -156,12 +187,32 @@ const AdminAllProperty = () => {
                   <td className="whitespace-nowrap px-4 py-3 text-right font-mono text-xs text-slate-500">
                     {property.ownerId}
                   </td>
+                  <td className="px-4 py-3 text-center">
+                    <Popconfirm
+                      title="Delete this property?"
+                      description="This permanently removes the listing, its images, and all related bookings."
+                      onConfirm={() => handleDelete(property._id)}
+                      okText="Delete"
+                      okButtonProps={{ danger: true }}
+                      cancelText="Cancel"
+                      placement="topRight"
+                    >
+                      <button
+                        type="button"
+                        className="flex items-center gap-1 rounded-lg border border-rose-300 bg-rose-50 px-3 py-1 text-sm font-medium text-rose-700 transition hover:bg-rose-100"
+                        title="Delete property"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Delete
+                      </button>
+                    </Popconfirm>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
                 <td
-                  colSpan={8}
+                  colSpan={9}
                   className="px-4 py-8 text-center text-slate-400"
                 >
                   {allProperties.length === 0

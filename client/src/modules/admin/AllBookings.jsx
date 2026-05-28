@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import { message } from "antd";
+import { Popconfirm } from "antd";
 import { useNavigate } from "react-router-dom";
+import Toast from "../common/Toast";
+import { Trash2 } from "lucide-react";
 import AdminTableToolbar from "../../components/AdminTableToolbar";
 import { applySearchAndSort } from "../../utils/adminTableFilters";
 
@@ -17,7 +19,10 @@ const AdminAllBookings = () => {
   const [allBookings, setAllBookings] = useState([]);
   const [search, setSearch] = useState("");
   const [sortAsc, setSortAsc] = useState(true);
+  const [toast, setToast] = useState({ show: false, type: "", message: "" });
   const navigate = useNavigate();
+
+  const showToast = (type, message) => setToast({ show: true, type, message });
 
   const getAllBooking = async () => {
     try {
@@ -29,17 +34,35 @@ const AdminAllBookings = () => {
       if (response.data.success) {
         setAllBookings(response.data.data);
       } else {
-        message.error(response.data.message || "Unauthorized access");
+        showToast("error", response.data.message || "Unauthorized access");
         navigate("/login");
       }
     } catch (error) {
       console.error(error);
       if (error.response?.status === 401) {
-        message.error("Session expired, please login again");
+        showToast("error", "Session expired, please login again");
         navigate("/login");
       } else {
-        message.error("Failed to fetch bookings");
+        showToast("error", "Failed to fetch bookings");
       }
+    }
+  };
+
+const handleDelete = async (bookingid) => {
+    try {
+      const res = await axios.delete(
+        `http://localhost:8001/api/admin/deletebooking/${bookingid}`,
+        { withCredentials: true }
+      );
+      if (res.data.success) {
+        showToast("success", res.data.message);
+        setAllBookings((prev) => prev.filter((b) => b._id !== bookingid));
+      } else {
+        showToast("error", res.data.message || "Failed to delete booking");
+      }
+    } catch (error) {
+      console.error(error);
+      showToast("error", "Failed to delete booking");
     }
   };
 
@@ -71,6 +94,13 @@ const AdminAllBookings = () => {
 
   return (
     <div className="min-w-0 w-full">
+      {toast.show && (
+        <Toast
+          type={toast.type}
+          message={toast.message}
+          onClose={() => setToast({ ...toast, show: false })}
+        />
+      )}
       <h2 className="mb-1 text-xl font-bold text-indigo-700">All bookings</h2>
       <p className="mb-4 text-sm text-slate-500">
         Booking requests from renters across every property.
@@ -97,6 +127,7 @@ const AdminAllBookings = () => {
               <th className="whitespace-nowrap px-4 py-3 text-center">Owner ID</th>
               <th className="whitespace-nowrap px-4 py-3 text-center">Property ID</th>
               <th className="whitespace-nowrap px-4 py-3 text-center">Tenant ID</th>
+              <th className="px-4 py-3 text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -127,12 +158,32 @@ const AdminAllBookings = () => {
                   <td className="whitespace-nowrap px-4 py-3 text-right font-mono text-xs text-slate-500">
                     {booking.userID}
                   </td>
+                  <td className="px-4 py-3 text-center">
+                    <Popconfirm
+                      title="Delete this booking?"
+                      description="This booking record will be permanently removed."
+                      onConfirm={() => handleDelete(booking._id)}
+                      okText="Delete"
+                      okButtonProps={{ danger: true }}
+                      cancelText="Cancel"
+                      placement="topRight"
+                    >
+                      <button
+                        type="button"
+                        className="flex items-center gap-1 rounded-lg border border-rose-300 bg-rose-50 px-3 py-1 text-sm font-medium text-rose-700 transition hover:bg-rose-100"
+                        title="Delete booking"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Delete
+                      </button>
+                    </Popconfirm>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
                 <td
-                  colSpan={7}
+                  colSpan={8}
                   className="px-4 py-8 text-center text-slate-400"
                 >
                   {allBookings.length === 0
