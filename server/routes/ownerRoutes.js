@@ -8,6 +8,7 @@ const {
   deletePropertyController,
   updatePropertyController,
   getAllBookingsController,
+  terminateBookingController,
 } = require("../controllers/ownerController");
 const { storage } = require("../config/cloudinary");
 
@@ -33,6 +34,8 @@ router.delete(
   authMiddleware,
   deletePropertyController
 );
+
+router.delete("/terminatebooking/:bookingid", authMiddleware, terminateBookingController);
 
 router.patch(
   "/updateproperty/:propertyid",

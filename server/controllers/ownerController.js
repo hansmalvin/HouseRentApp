@@ -198,6 +198,30 @@ const handleAllBookingstatusController = async (req, res) => {
   }
 };
 
+const terminateBookingController = async (req, res) => {
+  const { bookingid } = req.params;
+  const { userId } = req.body;
+  try {
+    const booking = await bookingSchema.findById(bookingid);
+    if (!booking) {
+      return res.status(404).send({ success: false, message: "Booking not found" });
+    }
+    // Only allow termination of pending bookings
+    if (booking.bookingStatus === "booked") {
+      return res.status(400).send({ success: false, message: "Cannot terminate a confirmed booking" });
+    }
+    // Verify the owner owns the property linked to this booking
+    if (booking.ownerID.toString() !== userId) {
+      return res.status(403).send({ success: false, message: "Not authorised to terminate this booking" });
+    }
+    await bookingSchema.findByIdAndDelete(bookingid);
+    return res.status(200).send({ success: true, message: "Booking terminated successfully" });
+  } catch (error) {
+    console.error("Error terminating booking:", error);
+    return res.status(500).send({ success: false, message: "Failed to terminate booking" });
+  }
+};
+
 module.exports = {
   addPropertyController,
   getAllOwnerPropertiesController,
@@ -205,4 +229,5 @@ module.exports = {
   updatePropertyController,
   getAllBookingsController,
   handleAllBookingstatusController,
+  terminateBookingController,
 };

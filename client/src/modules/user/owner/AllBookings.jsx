@@ -19,6 +19,24 @@ const OwnerAllBookings = ({ isAdmin = false }) => {
   const [sortAsc, setSortAsc] = useState(true);
   const navigate = useNavigate();
 
+  const handleTerminate = async (bookingId) => {
+  try {
+    const res = await axios.delete(
+      `http://localhost:8001/api/owner/terminatebooking/${bookingId}`,
+      { withCredentials: true }
+    );
+    if (res.data.success) {
+      message.success(res.data.message);
+      getAllProperty();
+    } else {
+      message.error(res.data.message || "Failed to terminate booking");
+    }
+  } catch (error) {
+      console.log(error);
+      message.error("Failed to terminate booking");
+    }
+  };
+
   const getAllProperty = async () => {
     try {
       const response = await axios.get(
@@ -168,28 +186,46 @@ const OwnerAllBookings = ({ isAdmin = false }) => {
                   >
                     {booking.bookingStatus}
                   </td>
-                  <td className="px-4 py-3 text-center">
-                    {booking.bookingStatus === "pending" ? (
+                  <td className="px-4 py-3 text-center whitespace-nowrap">
+                    <div className="flex items-center justify-center gap-2">
+                      {booking.bookingStatus === "pending" ? (
+                        <button
+                          type="button"
+                          onClick={() => handleStatus(booking._id, booking.propertyId, "booked")}
+                          disabled={isAdmin}
+                          title={isAdmin ? "Admins cannot change booking status" : undefined}
+                          className="rounded-lg bg-emerald-200 px-4 py-1.5 text-sm font-medium text-emerald-800 shadow-sm transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          Mark booked
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleStatus(booking._id, booking.propertyId, "pending")}
+                          disabled={isAdmin}
+                          title={isAdmin ? "Admins cannot change booking status" : undefined}
+                          className="rounded-lg bg-amber-200 px-4 py-1.5 text-sm font-medium text-amber-800 shadow-sm transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          Mark pending
+                        </button>
+                      )}
+                      {/* Terminate — only enabled on pending bookings */}
                       <button
                         type="button"
-                        onClick={() => handleStatus(booking._id, booking.propertyId, "booked")}
-                        disabled={isAdmin}
-                        title={isAdmin ? "Admins cannot change booking status" : undefined}
-                        className="rounded-lg bg-emerald-200 px-4 py-1.5 text-sm font-medium text-emerald-800 shadow-sm transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-40"
+                        onClick={() => handleTerminate(booking._id)}
+                        disabled={isAdmin || booking.bookingStatus === "booked"}
+                        title={
+                          isAdmin
+                            ? "Admins cannot terminate bookings"
+                            : booking.bookingStatus === "booked"
+                            ? "Cannot terminate a confirmed booking"
+                            : "Terminate this booking request"
+                        }
+                        className="rounded-lg bg-rose-200 px-4 py-1.5 text-sm font-medium text-rose-800 shadow-sm transition hover:bg-rose-300 disabled:cursor-not-allowed disabled:opacity-40"
                       >
-                        Mark booked
+                        Terminate
                       </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => handleStatus(booking._id, booking.propertyId, "pending")}
-                        disabled={isAdmin}
-                        title={isAdmin ? "Admins cannot change booking status" : undefined}
-                        className="rounded-lg bg-amber-200 px-4 py-1.5 text-sm font-medium text-amber-800 shadow-sm transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-40"
-                      >
-                        Mark pending
-                      </button>
-                    )}
+                    </div>
                   </td>
                 </tr>
               ))
