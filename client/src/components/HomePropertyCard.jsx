@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { HeartIcon } from "@heroicons/react/24/outline";
+import { StarIcon } from "@heroicons/react/24/solid";
 import { formatPropertyAmount } from "../utils/propertyFormat";
 import { parsePropertyAddress } from "../utils/propertyAddress";
 
@@ -50,9 +51,14 @@ const HomePropertyCard = ({ property }) => {
             No image
           </div>
         )}
-        {isAvailable && (
+        {isAvailable && String(property.propertyAdType).toLowerCase() === "rent" && (
           <span className="absolute left-3 top-3 rounded-md bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm">
             Guest favorite
+          </span>
+        )}
+        {isAvailable && String(property.propertyAdType).toLowerCase() === "sale" && (
+          <span className="absolute left-3 top-3 rounded-md bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm">
+            Top listing
           </span>
         )}
         <button
@@ -68,9 +74,7 @@ const HomePropertyCard = ({ property }) => {
           <h3 className="line-clamp-1 text-[15px] font-semibold text-gray-900">
             {getCardTitle(property)}
           </h3>
-          <span className="shrink-0 text-sm text-gray-900" aria-hidden>
-            ★ 4.9
-          </span>
+          <StarIcon className="h-4 w-4 shrink-0 text-yellow-400" aria-hidden />
         </div>
         <p className="text-sm text-gray-500 capitalize">
           {property.propertyType} · {property.propertyAdType}

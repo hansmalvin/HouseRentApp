@@ -28,11 +28,30 @@ const Register = () => {
     setData({ ...data, [name]: value });
   };
 
+  const emailValid = (email) => /^[^\s@]+@gmail\.com$/i.test(email.trim());
+
+  const passwordValid = (password) =>
+    password.length >= 6 &&
+    /[A-Z]/.test(password) &&
+    /[0-9]/.test(password) &&
+    /[^A-Za-z0-9]/.test(password);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!data.name || !data.email || !data.password || !data.type) {
       return showToast("error", "Please fill all fields");
+    }
+
+    if (!emailValid(data.email)) {
+      return showToast("error", "Email must be a valid @gmail.com address");
+    }
+
+    if (!passwordValid(data.password)) {
+      return showToast(
+        "error",
+        "Password must be at least 6 characters and include 1 uppercase letter, 1 number, and 1 symbol"
+      );
     }
 
     try {

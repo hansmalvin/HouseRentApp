@@ -595,7 +595,7 @@ const PropertyDetail = () => {
         <h1 className="mb-2 text-2xl font-semibold text-gray-900 md:text-3xl">{title}</h1>
 
         <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-gray-600">
-          <span className="flex items-center gap-1"><StarSolid className="h-4 w-4 text-yellow-400" />4.9</span>
+          <span className="flex items-center gap-1"><StarSolid className="h-4 w-4 text-yellow-400" /></span>
           {fullAddress && <span className="flex items-center gap-1"><MapPinIcon className="h-4 w-4" />{fullAddress}</span>}
           <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${isAvailable ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
             {property.isAvailable || "Available"}
@@ -720,7 +720,7 @@ const PropertyDetail = () => {
                   <span className="text-gray-500 text-sm ml-1">{priceUnit}</span>
                 </div>
                 <div className="flex items-center gap-1 text-sm text-gray-600">
-                  <StarSolid className="h-4 w-4 text-yellow-400" />4.9
+                  <StarSolid className="h-4 w-4 text-yellow-400" />
                 </div>
               </div>
 
