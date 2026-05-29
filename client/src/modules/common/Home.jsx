@@ -170,9 +170,6 @@ const DatePickerDropdown = ({ checkIn, checkOut, onChange }) => {
           <button type="button" className="rounded-full px-5 py-1.5 text-sm font-semibold bg-white shadow-sm text-gray-900">
             Dates
           </button>
-          <button type="button" className="rounded-full px-5 py-1.5 text-sm font-medium text-gray-500">
-            Flexible
-          </button>
         </div>
       </div>
 
@@ -404,9 +401,6 @@ const Home = () => {
           </div>
           <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
             <Link to="/register" className="hidden rounded-full px-3 py-2 hover:bg-gray-100 sm:inline-block">Become a host</Link>
-            <button type="button" className="hidden rounded-full p-2 hover:bg-gray-100 sm:inline-flex" aria-label="Language">
-              <GlobeAltIcon className="h-5 w-5" />
-            </button>
             <div
               className="flex items-center gap-2 rounded-full border border-gray-300 py-1 pl-3 pr-1 shadow-sm hover:shadow-md cursor-pointer"
               onClick={() => navigate(isRenter ? "/renterhome" : "/login")}
