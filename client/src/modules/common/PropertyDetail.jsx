@@ -361,13 +361,14 @@ const PropertyDetail = () => {
   // Booking card CTA label
   const ctaLabel = () => {
     if (bookingStatus === "loading") return existingBooking ? (datesChanged ? "Updating…" : "Cancelling…") : "Booking…";
+    if (existingBooking && !isRent) return "Cancel your booking";
     if (existingBooking) return datesChanged ? "Update your booking" : "Cancel your booking";
     if (isRent && (!checkIn || !checkOut)) return "Check availability";
     return "Reserve";
   };
 
   const ctaStyle = () => {
-    if (existingBooking && !datesChanged) {
+    if (existingBooking && (!datesChanged || !isRent)) {
       return "bg-red-500 hover:bg-red-600";
     }
     return "bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600";
@@ -560,15 +561,16 @@ const PropertyDetail = () => {
 
   // Price calculation
   const monthlyPrice = property.propertyAmt || 0;
-  const nights = checkIn && checkOut ? diffDays(checkIn, checkOut) : null;
+  // Rent: prorate over selected nights. Sale: always show flat listing price.
+  const nights = isRent && checkIn && checkOut ? diffDays(checkIn, checkOut) : null;
   const dailyRate = monthlyPrice / 30;
-  const totalPrice = nights ? Math.round(dailyRate * nights) : null;
+  const totalPrice = isRent && nights ? Math.round(dailyRate * nights) : null;
   const displayPrice = totalPrice
     ? `Rp${Number(totalPrice).toLocaleString("id-ID")}`
     : `Rp${formatPropertyAmount(monthlyPrice)}`;
   const priceUnit = totalPrice
     ? `for ${nights} night${nights > 1 ? "s" : ""}`
-    : isRent ? "per month" : "listing";
+    : isRent ? "per month" : "listing price";
 
   return (
     <div className="min-h-screen bg-white">
@@ -807,13 +809,18 @@ const PropertyDetail = () => {
               )}
 
               {/* CTA button */}
-              {isAvailable && (
+              {(isAvailable || existingBooking) && (
                 userData ? (
                   canBook ? (
-                    existingBooking && !datesChanged ? (
+                    // Cancel path: sale always, or rent when dates unchanged
+                    existingBooking && (!isRent || !datesChanged) ? (
                       <Popconfirm
                         title="Cancel your booking?"
-                        description="This will permanently cancel your reservation for these dates."
+                        description={
+                          isRent
+                            ? "This will permanently cancel your reservation for these dates."
+                            : "This will permanently cancel your booking for this property."
+                        }
                         onConfirm={handleCTA}
                         okText="Yes, cancel it"
                         okButtonProps={{ danger: true }}
@@ -849,7 +856,7 @@ const PropertyDetail = () => {
                   </Link>
                 )
               )}
-              {!isAvailable && (
+              {!isAvailable && !existingBooking && (
                 <button disabled className="w-full rounded-xl bg-gray-200 px-6 py-3 text-sm font-semibold text-gray-400 cursor-not-allowed">
                   Not available
                 </button>
@@ -857,7 +864,7 @@ const PropertyDetail = () => {
 
               <p className="text-center text-xs text-gray-400">You won't be charged yet</p>
 
-              {/* Price breakdown */}
+              {/* Price breakdown — rent only */}
               {isRent && nights && (
                 <div className="border-t border-gray-100 pt-4 space-y-2 text-sm">
                   <div className="flex justify-between text-gray-600">
@@ -873,6 +880,18 @@ const PropertyDetail = () => {
                 <div className="border-t border-gray-100 pt-4 space-y-2 text-sm">
                   <div className="flex justify-between text-gray-600">
                     <span>Rp{formatPropertyAmount(monthlyPrice)} × 1 month</span>
+                    <span>Rp{formatPropertyAmount(monthlyPrice)}</span>
+                  </div>
+                  <div className="flex justify-between font-semibold text-gray-900 border-t border-gray-100 pt-2">
+                    <span>Total</span><span>Rp{formatPropertyAmount(monthlyPrice)}</span>
+                  </div>
+                </div>
+              )}
+              {/* Sale: flat price summary */}
+              {!isRent && (
+                <div className="border-t border-gray-100 pt-4 space-y-2 text-sm">
+                  <div className="flex justify-between text-gray-600">
+                    <span>Listing price</span>
                     <span>Rp{formatPropertyAmount(monthlyPrice)}</span>
                   </div>
                   <div className="flex justify-between font-semibold text-gray-900 border-t border-gray-100 pt-2">

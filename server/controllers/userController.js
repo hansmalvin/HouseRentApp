@@ -164,12 +164,18 @@ const bookingHandleController = async (req, res) => {
   try {
     let totalDays = null;
     let totalPrice = null;
-    if (checkIn && checkOut) {
-      const inDate = new Date(checkIn);
+    const property = await propertySchema.findById(propertyid).lean();
+    const isSale = property && String(property.propertyAdType).toLowerCase() === "sale";
+
+    if (isSale) {
+      // Sale listings: no date range needed — price is the full listing amount
+      totalPrice = property.propertyAmt ?? null;
+    } else if (checkIn && checkOut) {
+      // Rent listings: prorate monthly price over selected nights
+      const inDate  = new Date(checkIn);
       const outDate = new Date(checkOut);
-      const diffMs = outDate.getTime() - inDate.getTime();
+      const diffMs  = outDate.getTime() - inDate.getTime();
       totalDays = Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24)));
-      const property = await propertySchema.findById(propertyid).lean();
       if (property && property.propertyAmt) {
         const dailyRate = property.propertyAmt / 30;
         totalPrice = Math.round(dailyRate * totalDays);
@@ -227,12 +233,16 @@ const updateBookingController = async (req, res) => {
 
     let totalDays = null;
     let totalPrice = null;
-    if (checkIn && checkOut) {
-      const inDate = new Date(checkIn);
+    const property = await propertySchema.findById(booking.propertyId).lean();
+    const isSale = property && String(property.propertyAdType).toLowerCase() === "sale";
+
+    if (isSale) {
+      totalPrice = property.propertyAmt ?? null;
+    } else if (checkIn && checkOut) {
+      const inDate  = new Date(checkIn);
       const outDate = new Date(checkOut);
-      const diffMs = outDate.getTime() - inDate.getTime();
+      const diffMs  = outDate.getTime() - inDate.getTime();
       totalDays = Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24)));
-      const property = await propertySchema.findById(booking.propertyId).lean();
       if (property && property.propertyAmt) {
         const dailyRate = property.propertyAmt / 30;
         totalPrice = Math.round(dailyRate * totalDays);

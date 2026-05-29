@@ -157,19 +157,23 @@ const OwnerAllBookings = ({ isAdmin = false }) => {
 
                   {/* ── Check-in ── */}
                   <td className="px-4 py-3 text-center text-slate-700">
-                    {fmtDate(booking.checkIn)}
+                    {booking.checkIn
+                      ? fmtDate(booking.checkIn)
+                      : <span className="text-xs text-slate-400 italic">Sale listing</span>}
                   </td>
 
                   {/* ── Checkout ── */}
                   <td className="px-4 py-3 text-center text-slate-700">
-                    {fmtDate(booking.checkOut)}
+                    {booking.checkOut
+                      ? fmtDate(booking.checkOut)
+                      : <span className="text-xs text-slate-400 italic">Sale listing</span>}
                   </td>
 
                   {/* ── Nights ── */}
                   <td className="px-4 py-3 text-center text-slate-600">
                     {booking.totalDays
                       ? `${booking.totalDays}n`
-                      : <span className="text-slate-400">—</span>}
+                      : <span className="text-xs text-slate-400 italic">—</span>}
                   </td>
 
                   {/* ── Total price ── */}
