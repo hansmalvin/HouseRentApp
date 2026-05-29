@@ -43,7 +43,12 @@ const propertyModel = mongoose.Schema({
    },
    ownerName: {
       type: String,
-   }
+   },
+   isAvailable: {
+      type: String,
+      enum: ["Available", "Unavailable"],
+      default: "Available",
+   },
 },{
    strict: false,
 })

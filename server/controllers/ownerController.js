@@ -53,12 +53,41 @@ const getAllOwnerPropertiesController = async (req, res) => {
   const { userId } = req.body;
   try {
     const getAllProperties = await propertySchema.find();
-    const updatedProperties = getAllProperties.filter(
+    const ownerProperties = getAllProperties.filter(
       (property) => property.ownerId.toString() === userId
     );
+
+    // For sale listings marked Unavailable, check if the booked booking's
+    // checkOut date has passed — if so, reset isAvailable back to Available.
+    const now = new Date();
+    await Promise.all(
+      ownerProperties
+        .filter(
+          (p) =>
+            String(p.propertyAdType).toLowerCase() === "sale" &&
+            p.isAvailable === "Unavailable"
+        )
+        .map(async (p) => {
+          const activeBooking = await bookingSchema.findOne({
+            propertyId: p._id,
+            bookingStatus: "booked",
+            checkOut: { $gt: now },
+          });
+          // No active future booking found — safe to reset to Available
+          if (!activeBooking) {
+            await propertySchema.findByIdAndUpdate(
+              p._id,
+              { isAvailable: "Available" },
+              { new: true }
+            );
+            p.isAvailable = "Available"; // reflect in response too
+          }
+        })
+    );
+
     return res.status(200).send({
       success: true,
-      data: updatedProperties,
+      data: ownerProperties,
     });
   } catch (error) {
     console.error(error);
@@ -191,14 +220,20 @@ const handleAllBookingstatusController = async (req, res) => {
     await bookingSchema.findByIdAndUpdate(
       { _id: bookingId },
       { bookingStatus: status },
-      { returnDocument: "after" }
+      { new: true }
     );
 
-    await propertySchema.findByIdAndUpdate(
-      { _id: propertyId },
-      { isAvailable: status === "booked" ? "Unavailable" : "Available" },
-      { returnDocument: "after" }
-    );
+    // Only update isAvailable for sale listings.
+    // Rent listings support multiple bookings on different dates so
+    // availability is determined by date overlap, not a single flag.
+    const property = await propertySchema.findById(propertyId);
+    if (property && String(property.propertyAdType).toLowerCase() === "sale") {
+      await propertySchema.findByIdAndUpdate(
+        { _id: propertyId },
+        { isAvailable: status === "booked" ? "Unavailable" : "Available" },
+        { new: true }
+      );
+    }
 
     return res.status(200).send({
       success: true,
