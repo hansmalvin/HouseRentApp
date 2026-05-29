@@ -63,6 +63,30 @@ const RenterHome = () => {
           </p>
         </div>
 
+        {/* ── How bookings work info banner ── */}
+        <div className="mb-8 rounded-2xl border border-indigo-100 bg-indigo-50/60 px-5 py-5">
+          <h2 className="mb-3 text-sm font-semibold text-indigo-800 uppercase tracking-wide">
+            How does a pending booking get confirmed?
+          </h2>
+          <ol className="space-y-2.5">
+            <li className="flex items-start gap-3 text-sm text-indigo-900">
+              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-200 text-[11px] font-bold text-indigo-800">1</span>
+              <span>You submit a booking request — it starts as <span className="font-semibold">Pending</span> until the owner reviews it.</span>
+            </li>
+            <li className="flex items-start gap-3 text-sm text-indigo-900">
+              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-200 text-[11px] font-bold text-indigo-800">2</span>
+              <span>Contact the owner directly using the <span className="font-semibold">email address</span> shown on your booking card to discuss terms, move-in details, and payment.</span>
+            </li>
+            <li className="flex items-start gap-3 text-sm text-indigo-900">
+              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-200 text-[11px] font-bold text-indigo-800">3</span>
+              <span>Once you and the owner reach an agreement, the owner will mark your booking as <span className="font-semibold">Booked</span> from their dashboard.</span>
+            </li>
+          </ol>
+          <p className="mt-3 text-xs text-indigo-500">
+            Tip — you can also email the owner directly from the property page using the <span className="font-medium text-indigo-600">Email owner</span> button — no need to open your mail app. If you don't hear back within a day or two, try reaching them via phone as well. Both contact options are available on the property page.
+          </p>
+        </div>
+
         {/* Booking history */}
         <RenterAllProperty />
       </main>
