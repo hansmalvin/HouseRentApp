@@ -158,13 +158,25 @@ const updatePropertyController = async (req, res) => {
 const getAllBookingsController = async (req, res) => {
   const { userId } = req.body;
   try {
-    const getAllBookings = await bookingSchema.find();
-    const updatedBookings = getAllBookings.filter(
-      (booking) => booking.ownerID.toString() === userId
+    const getAllBookings = await bookingSchema.find({ ownerID: userId });
+
+    // Enrich each booking with the renter's email from UserSchema
+    const enriched = await Promise.all(
+      getAllBookings.map(async (booking) => {
+        const obj = booking.toObject();
+        try {
+          const renter = await userSchema.findById(booking.userID).select("email");
+          obj.userEmail = renter?.email ?? null;
+        } catch {
+          obj.userEmail = null;
+        }
+        return obj;
+      })
     );
+
     return res.status(200).send({
       success: true,
-      data: updatedBookings,
+      data: enriched,
     });
   } catch (error) {
     console.error(error);

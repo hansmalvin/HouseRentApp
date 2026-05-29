@@ -124,7 +124,7 @@ const OwnerAllBookings = ({ isAdmin = false }) => {
           <thead className="bg-indigo-100/90 text-indigo-900">
             <tr>
               <th className="px-4 py-3 text-center font-semibold">Tenant name</th>
-              <th className="px-4 py-3 text-center font-semibold">Tenant phone</th>
+              <th className="px-4 py-3 text-center font-semibold">Tenant email</th>
               <th className="px-4 py-3 text-center font-semibold">Check-in</th>
               <th className="px-4 py-3 text-center font-semibold">Checkout</th>
               <th className="px-4 py-3 text-center font-semibold">Nights</th>
@@ -145,7 +145,7 @@ const OwnerAllBookings = ({ isAdmin = false }) => {
                   }`}
                 >
                   <td className="px-4 py-3 text-center">{booking.userName}</td>
-                  <td className="px-4 py-3 text-center">{booking.phone}</td>
+                  <td className="px-4 py-3 text-center">{booking.userEmail ?? "—"}</td>
 
                   {/* ── Check-in ── */}
                   <td className="px-4 py-3 text-center text-slate-700">
