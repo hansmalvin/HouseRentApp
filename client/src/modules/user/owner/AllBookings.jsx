@@ -77,7 +77,15 @@ const OwnerAllBookings = ({ isAdmin = false }) => {
       }
     } catch (error) {
       console.log(error);
-      message.error("Failed to update booking status");
+      // 409 = date collision — show the server's specific message as a warning
+      if (error.response?.status === 409 && error.response.data?.collision) {
+        message.warning({
+          content: error.response.data.message,
+          duration: 6,
+        });
+      } else {
+        message.error("Failed to update booking status");
+      }
     }
   };
 

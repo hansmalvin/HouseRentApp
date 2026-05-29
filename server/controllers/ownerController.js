@@ -217,6 +217,43 @@ const getAllBookingsController = async (req, res) => {
 const handleAllBookingstatusController = async (req, res) => {
   const { bookingId, propertyId, status } = req.body;
   try {
+    // ── Date collision check (only when marking as booked) ──────────
+    if (status === "booked") {
+      const bookingToConfirm = await bookingSchema.findById(bookingId);
+
+      if (bookingToConfirm?.checkIn && bookingToConfirm?.checkOut) {
+        const newIn  = new Date(bookingToConfirm.checkIn);
+        const newOut = new Date(bookingToConfirm.checkOut);
+
+        // Find any OTHER booking on the same property that is already booked
+        // and whose date range overlaps with the one being confirmed
+        const collision = await bookingSchema.findOne({
+          _id:           { $ne: bookingId },
+          propertyId:    propertyId,
+          bookingStatus: "booked",
+          checkIn:       { $ne: null },
+          checkOut:      { $ne: null },
+          $and: [
+            { checkIn:  { $lt: newOut } },
+            { checkOut: { $gt: newIn  } },
+          ],
+        });
+
+        if (collision) {
+          const fmtDate = (d) =>
+            new Date(d).toLocaleDateString("en-GB", {
+              day: "numeric", month: "short", year: "numeric",
+            });
+          return res.status(409).send({
+            success: false,
+            collision: true,
+            message: `Date conflict — this property is already booked from ${fmtDate(collision.checkIn)} to ${fmtDate(collision.checkOut)}. Please terminate one booking before confirming another.`,
+          });
+        }
+      }
+    }
+
+    // ── No collision — proceed with status update ───────────────────
     await bookingSchema.findByIdAndUpdate(
       { _id: bookingId },
       { bookingStatus: status },
