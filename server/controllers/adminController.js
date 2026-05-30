@@ -83,10 +83,83 @@ const deleteUserController = async (req, res) => {
     if (!user) {
       return res.status(404).send({ success: false, message: "User not found" });
     }
-    await bookingSchema.deleteMany({
-      $or: [{ userID: userid }, { renter: userid }],
+
+    const { cloudinary } = require("../config/cloudinary");
+
+    // ── OWNER cascade ───────────────────────────────────────────────
+    // If the deleted user was an Owner, delete all their properties
+    // (Cloudinary images + all bookings on each property)
+    if (user.type === "Owner") {
+      const ownerProperties = await propertySchema.find({ ownerId: userid });
+
+      await Promise.all(
+        ownerProperties.map(async (property) => {
+          try {
+            // Delete all Cloudinary images for this property
+            if (property.propertyImages?.length) {
+              await Promise.all(
+                property.propertyImages.map((img) =>
+                  img.publicId
+                    ? cloudinary.uploader.destroy(img.publicId)
+                    : Promise.resolve()
+                )
+              );
+            }
+            // Delete all bookings tied to this property
+            // (covers both renter bookings and any owner-side records)
+            await bookingSchema.deleteMany({ propertyId: property._id });
+
+            // Delete the property itself
+            await propertySchema.findByIdAndDelete(property._id);
+          } catch {
+            // silent — don't block the overall delete if one property fails
+          }
+        })
+      );
+    }
+
+    // ── RENTER cascade ──────────────────────────────────────────────
+    // If the deleted user was a Renter, find their booked sale listings
+    // first so we can reset isAvailable before deleting their bookings
+    if (user.type === "Renter") {
+      const activeBookings = await bookingSchema.find({
+        $or: [{ userID: userid }, { renter: userid }],
+        bookingStatus: "booked",
+      });
+
+      if (activeBookings.length > 0) {
+        await Promise.all(
+          activeBookings.map(async (booking) => {
+            try {
+              const property = await propertySchema.findById(booking.propertyId);
+              if (
+                property &&
+                String(property.propertyAdType).toLowerCase() === "sale" &&
+                property.isAvailable === "Unavailable"
+              ) {
+                await propertySchema.findByIdAndUpdate(
+                  property._id,
+                  { isAvailable: "Available" },
+                  { new: true }
+                );
+              }
+            } catch {
+              // silent
+            }
+          })
+        );
+      }
+
+      // Delete all their bookings
+      await bookingSchema.deleteMany({
+        $or: [{ userID: userid }, { renter: userid }],
+      });
+    }
+
+    return res.status(200).send({
+      success: true,
+      message: "User and all related data deleted",
     });
-    return res.status(200).send({ success: true, message: "User and their bookings deleted" });
   } catch (error) {
     console.log("Error in deleteUserController", error);
     return res.status(500).send({ success: false, message: "Failed to delete user" });
