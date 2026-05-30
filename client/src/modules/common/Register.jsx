@@ -100,25 +100,26 @@ const Register = () => {
       />
 
       {/* Navbar */}
-      <nav className="relative z-20 border-b border-stone-200/50 bg-stone-50/40 px-4 py-3 shadow-sm backdrop-blur-md sm:px-6 sm:py-4">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
-          <RentEaseLogo to="/" variant="light" size="md" className="shrink-0" />
-          <div className="flex flex-wrap items-center justify-end gap-2 text-sm font-medium sm:gap-6 sm:text-base">
+      <nav className="relative z-20 border-b border-stone-200/50 bg-stone-50/40 px-4 py-3 shadow-sm backdrop-blur-md sm:px-6 sm:py-4 max-[365px]:px-2 max-[365px]:py-2">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 max-[365px]:gap-1">
+          <RentEaseLogo to="/" variant="light" size="md" className="shrink-0 max-[365px]:hidden" />
+          <RentEaseLogo to="/" variant="light" size="sm" className="shrink-0 hidden max-[365px]:block" />
+          <div className="flex items-center justify-end gap-2 text-sm font-medium sm:gap-6 sm:text-base max-[365px]:gap-1 max-[365px]:text-xs">
             <Link
               to="/"
-              className="rounded-lg px-3 py-1.5 text-stone-700 transition hover:bg-white/50 hover:text-amber-900"
+              className="rounded-lg px-3 py-1.5 text-stone-700 transition hover:bg-white/50 hover:text-amber-900 max-[365px]:px-1.5 max-[365px]:py-1"
             >
               Home
             </Link>
             <Link
               to="/login"
-              className="rounded-lg px-3 py-1.5 text-stone-700 transition hover:bg-white/50 hover:text-amber-900"
+              className="rounded-lg px-3 py-1.5 text-stone-700 transition hover:bg-white/50 hover:text-amber-900 max-[365px]:px-1.5 max-[365px]:py-1"
             >
               Login
             </Link>
             <Link
               to="/register"
-              className="rounded-xl bg-gradient-to-r from-amber-100 to-stone-200 px-4 py-2 text-stone-800 shadow-sm ring-1 ring-stone-200/80 transition hover:from-amber-200 hover:to-stone-300 hover:shadow-md"
+              className="rounded-xl bg-gradient-to-r from-amber-100 to-stone-200 px-4 py-2 text-stone-800 shadow-sm ring-1 ring-stone-200/80 transition hover:from-amber-200 hover:to-stone-300 hover:shadow-md max-[365px]:px-2 max-[365px]:py-1"
             >
               Register
             </Link>
