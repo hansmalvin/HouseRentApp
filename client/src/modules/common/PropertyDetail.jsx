@@ -346,6 +346,11 @@ const PropertyDetail = () => {
   const isAdmin  = userData?.type === "Admin";
   const canBook  = isRenter;
 
+  // True when the owner has already confirmed this renter's booking —
+  // date changes are locked in this state
+  const isBookingConfirmed =
+    isRenter && existingBooking?.bookingStatus === "booked";
+
   // Derive whether dates have changed from the existing booking
   const existingCheckIn  = existingBooking?.checkIn  ? new Date(existingBooking.checkIn)  : null;
   const existingCheckOut = existingBooking?.checkOut ? new Date(existingBooking.checkOut) : null;
@@ -360,15 +365,16 @@ const PropertyDetail = () => {
 
   // Booking card CTA label
   const ctaLabel = () => {
-    if (bookingStatus === "loading") return existingBooking ? (datesChanged ? "Updating…" : "Cancelling…") : "Booking…";
+    if (bookingStatus === "loading") return existingBooking ? (datesChanged && !isBookingConfirmed ? "Updating…" : "Cancelling…") : "Booking…";
     if (existingBooking && !isRent) return "Cancel your booking";
+    if (existingBooking && isBookingConfirmed) return "Cancel your booking";
     if (existingBooking) return datesChanged ? "Update your booking" : "Cancel your booking";
     if (isRent && (!checkIn || !checkOut)) return "Check availability";
     return "Reserve";
   };
 
   const ctaStyle = () => {
-    if (existingBooking && (!datesChanged || !isRent)) {
+    if (existingBooking && (!datesChanged || !isRent || isBookingConfirmed)) {
       return "bg-red-500 hover:bg-red-600";
     }
     return "bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600";
@@ -737,22 +743,30 @@ const PropertyDetail = () => {
               {isRent && (
                 <div>
                   <div
-                    className="grid grid-cols-2 rounded-xl border border-gray-300 overflow-hidden cursor-pointer"
-                    onClick={() => setShowCalendar((v) => !v)}
+                    className={`grid grid-cols-2 rounded-xl border border-gray-300 overflow-hidden ${isBookingConfirmed ? "cursor-not-allowed opacity-75" : "cursor-pointer"}`}
+                    onClick={() => !isBookingConfirmed && setShowCalendar((v) => !v)}
+                    title={isBookingConfirmed ? "Your booking is confirmed — dates cannot be changed" : undefined}
                   >
-                    <div className="px-3 py-2.5 border-r border-gray-300 hover:bg-gray-50 transition">
+                    <div className="px-3 py-2.5 border-r border-gray-300">
                       <p className="text-[10px] font-bold uppercase text-gray-500 tracking-wider">Check-in</p>
                       <p className={`text-sm ${checkIn ? "text-gray-900 font-medium" : "text-gray-400"}`}>
                         {checkIn ? formatDateInput(checkIn) : "Add date"}
                       </p>
                     </div>
-                    <div className="px-3 py-2.5 hover:bg-gray-50 transition">
+                    <div className="px-3 py-2.5">
                       <p className="text-[10px] font-bold uppercase text-gray-500 tracking-wider">Checkout</p>
                       <p className={`text-sm ${checkOut ? "text-gray-900 font-medium" : "text-gray-400"}`}>
                         {checkOut ? formatDateInput(checkOut) : "Add date"}
                       </p>
                     </div>
                   </div>
+
+                  {/* Locked notice when booking is confirmed */}
+                  {isBookingConfirmed && (
+                    <p className="mt-1.5 text-center text-xs text-emerald-600 font-medium">
+                      ✓ Dates confirmed by owner — contact them to make changes
+                    </p>
+                  )}
 
                   {/* Guests */}
                   <div className="rounded-xl border border-gray-300 border-t-0 -mt-px px-3 py-2.5">
@@ -764,8 +778,8 @@ const PropertyDetail = () => {
                     </p>
                   </div>
 
-                  {/* CHANGED: pass bookedRanges into the date picker */}
-                  {showCalendar && (
+                  {/* Calendar — hidden when booking is confirmed */}
+                  {showCalendar && !isBookingConfirmed && (
                     <div className="mt-2">
                       <BookingDatePicker
                         checkIn={checkIn}
@@ -813,7 +827,7 @@ const PropertyDetail = () => {
                 userData ? (
                   canBook ? (
                     // Cancel path: sale always, or rent when dates unchanged
-                    existingBooking && (!isRent || !datesChanged) ? (
+                    existingBooking && (!isRent || !datesChanged || isBookingConfirmed) ? (
                       <Popconfirm
                         title="Cancel your booking?"
                         description={

@@ -230,6 +230,13 @@ const updateBookingController = async (req, res) => {
     if (booking.userID.toString() !== userId) {
       return res.status(403).send({ success: false, message: "Not authorised to update this booking" });
     }
+    // Confirmed bookings cannot have their dates changed
+    if (booking.bookingStatus === "booked") {
+      return res.status(400).send({
+        success: false,
+        message: "Your booking has been confirmed by the owner and can no longer be modified. Please contact the owner to make changes.",
+      });
+    }
 
     let totalDays = null;
     let totalPrice = null;
