@@ -83,7 +83,7 @@ const MonthGrid = ({ year, month, checkIn, checkOut, hoveredDate, onDayClick, on
   for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(year, month, d));
 
   return (
-    <div className="flex-1 min-w-[260px]">
+    <div className="flex-1 min-w-0">
       <p className="mb-3 text-center text-sm font-semibold text-gray-900">
         {MONTHS[month]} {year}
       </p>
@@ -137,12 +137,15 @@ const MonthGrid = ({ year, month, checkIn, checkOut, hoveredDate, onDayClick, on
 };
 
 // ─── Date Picker Dropdown ─────────────────────────────────────────────────────
-const DatePickerDropdown = ({ checkIn, checkOut, onChange }) => {
+// On mobile: single month. On md+: two months side by side.
+const DatePickerDropdown = ({ checkIn, checkOut, onChange, isMobile }) => {
   const today = startOfDay(new Date());
   const [offset, setOffset] = useState(0);
   const [hoveredDate, setHoveredDate] = useState(null);
 
-  const months = [0, 1].map((i) => {
+  // On mobile show 1 month, on desktop show 2
+  const monthCount = isMobile ? 1 : 2;
+  const months = Array.from({ length: monthCount }, (_, i) => {
     const d = new Date(today.getFullYear(), today.getMonth() + offset + i, 1);
     return { year: d.getFullYear(), month: d.getMonth() };
   });
@@ -161,8 +164,8 @@ const DatePickerDropdown = ({ checkIn, checkOut, onChange }) => {
 
   return (
     <div
-      className="absolute left-1/2 -translate-x-1/2 top-[calc(100%+8px)] z-[200] w-[600px] max-w-[95vw] rounded-2xl border border-gray-100 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.14)] p-5"
-      onMouseDown={(e) => e.preventDefault()}
+      // On mobile: full-width, max-height with scroll; on md+: fixed 600px centered
+      className="absolute left-0 right-0 top-[calc(100%+8px)] z-[200] max-h-[70vh] overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.14)] p-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[600px] md:max-h-none md:overflow-visible md:p-5"
     >
       {/* Dates / Flexible toggle */}
       <div className="flex justify-center mb-4">
@@ -192,8 +195,8 @@ const DatePickerDropdown = ({ checkIn, checkOut, onChange }) => {
         </button>
       </div>
 
-      {/* Two month grids */}
-      <div className="flex gap-6">
+      {/* Month grids: 1 on mobile, 2 on md+ */}
+      <div className={`flex ${monthCount === 2 ? "gap-6" : ""}`}>
         {months.map(({ year, month }) => (
           <MonthGrid
             key={`${year}-${month}`}
@@ -273,8 +276,7 @@ const WhereDropdown = ({ properties, onSelect }) => {
 
   return (
     <div
-      className="absolute left-0 top-[calc(100%+8px)] z-[200] w-full min-w-[320px] max-w-[480px] overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
-      onMouseDown={(e) => e.preventDefault()}
+      className="absolute left-0 right-0 top-[calc(100%+8px)] z-[200] overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] max-h-[60vh] overflow-y-auto"
     >
       <div className="px-5 pt-5 pb-2">
         <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Suggested destinations</p>
@@ -340,6 +342,14 @@ const Home = () => {
   const [whoOpen, setWhoOpen] = useState(false);
   const [guestCount, setGuestCount] = useState(0); // 0 = any
 
+  // Track viewport width for responsive calendar
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
+
   useEffect(() => {
     axios
       .get("http://localhost:8001/api/user/getAllProperties", { withCredentials: true })
@@ -348,13 +358,24 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
+    // Use mousedown for mouse and touchend for touch so that taps inside
+    // dropdowns are fully processed before the outside-close check runs.
+    // touchstart/pointerdown fire before the tap target is finalized on mobile
+    // which caused dropdowns to close before interactions registered.
     const handler = (e) => {
-      if (whereRef.current && !whereRef.current.contains(e.target)) setWhereOpen(false);
-      if (whenRef.current && !whenRef.current.contains(e.target)) setWhenOpen(false);
-      if (whoRef.current && !whoRef.current.contains(e.target)) setWhoOpen(false);
+      const inWhere = whereRef.current?.contains(e.target);
+      const inWhen  = whenRef.current?.contains(e.target);
+      const inWho   = whoRef.current?.contains(e.target);
+      if (!inWhere) setWhereOpen(false);
+      if (!inWhen)  setWhenOpen(false);
+      if (!inWho)   setWhoOpen(false);
     };
     document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener("touchend", handler);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("touchend", handler);
+    };
   }, []);
 
   const handleWhereSelect = useCallback((city) => {
@@ -384,10 +405,12 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
+      {/* ── Header ── */}
       <header className="sticky top-0 z-50 border-b border-gray-200 bg-white">
-        <nav className="mx-auto flex max-w-[1760px] items-center justify-between gap-4 px-6 py-4 md:px-10">
+        <nav className="mx-auto flex max-w-[1760px] items-center justify-between gap-2 px-4 py-3 sm:gap-4 sm:px-6 sm:py-4 md:px-10">
           <RentEaseLogo to="/" variant="light" size="md" />
+
+          {/* Centre nav — hidden on mobile */}
           <div className="hidden flex-1 items-center justify-center gap-8 md:flex">
             <button type="button" className="border-b-2 border-gray-900 pb-3 pt-1 text-sm font-semibold text-gray-900">Homes</button>
             <button type="button" className="pb-3 pt-1 text-sm font-medium text-gray-500 hover:text-gray-800">
@@ -399,16 +422,24 @@ const Home = () => {
               <span className="ml-1 rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-gray-700">Not Yet</span>
             </button>
           </div>
-          <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
-            <Link to="/register" className="hidden rounded-full px-3 py-2 hover:bg-gray-100 sm:inline-block">Become a host</Link>
+
+          {/* Right actions */}
+          <div className="flex items-center gap-1.5 sm:gap-2 text-sm font-medium text-gray-700">
+            {/* "Become a host" hidden below sm */}
+            <Link
+              to="/register"
+              className="hidden rounded-full px-3 py-2 hover:bg-gray-100 sm:inline-block whitespace-nowrap"
+            >
+              Become a host
+            </Link>
             <div
-              className="flex items-center gap-2 rounded-full border border-gray-300 py-1 pl-3 pr-1 shadow-sm hover:shadow-md cursor-pointer"
+              className="flex items-center gap-2 rounded-full border border-gray-300 py-1 pl-2.5 pr-1 shadow-sm hover:shadow-md cursor-pointer sm:pl-3"
               onClick={() => navigate(isRenter ? "/renterhome" : "/login")}
               title={isRenter ? `${userData.name} — Go to dashboard` : "Log in"}
             >
               <Bars3Icon className="h-4 w-4" />
               <div className="rounded-full p-0.5 relative" aria-label="Account menu">
-                <UserCircleIcon className={`h-8 w-8 ${isRenter ? "text-indigo-500" : "text-gray-500"}`} />
+                <UserCircleIcon className={`h-7 w-7 sm:h-8 sm:w-8 ${isRenter ? "text-indigo-500" : "text-gray-500"}`} />
                 {isRenter && (
                   <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-green-400 border-2 border-white" />
                 )}
@@ -418,43 +449,75 @@ const Home = () => {
         </nav>
       </header>
 
-      {/* Hero + search */}
+      {/* ── Hero + Search ── */}
       <div className="relative border-b border-gray-100">
-        <div className="relative h-[320px] overflow-visible md:h-[380px]">
-          <AnimatedBackground
-            animationName="particleNetwork" theme="landing" interactive adaptivePerformance fps={30}
-            interactionConfig={{ effect: "attract", strength: 0.6, radius: 120, continuous: true }}
-            style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 0 }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-white/50 to-white z-10 pointer-events-none" />
-          <div className="absolute inset-0 z-20 flex flex-col items-center justify-end px-4 pb-8 md:pb-10">
-            <h1 className="mb-6 text-center text-2xl font-semibold text-gray-900 md:text-3xl">Find your next rental</h1>
+        {/* Animated background — on mobile height is auto so stacked search cards aren't clipped */}
+        <div className="relative min-h-[280px] sm:h-[320px] md:h-[380px]">
+          {/* AnimatedBackground needs a sized container — we give it an absolute fill on sm+ */}
+          <div className="absolute inset-0 hidden sm:block">
+            <AnimatedBackground
+              animationName="particleNetwork" theme="landing" interactive adaptivePerformance fps={30}
+              interactionConfig={{ effect: "attract", strength: 0.6, radius: 120, continuous: true }}
+              style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 0 }}
+            />
+          </div>
+          {/* On mobile show a simple gradient background instead of the canvas animation */}
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-white sm:hidden" />
+          <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-white/50 to-white z-10 pointer-events-none hidden sm:block" />
 
-            <div className="w-full max-w-[850px] rounded-full border border-gray-200 bg-white p-2 shadow-[0_6px_20px_rgba(0,0,0,0.12)]">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:divide-x sm:divide-gray-200">
+          {/* On mobile: normal flow so the container grows with content.
+              On sm+: absolute-positioned so it overlays the animated canvas. */}
+          <div className="relative z-20 flex flex-col items-center px-4 pt-8 pb-6
+                          sm:absolute sm:inset-0 sm:justify-end sm:pt-0 sm:pb-8
+                          md:pb-10">
+            <h1 className="mb-4 text-center text-xl font-semibold text-gray-900 sm:mb-6 sm:text-2xl md:text-3xl">
+              Find your next rental
+            </h1>
 
+            {/* ── Search bar ──
+                Mobile:  stacked vertically, full-width pill, no "Who"
+                sm+:     horizontal row inside a single rounded-full pill, "Who" visible
+            */}
+            <div className="w-full max-w-[850px]">
+
+              {/* ── MOBILE search bar (< sm) ── */}
+              <div className="flex flex-col gap-2 sm:hidden">
                 {/* WHERE */}
-                <div className="relative flex-1" ref={whereRef}>
-                  <label className="flex flex-col px-4 py-2 cursor-text">
+                <div
+                  ref={whereRef}
+                  className="relative w-full rounded-2xl border border-gray-200 bg-white shadow-md"
+                >
+                  <label
+                    className="flex flex-col px-4 py-3 cursor-text"
+                    onClick={() => { setWhereOpen(true); setWhenOpen(false); setWhoOpen(false); }}
+                  >
                     <span className="text-xs font-semibold text-gray-900">Where</span>
                     <input
                       type="text"
                       placeholder="Search destinations"
                       value={searchWhere}
                       onChange={(e) => setSearchWhere(e.target.value)}
-                      onFocus={() => { setWhereOpen(true); setWhenOpen(false); }}
+                      onFocus={() => { setWhereOpen(true); setWhenOpen(false); setWhoOpen(false); }}
+                      onTouchStart={() => { setWhereOpen(true); setWhenOpen(false); setWhoOpen(false); }}
                       className="border-0 bg-transparent p-0 text-sm text-gray-600 placeholder:text-gray-400 focus:outline-none focus:ring-0"
                     />
                   </label>
-                  {whereOpen && <WhereDropdown properties={allProperties} onSelect={handleWhereSelect} />}
+                  {whereOpen && (
+                    <div onMouseDown={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
+                      <WhereDropdown properties={allProperties} onSelect={handleWhereSelect} />
+                    </div>
+                  )}
                 </div>
 
                 {/* WHEN */}
-                <div className="relative flex-1" ref={whenRef}>
+                <div
+                  ref={whenRef}
+                  className="relative w-full rounded-2xl border border-gray-200 bg-white shadow-md"
+                >
                   <button
                     type="button"
-                    onClick={() => { setWhenOpen((o) => !o); setWhereOpen(false); }}
-                    className="flex w-full flex-col px-4 py-2 text-left"
+                    onClick={() => { setWhenOpen((o) => !o); setWhereOpen(false); setWhoOpen(false); }}
+                    className="flex w-full flex-col px-4 py-3 text-left"
                   >
                     <span className="text-xs font-semibold text-gray-900">When</span>
                     <span className={`text-sm ${whenLabel ? "text-gray-800 font-medium" : "text-gray-400"}`}>
@@ -462,16 +525,21 @@ const Home = () => {
                     </span>
                   </button>
                   {whenOpen && (
-                    <DatePickerDropdown checkIn={checkIn} checkOut={checkOut} onChange={handleDateChange} />
+                    <div onMouseDown={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
+                      <DatePickerDropdown checkIn={checkIn} checkOut={checkOut} onChange={handleDateChange} isMobile={true} />
+                    </div>
                   )}
                 </div>
 
-                {/* WHO */}
-                <div className="relative hidden flex-1 sm:block" ref={whoRef}>
+                {/* WHO — visible on mobile too, as a separate card */}
+                <div
+                  ref={whoRef}
+                  className="relative w-full rounded-2xl border border-gray-200 bg-white shadow-md"
+                >
                   <button
                     type="button"
                     onClick={() => { setWhoOpen((o) => !o); setWhereOpen(false); setWhenOpen(false); }}
-                    className="flex w-full flex-col px-4 py-2 text-left"
+                    className="flex w-full flex-col px-4 py-3 text-left"
                   >
                     <span className="text-xs font-semibold text-gray-900">Who</span>
                     <span className={`text-sm ${guestCount > 0 ? "text-gray-800 font-medium" : "text-gray-400"}`}>
@@ -480,15 +548,16 @@ const Home = () => {
                   </button>
                   {whoOpen && (
                     <div
-                      className="absolute right-0 top-[calc(100%+8px)] z-[200] w-56 rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
-                      onMouseDown={(e) => e.preventDefault()}
+                      onMouseDown={(e) => e.stopPropagation()}
+                      onTouchEnd={(e) => e.stopPropagation()}
+                      className="absolute left-0 right-0 top-[calc(100%+8px)] z-[200] rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
                     >
                       <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Guests</p>
                       <div className="flex items-center justify-between gap-3">
                         <button
                           type="button"
                           onClick={() => setGuestCount((n) => Math.max(0, n - 1))}
-                          className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-300 text-gray-700 hover:border-gray-900 transition text-lg font-light"
+                          className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 text-gray-700 hover:border-gray-900 transition text-lg font-light"
                         >−</button>
                         <span className="min-w-[3ch] text-center text-sm font-semibold text-gray-900">
                           {guestCount === 0 ? "Any" : guestCount}
@@ -496,7 +565,7 @@ const Home = () => {
                         <button
                           type="button"
                           onClick={() => setGuestCount((n) => Math.min(20, n + 1))}
-                          className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-300 text-gray-700 hover:border-gray-900 transition text-lg font-light"
+                          className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 text-gray-700 hover:border-gray-900 transition text-lg font-light"
                         >+</button>
                       </div>
                       {guestCount > 0 && (
@@ -510,40 +579,155 @@ const Home = () => {
                   )}
                 </div>
 
+                {/* SEARCH button — full-width on mobile */}
                 <button
                   type="button"
                   onClick={handleSearch}
-                  className="mx-1 flex items-center justify-center gap-2 rounded-full bg-indigo-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-600 sm:py-3.5"
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-indigo-500 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-indigo-600 active:scale-[0.98]"
                 >
-                  <MagnifyingGlassIcon className="h-5 w-5 sm:hidden" />
-                  <span className="hidden sm:inline">Search</span>
+                  <MagnifyingGlassIcon className="h-5 w-5" />
+                  Search
                 </button>
+              </div>
+
+              {/* ── SM+ search bar (pill, single row) ── */}
+              <div className="hidden sm:block rounded-full border border-gray-200 bg-white p-2 shadow-[0_6px_20px_rgba(0,0,0,0.12)]">
+                <div className="flex items-center divide-x divide-gray-200">
+
+                  {/* WHERE */}
+                  <div className="relative flex-1" ref={whereRef}>
+                    <label
+                      className="flex flex-col px-4 py-2 cursor-text"
+                      onClick={() => { setWhereOpen(true); setWhenOpen(false); setWhoOpen(false); }}
+                    >
+                      <span className="text-xs font-semibold text-gray-900">Where</span>
+                      <input
+                        type="text"
+                        placeholder="Search destinations"
+                        value={searchWhere}
+                        onChange={(e) => setSearchWhere(e.target.value)}
+                        onFocus={() => { setWhereOpen(true); setWhenOpen(false); setWhoOpen(false); }}
+                        onTouchStart={() => { setWhereOpen(true); setWhenOpen(false); setWhoOpen(false); }}
+                        className="border-0 bg-transparent p-0 text-sm text-gray-600 placeholder:text-gray-400 focus:outline-none focus:ring-0"
+                      />
+                    </label>
+                    {whereOpen && (
+                      <div onMouseDown={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
+                        <WhereDropdown properties={allProperties} onSelect={handleWhereSelect} />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* WHEN */}
+                  <div className="relative flex-1" ref={whenRef}>
+                    <button
+                      type="button"
+                      onClick={() => { setWhenOpen((o) => !o); setWhereOpen(false); setWhoOpen(false); }}
+                      className="flex w-full flex-col px-4 py-2 text-left"
+                    >
+                      <span className="text-xs font-semibold text-gray-900">When</span>
+                      <span className={`text-sm ${whenLabel ? "text-gray-800 font-medium" : "text-gray-400"}`}>
+                        {whenLabel || "Add dates"}
+                      </span>
+                    </button>
+                    {whenOpen && (
+                      <div onMouseDown={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}>
+                        <DatePickerDropdown checkIn={checkIn} checkOut={checkOut} onChange={handleDateChange} isMobile={isMobile} />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* WHO */}
+                  <div className="relative flex-1" ref={whoRef}>
+                    <button
+                      type="button"
+                      onClick={() => { setWhoOpen((o) => !o); setWhereOpen(false); setWhenOpen(false); }}
+                      className="flex w-full flex-col px-4 py-2 text-left"
+                    >
+                      <span className="text-xs font-semibold text-gray-900">Who</span>
+                      <span className={`text-sm ${guestCount > 0 ? "text-gray-800 font-medium" : "text-gray-400"}`}>
+                        {guestCount > 0 ? `${guestCount} guest${guestCount > 1 ? "s" : ""}` : "Add guests"}
+                      </span>
+                    </button>
+                    {whoOpen && (
+                      <div
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onTouchEnd={(e) => e.stopPropagation()}
+                        className="absolute right-0 top-[calc(100%+8px)] z-[200] w-56 rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
+                      >
+                        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Guests</p>
+                        <div className="flex items-center justify-between gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setGuestCount((n) => Math.max(0, n - 1))}
+                            className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-300 text-gray-700 hover:border-gray-900 transition text-lg font-light"
+                          >−</button>
+                          <span className="min-w-[3ch] text-center text-sm font-semibold text-gray-900">
+                            {guestCount === 0 ? "Any" : guestCount}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setGuestCount((n) => Math.min(20, n + 1))}
+                            className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-300 text-gray-700 hover:border-gray-900 transition text-lg font-light"
+                          >+</button>
+                        </div>
+                        {guestCount > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => { setGuestCount(0); setWhoOpen(false); }}
+                            className="mt-3 w-full text-center text-xs text-gray-400 underline underline-offset-2 hover:text-gray-600"
+                          >Clear</button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* SEARCH button */}
+                  <button
+                    type="button"
+                    onClick={handleSearch}
+                    className="mx-1 flex items-center justify-center gap-2 rounded-full bg-indigo-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-600 sm:py-3.5"
+                  >
+                    <MagnifyingGlassIcon className="h-5 w-5 md:hidden" />
+                    <span className="hidden md:inline">Search</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Listings */}
-      <main id="listings" className="mx-auto max-w-[1760px] px-6 py-10 md:px-10">
-        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+      {/* ── Listings ── */}
+      <main id="listings" className="mx-auto max-w-[1760px] px-4 py-8 sm:px-6 sm:py-10 md:px-10">
+        <div className="mb-6 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-4">
           <div>
-            <h2 className="text-2xl font-semibold text-gray-900">
+            <h2 className="text-xl font-semibold text-gray-900 sm:text-2xl">
               {searchWhere
-                ? nights ? `Rent listings in ${searchWhere} · ${nights} night${nights > 1 ? "s" : ""}` : `Rentals in ${searchWhere}`
-                : nights ? `Rent listings · ${nights} night${nights > 1 ? "s" : ""}` : "Explore rentals near you"}
+                ? nights
+                  ? `Rent listings in ${searchWhere} · ${nights} night${nights > 1 ? "s" : ""}`
+                  : `Rentals in ${searchWhere}`
+                : nights
+                  ? `Rent listings · ${nights} night${nights > 1 ? "s" : ""}`
+                  : "Explore rentals near you"}
             </h2>
             <p className="mt-1 text-sm text-gray-500">
               {dateFilter
                 ? "Showing rent listings only — sale properties are hidden when dates are selected."
                 : <>Looking to post your property?{" "}
-                    <Link to="/register" className="font-medium text-indigo-600 underline-offset-2 hover:underline">Register as Owner</Link>
+                    <Link to="/register" className="font-medium text-indigo-600 underline-offset-2 hover:underline">
+                      Register as Owner
+                    </Link>
                   </>}
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {(searchWhere || checkIn || guestCount > 0) && (
-              <button type="button" onClick={clearAll} className="text-sm font-medium text-gray-500 underline-offset-2 hover:underline">
+              <button
+                type="button"
+                onClick={clearAll}
+                className="text-sm font-medium text-gray-500 underline-offset-2 hover:underline"
+              >
                 Clear filters
               </button>
             )}
@@ -562,6 +746,7 @@ const Home = () => {
             )}
           </div>
         </div>
+
         <HomePropertySections
           searchQuery={searchWhere}
           dateFilter={dateFilter}
