@@ -124,13 +124,13 @@ const handleDelete = async (propertyid) => {
           onClose={() => setToast({ ...toast, show: false })}
         />
       )}
-      <h2 className="mb-1 text-xl font-bold text-indigo-700">All properties</h2>
-      <p className="mb-4 text-sm text-slate-500">
+      <h2 className="mb-1 text-lg font-bold text-indigo-700 sm:text-xl">All properties</h2>
+      <p className="mb-4 text-xs text-slate-500 sm:text-sm">
         Every listing published on the platform, across all owners.
       </p>
 
       <div className="w-full min-w-0 overflow-hidden rounded-2xl border border-indigo-100 bg-white shadow-sm">
-        <div className="border-b border-indigo-50 px-4 py-4 sm:px-5">
+        <div className="border-b border-indigo-50 px-3 py-3 sm:px-5 sm:py-4">
           <AdminTableToolbar
             search={search}
             onSearchChange={setSearch}
@@ -145,15 +145,15 @@ const handleDelete = async (propertyid) => {
         <table className="w-max min-w-full text-left text-sm text-slate-700">
           <thead className="bg-indigo-100/90 text-indigo-900">
             <tr>
-              <th className="px-4 py-3 text-center">Property type</th>
-              <th className="px-4 py-3 text-center">Ad type</th>
-              <th className="px-4 py-3 text-center">Address</th>
-              <th className="px-4 py-3 text-center">Owner name</th>
-              <th className="px-4 py-3 text-center">Owner contact</th>
-              <th className="min-w-[9rem] px-4 py-3 text-center">Amount</th>
-              <th className="whitespace-nowrap px-4 py-3 text-center">Property ID</th>
-              <th className="whitespace-nowrap px-4 py-3 text-center">Owner ID</th>
-              <th className="px-4 py-3 text-center">Actions</th>
+              <th className="px-3 py-2.5 text-center sm:px-4 sm:py-3">Property type</th>
+              <th className="px-3 py-2.5 text-center sm:px-4 sm:py-3">Ad type</th>
+              <th className="px-3 py-2.5 text-center sm:px-4 sm:py-3">Address</th>
+              <th className="px-3 py-2.5 text-center sm:px-4 sm:py-3">Owner name</th>
+              <th className="px-3 py-2.5 text-center sm:px-4 sm:py-3">Owner contact</th>
+              <th className="min-w-[8rem] px-3 py-2.5 text-center sm:px-4 sm:py-3">Amount</th>
+              <th className="whitespace-nowrap px-3 py-2.5 text-center sm:px-4 sm:py-3">Property ID</th>
+              <th className="whitespace-nowrap px-3 py-2.5 text-center sm:px-4 sm:py-3">Owner ID</th>
+              <th className="px-3 py-2.5 text-center sm:px-4 sm:py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -163,31 +163,31 @@ const handleDelete = async (propertyid) => {
                   key={property._id}
                   className="border-t border-indigo-50 transition duration-200 even:bg-indigo-50/30 hover:bg-sky-50/50"
                 >
-                  <td className="px-4 py-3 text-center font-medium text-indigo-700">
+                  <td className="px-3 py-2.5 text-center font-medium text-indigo-700 sm:px-4 sm:py-3">
                     {property.propertyType}
-                  </td> 
-                  <td className="px-4 py-3 text-center">
+                  </td>
+                  <td className="px-3 py-2.5 text-center sm:px-4 sm:py-3">
                     {property.propertyAdType || "N/A"}
                   </td>
-                  <td className="max-w-xs px-4 py-3 text-center">
+                  <td className="max-w-[10rem] px-3 py-2.5 text-center sm:max-w-xs sm:px-4 sm:py-3">
                     {property.propertyAddress}
                   </td>
-                  <td className="px-4 py-3 text-center font-medium">
+                  <td className="px-3 py-2.5 text-center font-medium sm:px-4 sm:py-3">
                     {property.displayOwnerName}
                   </td>
-                  <td className="px-4 py-3 text-center">
+                  <td className="px-3 py-2.5 text-center sm:px-4 sm:py-3">
                     {formatOwnerContactDisplay(property.ownerContact)}
                   </td>
-                  <td className="min-w-[9rem] whitespace-nowrap px-4 py-3 text-center font-semibold text-slate-800">
+                  <td className="min-w-[8rem] whitespace-nowrap px-3 py-2.5 text-center font-semibold text-slate-800 sm:px-4 sm:py-3">
                     Rp {formatPropertyAmount(property.propertyAmt)}
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-right font-mono text-xs text-slate-500">
+                  <td className="whitespace-nowrap px-3 py-2.5 text-right font-mono text-xs text-slate-500 sm:px-4 sm:py-3">
                     {property._id}
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-right font-mono text-xs text-slate-500">
+                  <td className="whitespace-nowrap px-3 py-2.5 text-right font-mono text-xs text-slate-500 sm:px-4 sm:py-3">
                     {property.ownerId}
                   </td>
-                  <td className="px-4 py-3 text-center">
+                  <td className="px-3 py-2.5 text-center sm:px-4 sm:py-3">
                     <Popconfirm
                       title="Delete this property?"
                       description="This permanently removes the listing, its images, and all related bookings."
@@ -195,15 +195,15 @@ const handleDelete = async (propertyid) => {
                       okText="Delete"
                       okButtonProps={{ danger: true }}
                       cancelText="Cancel"
-                      placement="topRight"
+                      placement="top"
                     >
                       <button
                         type="button"
-                        className="flex items-center gap-1 rounded-lg border border-rose-300 bg-rose-50 px-3 py-1 text-sm font-medium text-rose-700 transition hover:bg-rose-100"
+                        className="flex items-center gap-1 rounded-lg border border-rose-300 bg-rose-50 px-2 py-1 text-sm font-medium text-rose-700 transition hover:bg-rose-100 sm:px-3"
                         title="Delete property"
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
-                        Delete
+                        <Trash2 className="h-3.5 w-3.5 shrink-0" />
+                        <span className="hidden sm:inline">Delete</span>
                       </button>
                     </Popconfirm>
                   </td>
@@ -213,7 +213,7 @@ const handleDelete = async (propertyid) => {
               <tr>
                 <td
                   colSpan={9}
-                  className="px-4 py-8 text-center text-slate-400"
+                  className="px-4 py-6 text-center text-sm text-slate-400"
                 >
                   {allProperties.length === 0
                     ? "No properties found"

@@ -101,13 +101,13 @@ const handleDelete = async (bookingid) => {
           onClose={() => setToast({ ...toast, show: false })}
         />
       )}
-      <h2 className="mb-1 text-xl font-bold text-indigo-700">All bookings</h2>
-      <p className="mb-4 text-sm text-slate-500">
+      <h2 className="mb-1 text-lg font-bold text-indigo-700 sm:text-xl">All bookings</h2>
+      <p className="mb-4 text-xs text-slate-500 sm:text-sm">
         Booking requests from renters across every property.
       </p>
 
       <div className="w-full min-w-0 overflow-hidden rounded-2xl border border-indigo-100 bg-white shadow-sm">
-        <div className="border-b border-indigo-50 px-4 py-4 sm:px-5">
+        <div className="border-b border-indigo-50 px-3 py-3 sm:px-5 sm:py-4">
           <AdminTableToolbar
             search={search}
             onSearchChange={setSearch}
@@ -120,14 +120,14 @@ const handleDelete = async (bookingid) => {
         <table className="w-max min-w-full text-left text-sm text-slate-700">
           <thead className="bg-indigo-100/90 text-indigo-900">
             <tr>
-              <th className="px-4 py-3">Tenant name</th>
-              <th className="px-4 py-3 text-center">Tenant contact</th>
-              <th className="px-4 py-3 text-center">Status</th>
-              <th className="whitespace-nowrap px-4 py-3 text-center">Booking ID</th>
-              <th className="whitespace-nowrap px-4 py-3 text-center">Owner ID</th>
-              <th className="whitespace-nowrap px-4 py-3 text-center">Property ID</th>
-              <th className="whitespace-nowrap px-4 py-3 text-center">Tenant ID</th>
-              <th className="px-4 py-3 text-center">Actions</th>
+              <th className="px-3 py-2.5 sm:px-4 sm:py-3">Tenant name</th>
+              <th className="px-3 py-2.5 text-center sm:px-4 sm:py-3">Tenant contact</th>
+              <th className="px-3 py-2.5 text-center sm:px-4 sm:py-3">Status</th>
+              <th className="whitespace-nowrap px-3 py-2.5 text-center sm:px-4 sm:py-3">Booking ID</th>
+              <th className="whitespace-nowrap px-3 py-2.5 text-center sm:px-4 sm:py-3">Owner ID</th>
+              <th className="whitespace-nowrap px-3 py-2.5 text-center sm:px-4 sm:py-3">Property ID</th>
+              <th className="whitespace-nowrap px-3 py-2.5 text-center sm:px-4 sm:py-3">Tenant ID</th>
+              <th className="px-3 py-2.5 text-center sm:px-4 sm:py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -137,28 +137,28 @@ const handleDelete = async (bookingid) => {
                   key={booking._id}
                   className="border-t border-indigo-50 transition duration-200 even:bg-indigo-50/30 hover:bg-sky-50/50"
                 >
-                  <td className="px-4 py-3 font-medium">{booking.userName}</td>
-                  <td className="px-4 py-3 text-center">{booking.phone}</td>
+                  <td className="px-3 py-2.5 font-medium sm:px-4 sm:py-3">{booking.userName}</td>
+                  <td className="px-3 py-2.5 text-center sm:px-4 sm:py-3">{booking.phone}</td>
                   <td
-                    className={`px-4 py-3 text-center font-semibold ${bookingStatusClass(
+                    className={`px-3 py-2.5 text-center font-semibold sm:px-4 sm:py-3 ${bookingStatusClass(
                       booking.bookingStatus
                     )}`}
                   >
                     {booking.bookingStatus}
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-right font-mono text-xs text-slate-500">
+                  <td className="whitespace-nowrap px-3 py-2.5 text-right font-mono text-xs text-slate-500 sm:px-4 sm:py-3">
                     {booking._id}
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-right font-mono text-xs text-slate-500">
+                  <td className="whitespace-nowrap px-3 py-2.5 text-right font-mono text-xs text-slate-500 sm:px-4 sm:py-3">
                     {booking.ownerID}
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-right font-mono text-xs text-slate-500">
+                  <td className="whitespace-nowrap px-3 py-2.5 text-right font-mono text-xs text-slate-500 sm:px-4 sm:py-3">
                     {booking.propertyId}
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-right font-mono text-xs text-slate-500">
+                  <td className="whitespace-nowrap px-3 py-2.5 text-right font-mono text-xs text-slate-500 sm:px-4 sm:py-3">
                     {booking.userID}
                   </td>
-                  <td className="px-4 py-3 text-center">
+                  <td className="px-3 py-2.5 text-center sm:px-4 sm:py-3">
                     <Popconfirm
                       title="Delete this booking?"
                       description="This booking record will be permanently removed."
@@ -166,15 +166,15 @@ const handleDelete = async (bookingid) => {
                       okText="Delete"
                       okButtonProps={{ danger: true }}
                       cancelText="Cancel"
-                      placement="topRight"
+                      placement="top"
                     >
                       <button
                         type="button"
-                        className="flex items-center gap-1 rounded-lg border border-rose-300 bg-rose-50 px-3 py-1 text-sm font-medium text-rose-700 transition hover:bg-rose-100"
+                        className="flex items-center gap-1 rounded-lg border border-rose-300 bg-rose-50 px-2 py-1 text-sm font-medium text-rose-700 transition hover:bg-rose-100 sm:px-3"
                         title="Delete booking"
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
-                        Delete
+                        <Trash2 className="h-3.5 w-3.5 shrink-0" />
+                        <span className="hidden sm:inline">Delete</span>
                       </button>
                     </Popconfirm>
                   </td>
@@ -184,7 +184,7 @@ const handleDelete = async (bookingid) => {
               <tr>
                 <td
                   colSpan={8}
-                  className="px-4 py-8 text-center text-slate-400"
+                  className="px-4 py-6 text-center text-sm text-slate-400"
                 >
                   {allBookings.length === 0
                     ? "No bookings found"

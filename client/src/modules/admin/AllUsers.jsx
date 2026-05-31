@@ -107,13 +107,13 @@ const handleDelete = async (userid) => {
         />
       )}
 
-      <h2 className="mb-1 text-xl font-bold text-indigo-700">All users</h2>
-      <p className="mb-4 text-sm text-slate-500">
+      <h2 className="mb-1 text-lg font-bold text-indigo-700 sm:text-xl">All users</h2>
+      <p className="mb-4 text-xs text-slate-500 sm:text-sm">
         Review accounts and grant or revoke owner access.
       </p>
 
       <div className="w-full min-w-0 overflow-hidden rounded-2xl border border-indigo-100 bg-white shadow-sm">
-        <div className="border-b border-indigo-50 px-4 py-4 sm:px-5">
+        <div className="border-b border-indigo-50 px-3 py-3 sm:px-5 sm:py-4">
           <AdminTableToolbar
             search={search}
             onSearchChange={setSearch}
@@ -123,15 +123,15 @@ const handleDelete = async (userid) => {
           />
         </div>
         <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm text-slate-700">
+        <table className="w-full min-w-[600px] text-left text-sm text-slate-700">
           <thead className="bg-indigo-100/90 text-indigo-900">
             <tr>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3 text-center">Email</th>
-              <th className="px-4 py-3 text-center">Type</th>
-              <th className="px-4 py-3 text-center">Granted (owners only)</th>
-              <th className="px-4 py-3 text-center">Actions</th>
-              <th className="whitespace-nowrap px-4 py-3 text-center">User ID</th>
+              <th className="px-3 py-2.5 sm:px-4 sm:py-3">Name</th>
+              <th className="px-3 py-2.5 text-center sm:px-4 sm:py-3">Email</th>
+              <th className="px-3 py-2.5 text-center sm:px-4 sm:py-3">Type</th>
+              <th className="px-3 py-2.5 text-center sm:px-4 sm:py-3">Granted (owners only)</th>
+              <th className="px-3 py-2.5 text-center sm:px-4 sm:py-3">Actions</th>
+              <th className="whitespace-nowrap px-3 py-2.5 text-center sm:px-4 sm:py-3">User ID</th>
             </tr>
           </thead>
           <tbody>
@@ -141,13 +141,13 @@ const handleDelete = async (userid) => {
                   key={user._id}
                   className="border-t border-indigo-50 transition duration-200 even:bg-indigo-50/30 hover:bg-sky-50/50"
                 >
-                  <td className="px-4 py-3 font-medium">{user.name}</td>
-                  <td className="px-4 py-3 text-center">{user.email}</td>
-                  <td className="px-4 py-3 text-center font-medium text-indigo-700">
+                  <td className="px-3 py-2.5 font-medium sm:px-4 sm:py-3">{user.name}</td>
+                  <td className="px-3 py-2.5 text-center sm:px-4 sm:py-3">{user.email}</td>
+                  <td className="px-3 py-2.5 text-center font-medium text-indigo-700 sm:px-4 sm:py-3">
                     {user.type}
                   </td>
                   <td
-                    className={`px-4 py-3 text-center font-semibold ${
+                    className={`px-3 py-2.5 text-center font-semibold sm:px-4 sm:py-3 ${
                       user.granted === "granted"
                         ? "text-emerald-600"
                         : user.granted
@@ -157,14 +157,14 @@ const handleDelete = async (userid) => {
                   >
                     {user.granted || "—"}
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-center gap-2">
+                  <td className="px-3 py-2.5 sm:px-4 sm:py-3">
+                    <div className="flex justify-center gap-1.5 sm:gap-2">
                       {user.type === "Owner" &&
                         user.granted === "ungranted" && (
                           <button
                             type="button"
                             onClick={() => handleStatus(user._id, "granted")}
-                            className="rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700 transition hover:bg-emerald-100"
+                            className="rounded-lg border border-emerald-300 bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 transition hover:bg-emerald-100 sm:px-3 sm:text-sm"
                           >
                             Grant
                           </button>
@@ -173,7 +173,7 @@ const handleDelete = async (userid) => {
                         <button
                           type="button"
                           onClick={() => handleStatus(user._id, "ungranted")}
-                          className="rounded-lg border border-rose-300 bg-rose-50 px-3 py-1 text-sm font-medium text-rose-700 transition hover:bg-rose-100"
+                          className="rounded-lg border border-rose-300 bg-rose-50 px-2 py-1 text-xs font-medium text-rose-700 transition hover:bg-rose-100 sm:px-3 sm:text-sm"
                         >
                           Ungrant
                         </button>
@@ -185,20 +185,20 @@ const handleDelete = async (userid) => {
                         okText="Delete"
                         okButtonProps={{ danger: true }}
                         cancelText="Cancel"
-                        placement="topRight"
+                        placement="top"
                       >
                         <button
                           type="button"
-                          className="flex items-center gap-1 rounded-lg border border-rose-300 bg-rose-50 px-3 py-1 text-sm font-medium text-rose-700 transition hover:bg-rose-100"
+                          className="flex items-center gap-1 rounded-lg border border-rose-300 bg-rose-50 px-2 py-1 text-sm font-medium text-rose-700 transition hover:bg-rose-100 sm:px-3"
                           title="Delete user"
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
-                          Delete
+                          <Trash2 className="h-3.5 w-3.5 shrink-0" />
+                          <span className="hidden sm:inline">Delete</span>
                         </button>
                       </Popconfirm>
                     </div>
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-right font-mono text-xs text-slate-500">
+                  <td className="whitespace-nowrap px-3 py-2.5 text-right font-mono text-xs text-slate-500 sm:px-4 sm:py-3">
                     {user._id}
                   </td>
                 </tr>
@@ -207,7 +207,7 @@ const handleDelete = async (userid) => {
               <tr>
                 <td
                   colSpan={6}
-                  className="px-4 py-8 text-center text-slate-400"
+                  className="px-4 py-6 text-center text-slate-400 text-sm"
                 >
                   {allUser.length === 0 ? "No users found" : "No matching users"}
                 </td>
