@@ -212,13 +212,13 @@ function AddProperty({ isAdmin = false }) {
 
   return (
     <div className="mx-auto max-w-5xl">
-      <h2 className="mb-2 text-center text-2xl font-bold text-indigo-700 sm:text-3xl">Add a new listing</h2>
-      <p className="mb-8 text-center text-sm text-slate-500">Fill in the details below to publish your property.</p>
+      <h2 className="mb-2 text-center text-xl font-bold text-indigo-700 sm:text-2xl md:text-3xl">Add a new listing</h2>
+      <p className="mb-6 text-center text-xs text-slate-500 sm:mb-8 sm:text-sm">Fill in the details below to publish your property.</p>
 
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
 
         {/* ── Property type + Listing type ── */}
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
           <div>
             <FieldLabel infoKey="propertyType">Property type</FieldLabel>
             <select name="propertyType" value={propertyDetails.propertyType} onChange={handleChange} className={fieldClass}>
@@ -249,7 +249,7 @@ function AddProperty({ isAdmin = false }) {
         </div>
 
         {/* ── Images + Contact + Amount ── */}
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
           <div>
             <FieldLabel infoKey="images">Property images</FieldLabel>
             <input ref={fileInputRef} type="file" accept="image/*" multiple required onChange={handleImageChange}
@@ -275,7 +275,7 @@ function AddProperty({ isAdmin = false }) {
           <FieldLabel infoKey="additionalInfo" optional>Additional details</FieldLabel>
 
           {/* Amenities + max guests — same row, aligned controls */}
-          <div className="mb-2 flex flex-row items-end gap-3">
+          <div className="mb-2 flex flex-col gap-3 sm:flex-row sm:items-end">
             <div className="min-w-0 flex-1">
               <FieldLabel >
                 Amenities
@@ -298,7 +298,7 @@ function AddProperty({ isAdmin = false }) {
               </button>
             </div>
 
-            <div className="w-32 shrink-0 sm:w-36">
+            <div className="w-full shrink-0 sm:w-36">
               <FieldLabel infoKey="maxGuests">
                 <Users className="h-3.5 w-3.5 text-slate-500" />
                 Max guests
@@ -342,10 +342,10 @@ function AddProperty({ isAdmin = false }) {
             rows={4} placeholder="Amenities, move-in date, parking, pets, etc." className={fieldClass} />
         </div>
 
-        <div className="flex justify-end border-t border-indigo-100 pt-6">
+        <div className="flex justify-end border-t border-indigo-100 pt-4 sm:pt-6">
           <button type="submit" disabled={isAdmin || submitting}
             title={isAdmin ? "Admins cannot publish listings" : submitting ? "Uploading…" : undefined}
-            className="rounded-xl bg-indigo-400 px-8 py-2.5 font-semibold text-white shadow-md transition hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40">
+            className="w-full rounded-xl bg-indigo-400 px-8 py-3 font-semibold text-white shadow-md transition hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:py-2.5">
             {submitting ? "Publishing…" : "Publish listing"}
           </button>
         </div>

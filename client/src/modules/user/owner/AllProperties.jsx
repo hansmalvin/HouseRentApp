@@ -348,8 +348,8 @@ const OwnerAllProperties = ({ isAdmin = false }) => {
 
   return (
     <div>
-      <h2 className="mb-1 text-xl font-bold text-indigo-700">Your listings</h2>
-      <p className="mb-6 text-sm text-slate-500">
+      <h2 className="mb-1 text-lg font-bold text-indigo-700 sm:text-xl">Your listings</h2>
+      <p className="mb-4 text-xs text-slate-500 sm:mb-6 sm:text-sm">
         Edit or remove properties you have published. Availability updates when you save changes.
       </p>
 
@@ -359,58 +359,60 @@ const OwnerAllProperties = ({ isAdmin = false }) => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by type, address, ID…"
-          className="min-w-0 flex-[85] rounded-xl border border-indigo-200/90 bg-white px-4 py-2.5 text-sm text-slate-700 shadow-sm placeholder:text-slate-400 transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+          className="min-w-0 flex-[85] rounded-xl border border-indigo-200/90 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm placeholder:text-slate-400 transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 sm:px-4 sm:py-2.5"
         />
         <button
           type="button"
           onClick={() => setFilterAvailable((prev) => prev === "Available" ? "Unavailable" : "Available")}
-          className={`flex-[15] rounded-xl border px-3 py-2.5 text-sm font-semibold shadow-sm transition focus:outline-none focus:ring-2 focus:ring-indigo-200 ${
+          className={`flex-[15] rounded-xl border px-2 py-2 text-xs font-semibold shadow-sm transition focus:outline-none focus:ring-2 focus:ring-indigo-200 sm:px-3 sm:py-2.5 sm:text-sm ${
             filterAvailable === "Available"
               ? "border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100"
               : "border-rose-300 bg-rose-50 text-rose-800 hover:bg-rose-100"
           }`}
         >
-          {filterAvailable === "Available" ? "Available" : "Unavailable"}
+          {filterAvailable === "Available" ? "Available" : "Unavail."}
         </button>
       </div>
 
       <div className={`overflow-x-auto rounded-2xl border border-indigo-100 bg-white shadow-sm transition-[min-height] duration-300 ease-out ${show ? "min-h-[min(100dvh,34rem)]" : ""}`}>
-        <table className="w-full text-left text-sm text-slate-700">
+        <table className="w-max min-w-full text-left text-sm text-slate-700">
           <thead className="bg-indigo-100/90 text-indigo-900">
             <tr>
-              <th className="px-4 py-3 text-center">Property Type</th>
-              <th className="px-4 py-3 text-center">Ad Type</th>
-              <th className="px-4 py-3 text-center">Address</th>
-              <th className="px-4 py-3 text-center">Owner Contact</th>
-              <th className="px-4 py-3 text-center">Amount</th>
-              <th className="px-4 py-3 text-center">Availability</th>
-              <th className="px-4 py-3 text-center">Property ID</th>
-              <th className="px-4 py-3 text-center">Actions</th>
+              <th className="px-3 py-2.5 text-center sm:px-4 sm:py-3">Property Type</th>
+              <th className="px-3 py-2.5 text-center sm:px-4 sm:py-3">Ad Type</th>
+              <th className="px-3 py-2.5 text-center sm:px-4 sm:py-3">Address</th>
+              <th className="px-3 py-2.5 text-center sm:px-4 sm:py-3">Owner Contact</th>
+              <th className="px-3 py-2.5 text-center sm:px-4 sm:py-3">Amount</th>
+              <th className="px-3 py-2.5 text-center sm:px-4 sm:py-3">Availability</th>
+              <th className="whitespace-nowrap px-3 py-2.5 text-center sm:px-4 sm:py-3">Property ID</th>
+              <th className="px-3 py-2.5 text-center sm:px-4 sm:py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
             {displayedProperties.map((property) => (
               <tr key={property._id} className="border-t border-indigo-50 transition duration-200 even:bg-indigo-50/30 hover:bg-sky-50/50">
-                <td className="px-4 py-3 text-center">{property.propertyType}</td>
-                <td className="px-4 py-3 text-center">{property.propertyAdType}</td>
-                <td className="px-4 py-3 text-center">{property.propertyAddress}</td>
-                <td className="px-4 py-3 text-center">{formatOwnerContactDisplay(property.ownerContact)}</td>
-                <td className="px-4 py-3 text-center">Rp {formatPropertyAmount(property.propertyAmt)}</td>
-                <td className={`px-4 py-3 text-center font-semibold ${property.isAvailable === "Available" ? "text-emerald-600" : "text-rose-600"}`}>
+                <td className="px-3 py-2.5 text-center sm:px-4 sm:py-3">{property.propertyType}</td>
+                <td className="px-3 py-2.5 text-center sm:px-4 sm:py-3">{property.propertyAdType}</td>
+                <td className="max-w-[10rem] px-3 py-2.5 text-center sm:max-w-xs sm:px-4 sm:py-3">{property.propertyAddress}</td>
+                <td className="px-3 py-2.5 text-center sm:px-4 sm:py-3">{formatOwnerContactDisplay(property.ownerContact)}</td>
+                <td className="whitespace-nowrap px-3 py-2.5 text-center sm:px-4 sm:py-3">Rp {formatPropertyAmount(property.propertyAmt)}</td>
+                <td className={`px-3 py-2.5 text-center font-semibold sm:px-4 sm:py-3 ${property.isAvailable === "Available" ? "text-emerald-600" : "text-rose-600"}`}>
                   {property.isAvailable}
                 </td>
-                <td className="px-4 py-3 font-mono text-xs text-slate-500">{property._id}</td>
-                <td className="px-4 py-3 flex gap-2 justify-center">
-                  <button type="button" onClick={() => handleShow(property)} disabled={isAdmin}
-                    title={isAdmin ? "Admins cannot edit listings" : undefined}
-                    className="rounded-lg border border-indigo-300 bg-indigo-50 px-3 py-1 text-sm font-medium text-indigo-700 transition hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-40">
-                    Edit
-                  </button>
-                  <button type="button" onClick={() => openDeleteModal(property)} disabled={isAdmin}
-                    title={isAdmin ? "Admins cannot delete listings" : undefined}
-                    className="rounded-lg border border-rose-300 bg-rose-50 px-3 py-1 text-sm font-medium text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-40">
-                    Delete
-                  </button>
+                <td className="whitespace-nowrap px-3 py-2.5 font-mono text-xs text-slate-500 sm:px-4 sm:py-3">{property._id}</td>
+                <td className="px-3 py-2.5 sm:px-4 sm:py-3">
+                  <div className="flex gap-1.5 justify-center sm:gap-2">
+                    <button type="button" onClick={() => handleShow(property)} disabled={isAdmin}
+                      title={isAdmin ? "Admins cannot edit listings" : undefined}
+                      className="rounded-lg border border-indigo-300 bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 transition hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-40 sm:px-3 sm:text-sm">
+                      Edit
+                    </button>
+                    <button type="button" onClick={() => openDeleteModal(property)} disabled={isAdmin}
+                      title={isAdmin ? "Admins cannot delete listings" : undefined}
+                      className="rounded-lg border border-rose-300 bg-rose-50 px-2 py-1 text-xs font-medium text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-40 sm:px-3 sm:text-sm">
+                      Delete
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

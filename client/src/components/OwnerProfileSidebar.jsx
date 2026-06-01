@@ -138,7 +138,7 @@ const OwnerProfileSidebar = ({ onLogOut, onExpandChange }) => {
 
   return (
     <aside
-      className="fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-slate-200 bg-white shadow-lg transition-[width] duration-300 ease-in-out"
+      className="fixed left-0 top-0 z-10 hidden h-screen flex-col border-r border-slate-200 bg-white shadow-lg transition-[width] duration-300 ease-in-out min-[680px]:flex"
       style={{ width: expanded ? EXPANDED_WIDTH : COLLAPSED_WIDTH }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
