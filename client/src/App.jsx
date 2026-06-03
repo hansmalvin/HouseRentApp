@@ -1,122 +1,108 @@
-import { useState } from 'react'
-import reactLogo from './images/react.svg'
-import viteLogo from './images/vite.svg'
-import heroImg from './images/hero.png'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route, BrowserRouter, Navigate } from "react-router-dom";
+import Home from "./modules/common/Home";
+import Login from "./modules/common/Login";
+import Register from "./modules/common/Register";
+import ForgotPassword from "./modules/common/ForgotPassword";
+import AdminHome from "./modules/admin/AdminHome";
+import OwnerHome from "./modules/user/owner/OwnerHome";
+import RenterHome from "./modules/user/renter/RenterHome";
+import AllUsers from "./modules/admin/AllUsers";
+import AddProperty from "./modules/user/owner/AddProperty";
+import AdminAllBookings from "./modules/admin/AllBookings";
+import AdminAllProperty from "./modules/admin/AllProperty";
+import AllPropertiesCards from "./modules/user/AllPropertiesCards";
+import PropertyDetail from "./modules/common/PropertyDetail";
+import { createContext, useEffect, useState } from "react";
+
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const stored = localStorage.getItem("user");
+  if (!stored) return <Navigate to="/login" replace />;
+  try {
+    const user = JSON.parse(stored);
+    if (!allowedRoles.includes(user.type)) return <Navigate to="/login" replace />;
+    return children;
+  } catch {
+    return <Navigate to="/login" replace />;
+  }
+};
+
+export const UserContext = createContext();
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [userData, setUserData] = useState(null);
+  const [userLoggedIn, setUserLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUserData(parsedUser);
+        setUserLoggedIn(true);
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+      }
+    }
+  }, []);
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <UserContext.Provider value={{ userData, setUserData, userLoggedIn, setUserLoggedIn }}>
+      <div>
+        <BrowserRouter>
+          <Routes>
+            <Route path='/' element={<Home />} />
+            <Route path='/login' element={<Login />} />
+            <Route path='/register' element={<Register />} />
+            <Route path='/forgotpassword' element={<ForgotPassword />} />
 
-      <div className="ticks"></div>
+            {/* Property detail — public, no auth required */}
+            <Route path='/rooms/:id' element={<PropertyDetail />} />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+            <Route path='/adminhome' element={
+              <ProtectedRoute allowedRoles={["Admin"]}>
+                <AdminHome />
+              </ProtectedRoute>
+            } />
+            <Route path='/ownerhome' element={
+              <ProtectedRoute allowedRoles={["Owner", "Admin"]}>
+                <OwnerHome />
+              </ProtectedRoute>
+            } />
+            <Route path='/renterhome' element={
+              <ProtectedRoute allowedRoles={["Renter", "Admin"]}>
+                <RenterHome />
+              </ProtectedRoute>
+            } />
+            <Route path='/getallbookings' element={
+              <ProtectedRoute allowedRoles={["Admin"]}>
+                <AdminAllBookings />
+              </ProtectedRoute>
+            } />
+            <Route path='/getallproperties' element={
+              <ProtectedRoute allowedRoles={["Admin"]}>
+                <AdminAllProperty />
+              </ProtectedRoute>
+            } />
+            <Route path='/getallusers' element={
+              <ProtectedRoute allowedRoles={["Admin"]}>
+                <AllUsers />
+              </ProtectedRoute>
+            } />
+            <Route path='/postproperty' element={
+              <ProtectedRoute allowedRoles={["Owner"]}>
+                <AddProperty />
+              </ProtectedRoute>
+            } />
+            <Route path='/getAllProperties' element={
+              <ProtectedRoute allowedRoles={["Renter"]}>
+                <AllPropertiesCards />
+              </ProtectedRoute>
+            } />
+          </Routes>
+        </BrowserRouter>
+      </div>
+    </UserContext.Provider>
+  );
 }
 
-export default App
+export default App;
