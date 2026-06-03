@@ -7,7 +7,7 @@ import {
   CheckCircle2, XCircle, ExternalLink, Trash2,
 } from "lucide-react";
 
-// ── Status badge ──────────────────────────────────────────────────────────────
+// Status badge
 const StatusBadge = ({ status }) => {
   const s = String(status).toLowerCase();
   if (s === "booked" || s === "approved") return (
@@ -36,7 +36,7 @@ function fmtRp(amt) {
   return `Rp${Number(amt).toLocaleString("id-ID")}`;
 }
 
-// ── Booking card ──────────────────────────────────────────────────────────────
+//  Booking card 
 const BookingCard = ({ booking, onCancel }) => {
   const navigate = useNavigate();
   const hasDate = booking.checkIn && booking.checkOut;
@@ -53,7 +53,7 @@ const BookingCard = ({ booking, onCancel }) => {
         {/* Status row */}
         <div className="flex items-center justify-between gap-2">
           <StatusBadge status={booking.bookingStatus} />
-          {/* Cancel button — only for pending/booked */}
+          {/* Cancel button only for pending/booked */}
           {!["rejected","cancelled"].includes(String(booking.bookingStatus).toLowerCase()) && (
             <Popconfirm
               title="Cancel this booking?"
@@ -97,7 +97,7 @@ const BookingCard = ({ booking, onCancel }) => {
           )}
         </div>
 
-        {/* Dates + price */}
+        {/* Dates price */}
         {hasDate && (
           <div className="rounded-xl bg-gray-50 border border-gray-100 p-3 space-y-2">
             <div className="grid grid-cols-2 gap-2">
@@ -138,7 +138,7 @@ const BookingCard = ({ booking, onCancel }) => {
   );
 };
 
-// ── Empty state ───────────────────────────────────────────────────────────────
+// Empty state 
 const EmptyState = () => (
   <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 py-16 text-center">
     <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-50">
@@ -151,7 +151,7 @@ const EmptyState = () => (
   </div>
 );
 
-// ── Main component ────────────────────────────────────────────────────────────
+//  Main component 
 const RenterAllProperty = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);

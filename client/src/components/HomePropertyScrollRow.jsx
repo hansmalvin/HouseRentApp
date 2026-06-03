@@ -45,7 +45,7 @@ const HomePropertyScrollRow = ({ title, properties }) => {
       <div className="mb-3 flex items-center justify-between gap-4 sm:mb-4">
         <h2 className="text-lg font-semibold text-gray-900 sm:text-[22px]">{title}</h2>
 
-        {/* Scroll arrows — only shown on sm+ and only when scrollable */}
+        {/* Scroll arrows  only shown on sm+ and only when scrollable */}
         <div className="hidden items-center gap-2 sm:flex">
           <button
             type="button"
@@ -68,14 +68,8 @@ const HomePropertyScrollRow = ({ title, properties }) => {
         </div>
       </div>
 
-      {/* Scroll row
-          - snap-x mandatory for swipe feel on touch
-          - Negative horizontal margin + padding trick so first card aligns with page edge
-            but the fade-out gradient on the right hints at more cards
-          - [-ms-overflow-style:none] etc. hides the scrollbar on all browsers
-      */}
       <div className="relative">
-        {/* Right fade gradient — visual "more content" hint on mobile */}
+        {/* Right fade gradient  visual "more content" hint on mobile */}
         {canScrollRight && (
           <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-12 bg-gradient-to-l from-white to-transparent sm:hidden" />
         )}

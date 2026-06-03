@@ -19,7 +19,7 @@ import { UserContext } from "../../App";
 import RentEaseLogo from "../../components/RentEaseLogo";
 import { message, Popconfirm } from "antd";
 
-// ── Amenity icon map ────────────────────────────────────────────────
+//  Amenity icon map 
 const AMENITY_ICONS = {
   "Kitchen": Utensils, "Wifi": Wifi, "Dedicated workspace": BuildingIcon,
   "Free parking on premises": ParkingSquare, "Pool": Waves, "TV": Tv,
@@ -30,7 +30,7 @@ const AMENITY_ICONS = {
   "Refrigerator": Refrigerator, "Fire extinguisher": FlameKindling, "First aid kit": BriefcaseMedical,
 };
 
-// ── Date helpers ────────────────────────────────────────────────────
+//  Date helpers 
 function startOfDay(d) { const c = new Date(d); c.setHours(0, 0, 0, 0); return c; }
 function isSameDay(a, b) { return a && b && startOfDay(a).getTime() === startOfDay(b).getTime(); }
 function isBetween(d, a, b) {
@@ -54,7 +54,7 @@ function formatDateInput(date) {
   return `${m}/${d}/${y}`;
 }
 
-// ── NEW: Check if a date falls within any booked range ──────────────
+//  NEW: Check if a date falls within any booked range 
 // bookedRanges: Array of { checkIn: Date, checkOut: Date }
 function isDateBooked(date, bookedRanges) {
   const t = startOfDay(date).getTime();
@@ -66,7 +66,7 @@ function isDateBooked(date, bookedRanges) {
   });
 }
 
-// ── NEW: Check if a proposed range overlaps with any booked range ───
+//  NEW: Check if a proposed range overlaps with any booked range 
 function rangeOverlapsBooked(start, end, bookedRanges) {
   if (!start || !end) return false;
   const s = startOfDay(start).getTime();
@@ -81,7 +81,7 @@ function rangeOverlapsBooked(start, end, bookedRanges) {
 const DAYS_SHORT = ["Su","Mo","Tu","We","Th","Fr","Sa"];
 const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
-// ── Calendar month grid ─────────────────────────────────────────────
+//  Calendar month grid 
 // CHANGED: now accepts bookedRanges prop
 const CalendarMonth = ({ year, month, checkIn, checkOut, hoveredDate, onDayClick, onDayHover, today, bookedRanges }) => {
   const firstDay = new Date(year, month, 1).getDay();
@@ -102,7 +102,7 @@ const CalendarMonth = ({ year, month, checkIn, checkOut, hoveredDate, onDayClick
         {cells.map((date, i) => {
           if (!date) return <div key={`e-${i}`} />;
           const isPast   = startOfDay(date) < startOfDay(today);
-          // NEW: check if this date is within a confirmed booking
+          // NEW check if this date is within a confirmed booking
           const isBooked = isDateBooked(date, bookedRanges);
           const isStart  = isSameDay(date, checkIn);
           const isEnd    = isSameDay(date, checkOut);
@@ -144,7 +144,7 @@ const CalendarMonth = ({ year, month, checkIn, checkOut, hoveredDate, onDayClick
               title={isBooked ? "Already booked" : undefined}
             >
               {date.getDate()}
-              {/* NEW: tiny dot indicator under booked dates */}
+              {/* NEW tiny dot indicator under booked dates */}
               {isBooked && (
                 <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-red-400" />
               )}
@@ -156,13 +156,13 @@ const CalendarMonth = ({ year, month, checkIn, checkOut, hoveredDate, onDayClick
   );
 };
 
-// ── Inline booking date picker ──────────────────────────────────────
-// CHANGED: passes bookedRanges down and validates range selection
+//  Inline booking date picker 
+// CHANGED passes bookedRanges down and validates range selection
 const BookingDatePicker = ({ checkIn, checkOut, onChange, bookedRanges }) => {
   const today = startOfDay(new Date());
   const [offset, setOffset] = useState(0);
   const [hoveredDate, setHoveredDate] = useState(null);
-  // NEW: warning shown when user tries to select a range that overlaps a booking
+  // NEW warning shown when user tries to select a range that overlaps a booking
   const [overlapWarning, setOverlapWarning] = useState(false);
 
   const months = [0, 1].map((i) => {
@@ -210,7 +210,7 @@ const BookingDatePicker = ({ checkIn, checkOut, onChange, bookedRanges }) => {
         bookedRanges={bookedRanges}
       />
 
-      {/* NEW: legend + overlap warning */}
+      {/* NEW: legend  overlap warning */}
       <div className="mt-3 flex items-center gap-3 text-[10px] text-gray-400">
         <span className="flex items-center gap-1">
           <span className="inline-block w-2.5 h-2.5 rounded-full bg-red-300" />
@@ -237,7 +237,7 @@ const BookingDatePicker = ({ checkIn, checkOut, onChange, bookedRanges }) => {
   );
 };
 
-// ── Helpers ─────────────────────────────────────────────────────────
+//  Helpers 
 function getPageTitle(property) {
   const { district, city } = parsePropertyAddress(property.propertyAddress);
   const area = district || city || "Indonesia";
@@ -262,7 +262,7 @@ function parseAdditionalInfo(property) {
   };
 }
 
-// ── Image Gallery ────────────────────────────────────────────────────
+//  Image Gallery 
 const ImageGallery = ({ images, title }) => {
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const prev = () => setLightboxIndex((i) => (i - 1 + images.length) % images.length);
@@ -312,7 +312,7 @@ const ImageGallery = ({ images, title }) => {
   );
 };
 
-// ── Main Component ───────────────────────────────────────────────────
+//  Main Component 
 const PropertyDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -346,7 +346,7 @@ const PropertyDetail = () => {
   const isAdmin  = userData?.type === "Admin";
   const canBook  = isRenter;
 
-  // True when the owner has already confirmed this renter's booking —
+  // True when the owner has already confirmed this renter's booking 
   // date changes are locked in this state
   const isBookingConfirmed =
     isRenter && existingBooking?.bookingStatus === "booked";
@@ -413,7 +413,7 @@ const PropertyDetail = () => {
           }));
           setBookedRanges(ranges);
         }
-      } catch { /* silent — calendar still works, just no blocking */ }
+      } catch { /* silent  calendar still works, just no blocking */ }
     };
     fetchBookedRanges();
   }, [id]);
@@ -457,14 +457,14 @@ const PropertyDetail = () => {
     finally { setEmailSending(false); }
   };
 
-  // ── Reserve / Update / Cancel handler ──────────────────────────────
+  //  Reserve / Update / Cancel handler 
   const handleCTA = async () => {
     if (!userData) { navigate("/login"); return; }
 
     setBookingStatus("loading");
 
     try {
-      // ── CANCEL ─────────────────────────────────────────────────
+      //  CANCEL 
       if (existingBooking && !datesChanged) {
         const res = await axios.delete(
           `http://localhost:8001/api/user/cancelbooking/${existingBooking._id}`,
@@ -483,7 +483,7 @@ const PropertyDetail = () => {
         return;
       }
 
-      // ── UPDATE ─────────────────────────────────────────────────
+      //  UPDATE 
       if (existingBooking && datesChanged) {
         if (!checkIn || !checkOut) { setShowCalendar(true); setBookingStatus("idle"); return; }
         const res = await axios.patch(
@@ -507,7 +507,7 @@ const PropertyDetail = () => {
         return;
       }
 
-      // ── NEW RESERVE ────────────────────────────────────────────
+      //  NEW RESERVE 
       if (isRent && (!checkIn || !checkOut)) { setShowCalendar(true); setBookingStatus("idle"); return; }
       const res = await axios.post(
         `http://localhost:8001/api/user/bookinghandle/${id}`,
@@ -540,7 +540,7 @@ const PropertyDetail = () => {
     }
   };
 
-  // ── Render guards ────────────────────────────────────────────────
+  //  Render guards 
   if (loading) return (
     <div className="min-h-screen bg-white flex items-center justify-center">
       <div className="text-center space-y-3">
@@ -567,7 +567,7 @@ const PropertyDetail = () => {
 
   // Price calculation
   const monthlyPrice = property.propertyAmt || 0;
-  // Rent: prorate over selected nights. Sale: always show flat listing price.
+  // Rent prorate over selected nights. Sale: always show flat listing price.
   const nights = isRent && checkIn && checkOut ? diffDays(checkIn, checkOut) : null;
   const dailyRate = monthlyPrice / 30;
   const totalPrice = isRent && nights ? Math.round(dailyRate * nights) : null;
@@ -613,7 +613,7 @@ const PropertyDetail = () => {
         <div className="mb-10"><ImageGallery images={property.propertyImages} title={title} /></div>
 
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_380px]">
-          {/* ── Left column ── */}
+          {/*  Left column  */}
           <div className="space-y-8">
             <div className="border-b border-gray-200 pb-8">
               <span className="text-lg font-semibold text-gray-900 capitalize">{property.propertyType} · {property.propertyAdType}</span>
@@ -717,7 +717,7 @@ const PropertyDetail = () => {
             )}
           </div>
 
-          {/* ── Right column — Booking card ── */}
+          {/*  Right column — Booking card  */}
           <div className="lg:sticky lg:top-24 lg:self-start">
             <div className="rounded-2xl border border-gray-200 p-6 shadow-xl space-y-4">
 
@@ -739,7 +739,7 @@ const PropertyDetail = () => {
                 </div>
               )}
 
-              {/* Check-in / Check-out — rent listings only */}
+              {/* Check-in / Check-out  rent listings only */}
               {isRent && (
                 <div>
                   <div
@@ -778,7 +778,7 @@ const PropertyDetail = () => {
                     </p>
                   </div>
 
-                  {/* Calendar — hidden when booking is confirmed */}
+                  {/* Calendar  hidden when booking is confirmed */}
                   {showCalendar && !isBookingConfirmed && (
                     <div className="mt-2">
                       <BookingDatePicker
@@ -826,7 +826,7 @@ const PropertyDetail = () => {
               {(isAvailable || existingBooking) && (
                 userData ? (
                   canBook ? (
-                    // Cancel path: sale always, or rent when dates unchanged
+                    // Cancel path sale always, or rent when dates unchanged
                     existingBooking && (!isRent || !datesChanged || isBookingConfirmed) ? (
                       <Popconfirm
                         title="Cancel your booking?"
@@ -878,7 +878,7 @@ const PropertyDetail = () => {
 
               <p className="text-center text-xs text-gray-400">You won't be charged yet</p>
 
-              {/* Price breakdown — rent only */}
+              {/* Price breakdown  rent only */}
               {isRent && nights && (
                 <div className="border-t border-gray-100 pt-4 space-y-2 text-sm">
                   <div className="flex justify-between text-gray-600">

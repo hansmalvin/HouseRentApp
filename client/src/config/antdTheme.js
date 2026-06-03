@@ -1,4 +1,4 @@
-/** Ant Design theme aligned with RentEase indigo / emerald / rose palette */
+// Ant Design theme aligned with RentEase indigo / emerald / rose palette
 export const rentEaseAntdTheme = {
   token: {
     colorPrimary: "#4f46e5",

@@ -16,13 +16,7 @@ export function parsePropertyAmountInput(value) {
   return parseInt(digits, 10);
 }
 
-/**
- * Derive maximum guest capacity from a property object.
- * Preference order:
- * 1) Numeric `property.maxGuests` field if present
- * 2) Pattern "Max guests: <number>" inside `additionalInfo`
- * 3) Fallback: 0 (unknown)
- */
+// max guest
 export function getMaxGuestsFromProperty(property) {
   if (!property) return 0;
 

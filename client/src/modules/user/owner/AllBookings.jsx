@@ -77,7 +77,7 @@ const OwnerAllBookings = ({ isAdmin = false }) => {
       }
     } catch (error) {
       console.log(error);
-      // 409 = date collision — show the server's specific message as a warning
+      // 409 date collision  show the server's specific message as a warning
       if (error.response?.status === 409 && error.response.data?.collision) {
         message.warning({
           content: error.response.data.message,
@@ -155,28 +155,28 @@ const OwnerAllBookings = ({ isAdmin = false }) => {
                   <td className="px-3 py-2.5 text-center sm:px-4 sm:py-3">{booking.userName}</td>
                   <td className="px-3 py-2.5 text-center sm:px-4 sm:py-3">{booking.userEmail ?? "—"}</td>
 
-                  {/* ── Check-in ── */}
+                  {/*  Check-in  */}
                   <td className="px-3 py-2.5 text-center text-slate-700 sm:px-4 sm:py-3">
                     {booking.checkIn
                       ? fmtDate(booking.checkIn)
                       : <span className="text-xs text-slate-400 italic">Sale listing</span>}
                   </td>
 
-                  {/* ── Checkout ── */}
+                  {/*  Checkout  */}
                   <td className="px-3 py-2.5 text-center text-slate-700 sm:px-4 sm:py-3">
                     {booking.checkOut
                       ? fmtDate(booking.checkOut)
                       : <span className="text-xs text-slate-400 italic">Sale listing</span>}
                   </td>
 
-                  {/* ── Nights ── */}
+                  {/*  Nights  */}
                   <td className="px-3 py-2.5 text-center text-slate-600 sm:px-4 sm:py-3">
                     {booking.totalDays
                       ? `${booking.totalDays}n`
                       : <span className="text-xs text-slate-400 italic">—</span>}
                   </td>
 
-                  {/* ── Total price ── */}
+                  {/*  Total price  */}
                   <td className="whitespace-nowrap px-3 py-2.5 text-center text-slate-700 sm:px-4 sm:py-3">
                     {booking.totalPrice
                       ? `Rp${Number(booking.totalPrice).toLocaleString("id-ID")}`
@@ -221,7 +221,7 @@ const OwnerAllBookings = ({ isAdmin = false }) => {
                           Mark pending
                         </button>
                       )}
-                      {/* Terminate — only enabled on pending bookings */}
+                      {/* Terminate  only enabled on pending bookings */}
                       <Popconfirm
                         title="Terminate this booking?"
                         description="The pending booking request will be permanently removed."

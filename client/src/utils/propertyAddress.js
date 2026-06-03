@@ -10,7 +10,7 @@ function findCityInPart(part) {
   );
 }
 
-/** Combine Indonesia address fields into a single propertyAddress string. */
+// Combine Indonesia address fields into a single propertyAddress string for efficiency.
 export function buildPropertyAddress({
   streetAddress,
   district,
@@ -31,7 +31,7 @@ export function buildPropertyAddress({
   return parts.join(", ");
 }
 
-/** Split a stored propertyAddress back into form fields (best effort). */
+// Split a stored propertyAddress back into form fields. 
 export function parsePropertyAddress(propertyAddress) {
   const empty = {
     city: "",
@@ -103,7 +103,7 @@ export function parsePropertyAddress(propertyAddress) {
   return { ...empty, streetAddress: raw, postalCode };
 }
 
-/** First comma-separated segment of propertyAddress (trimmed). */
+// First comma-separated segment of propertyAddress (trimmed).
 export function getFirstPartBeforeComma(propertyAddress) {
   const raw = String(propertyAddress ?? "").trim();
   if (!raw.includes(",")) return null;
@@ -116,7 +116,7 @@ function isKnownCity(name) {
   return cityLookup.has(String(name ?? "").trim().toLowerCase());
 }
 
-/** Labels for home-page rows from propertyAddress (city, district, first segment). */
+// Labels for home-page rows from propertyAddress (city, district, first segment).
 export function getHomePropertyGroupLabels(property) {
   const address = String(property?.propertyAddress ?? "").trim();
   if (!address.includes(",")) {
@@ -142,7 +142,7 @@ export function getHomePropertyGroupLabels(property) {
   return { popular: popularLabel, stay: stayLabel, other: false };
 }
 
-/** Pick one location: highest property count, then A–Z on ties. */
+// Pick one location highest property count, then A–Z on ties. 
 function pickWinningLocation(groupMap) {
   if (groupMap.size === 0) return null;
 

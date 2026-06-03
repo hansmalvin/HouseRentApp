@@ -14,7 +14,7 @@ import HomePropertySections from "../../components/HomePropertySections";
 import { parsePropertyAddress } from "../../utils/propertyAddress";
 import axios from "axios";
 
-// ─── Reverse-geocode lat/lng → city name (via backend proxy) ─────────────────
+//  Reverse-geocode lat/lng  city name (via backend proxy) 
 async function reverseGeocode(lat, lng) {
   try {
     const res = await axios.get("http://localhost:8001/api/user/reversegeocode", {
@@ -41,7 +41,7 @@ function getTopCities(properties, limit = 4) {
     .map(([label, count]) => ({ label, count }));
 }
 
-// ─── Date helpers ─────────────────────────────────────────────────────────────
+//  Date helpers 
 function startOfDay(d) {
   const c = new Date(d); c.setHours(0, 0, 0, 0); return c;
 }
@@ -67,14 +67,14 @@ function formatDateLabel(checkIn, checkOut) {
   return `${formatDateShort(checkIn)} – ${formatDateShort(checkOut)}`;
 }
 
-// ─── Calendar constants ───────────────────────────────────────────────────────
+//  Calendar constants 
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 const MONTHS = [
   "January","February","March","April","May","June",
   "July","August","September","October","November","December",
 ];
 
-// ─── Month Grid ───────────────────────────────────────────────────────────────
+//  Month Grid 
 const MonthGrid = ({ year, month, checkIn, checkOut, hoveredDate, onDayClick, onDayHover, today }) => {
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -136,7 +136,7 @@ const MonthGrid = ({ year, month, checkIn, checkOut, hoveredDate, onDayClick, on
   );
 };
 
-// ─── Date Picker Dropdown ─────────────────────────────────────────────────────
+//  Date Picker Dropdown 
 // On mobile: single month. On md+: two months side by side.
 const DatePickerDropdown = ({ checkIn, checkOut, onChange, isMobile }) => {
   const today = startOfDay(new Date());
@@ -164,7 +164,7 @@ const DatePickerDropdown = ({ checkIn, checkOut, onChange, isMobile }) => {
 
   return (
     <div
-      // On mobile: full-width, max-height with scroll; on md+: fixed 600px centered
+      // On mobile full-width, max-height with scroll; on md+: fixed 600px centered
       className="absolute left-0 right-0 top-[calc(100%+8px)] z-[200] max-h-[70vh] overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.14)] p-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[600px] md:max-h-none md:overflow-visible md:p-5"
     >
       {/* Dates / Flexible toggle */}
@@ -195,7 +195,7 @@ const DatePickerDropdown = ({ checkIn, checkOut, onChange, isMobile }) => {
         </button>
       </div>
 
-      {/* Month grids: 1 on mobile, 2 on md+ */}
+      {/* Month grids 1 on mobile, 2 on md+ */}
       <div className={`flex ${monthCount === 2 ? "gap-6" : ""}`}>
         {months.map(({ year, month }) => (
           <MonthGrid
@@ -227,7 +227,7 @@ const DatePickerDropdown = ({ checkIn, checkOut, onChange, isMobile }) => {
   );
 };
 
-// ─── Icon helpers ─────────────────────────────────────────────────────────────
+//  Icon helpers 
 const NearbyIcon = () => (
   <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-full w-full">
     <rect width="40" height="40" rx="8" fill="#EEF2FF" />
@@ -255,7 +255,7 @@ const Spinner = () => (
   </svg>
 );
 
-// ─── Where Dropdown ───────────────────────────────────────────────────────────
+//  Where Dropdown 
 const WhereDropdown = ({ properties, onSelect }) => {
   const [nearbyState, setNearbyState] = useState("idle");
   const topCities = getTopCities(properties, 4);
@@ -321,7 +321,7 @@ const WhereDropdown = ({ properties, onSelect }) => {
   );
 };
 
-// ─── Main Home Component ──────────────────────────────────────────────────────
+//  Main Home Component 
 const Home = () => {
   const { userData } = useContext(UserContext);
   const navigate = useNavigate();
@@ -405,12 +405,12 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* ── Header ── */}
+      {/*  Header  */}
       <header className="sticky top-0 z-50 border-b border-gray-200 bg-white">
         <nav className="mx-auto flex max-w-[1760px] items-center justify-between gap-2 px-4 py-3 sm:gap-4 sm:px-6 sm:py-4 md:px-10">
           <RentEaseLogo to="/" variant="light" size="md" />
 
-          {/* Centre nav — hidden on mobile */}
+          {/* Centre nav  hidden on mobile */}
           <div className="hidden flex-1 items-center justify-center gap-8 md:flex">
             <button type="button" className="border-b-2 border-gray-900 pb-3 pt-1 text-sm font-semibold text-gray-900">Homes</button>
             <button type="button" className="pb-3 pt-1 text-sm font-medium text-gray-500 hover:text-gray-800">
@@ -449,11 +449,11 @@ const Home = () => {
         </nav>
       </header>
 
-      {/* ── Hero + Search ── */}
+      {/*  Hero  Search  */}
       <div className="relative border-b border-gray-100">
-        {/* Animated background — on mobile height is auto so stacked search cards aren't clipped */}
+        {/* Animated background  on mobile height is auto so stacked search cards aren't clipped */}
         <div className="relative min-h-[280px] sm:h-[320px] md:h-[380px]">
-          {/* AnimatedBackground needs a sized container — we give it an absolute fill on sm+ */}
+          {/* AnimatedBackground needs a sized container  we give it an absolute fill on sm+ */}
           <div className="absolute inset-0 hidden sm:block">
             <AnimatedBackground
               animationName="particleNetwork" theme="landing" interactive adaptivePerformance fps={30}
@@ -465,8 +465,6 @@ const Home = () => {
           <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-white sm:hidden" />
           <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-white/50 to-white z-10 pointer-events-none hidden sm:block" />
 
-          {/* On mobile: normal flow so the container grows with content.
-              On sm+: absolute-positioned so it overlays the animated canvas. */}
           <div className="relative z-20 flex flex-col items-center px-4 pt-8 pb-6
                           sm:absolute sm:inset-0 sm:justify-end sm:pt-0 sm:pb-8
                           md:pb-10">
@@ -474,13 +472,9 @@ const Home = () => {
               Find your next rental
             </h1>
 
-            {/* ── Search bar ──
-                Mobile:  stacked vertically, full-width pill, no "Who"
-                sm+:     horizontal row inside a single rounded-full pill, "Who" visible
-            */}
             <div className="w-full max-w-[850px]">
 
-              {/* ── MOBILE search bar (< sm) ── */}
+              {/*  MOBILE search bar (< sm)  */}
               <div className="flex flex-col gap-2 sm:hidden">
                 {/* WHERE */}
                 <div
@@ -531,7 +525,7 @@ const Home = () => {
                   )}
                 </div>
 
-                {/* WHO — visible on mobile too, as a separate card */}
+                {/* WHO  visible on mobile too, as a separate card */}
                 <div
                   ref={whoRef}
                   className="relative w-full rounded-2xl border border-gray-200 bg-white shadow-md"
@@ -558,7 +552,7 @@ const Home = () => {
                           type="button"
                           onClick={() => setGuestCount((n) => Math.max(0, n - 1))}
                           className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 text-gray-700 hover:border-gray-900 transition text-lg font-light"
-                        >−</button>
+                        >-</button>
                         <span className="min-w-[3ch] text-center text-sm font-semibold text-gray-900">
                           {guestCount === 0 ? "Any" : guestCount}
                         </span>
@@ -579,7 +573,7 @@ const Home = () => {
                   )}
                 </div>
 
-                {/* SEARCH button — full-width on mobile */}
+                {/* SEARCH button  full-width on mobile */}
                 <button
                   type="button"
                   onClick={handleSearch}
@@ -590,7 +584,7 @@ const Home = () => {
                 </button>
               </div>
 
-              {/* ── SM+ search bar (pill, single row) ── */}
+              {/*  SM+ search bar (pill, single row)  */}
               <div className="hidden sm:block rounded-full border border-gray-200 bg-white p-2 shadow-[0_6px_20px_rgba(0,0,0,0.12)]">
                 <div className="flex items-center divide-x divide-gray-200">
 
@@ -661,7 +655,7 @@ const Home = () => {
                             type="button"
                             onClick={() => setGuestCount((n) => Math.max(0, n - 1))}
                             className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-300 text-gray-700 hover:border-gray-900 transition text-lg font-light"
-                          >−</button>
+                          >-</button>
                           <span className="min-w-[3ch] text-center text-sm font-semibold text-gray-900">
                             {guestCount === 0 ? "Any" : guestCount}
                           </span>
@@ -698,7 +692,7 @@ const Home = () => {
         </div>
       </div>
 
-      {/* ── Listings ── */}
+      {/*  Listings  */}
       <main id="listings" className="mx-auto max-w-[1760px] px-4 py-8 sm:px-6 sm:py-10 md:px-10">
         <div className="mb-6 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-4">
           <div>

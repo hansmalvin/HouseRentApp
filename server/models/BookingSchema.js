@@ -26,7 +26,7 @@ const bookingModel = mongoose.Schema(
       type: String,
       required: [true, "Please provide a booking Type"],
     },
-    // ── Date fields (rent listings only) ──────────────────────────
+    // Date fields (rent listings only)
     checkIn: {
       type: Date,
       default: null,

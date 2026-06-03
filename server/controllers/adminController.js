@@ -75,7 +75,7 @@ const getAllBookingsController = async (req, res) => {
   }
 };
 
-/////////delete user + their bookings///////////////
+/////////delete user their bookings///////////////
 const deleteUserController = async (req, res) => {
   const { userid } = req.params;
   try {
@@ -86,7 +86,7 @@ const deleteUserController = async (req, res) => {
 
     const { cloudinary } = require("../config/cloudinary");
 
-    // ── OWNER cascade ───────────────────────────────────────────────
+    // OWNER 
     // If the deleted user was an Owner, delete all their properties
     // (Cloudinary images + all bookings on each property)
     if (user.type === "Owner") {
@@ -106,19 +106,19 @@ const deleteUserController = async (req, res) => {
               );
             }
             // Delete all bookings tied to this property
-            // (covers both renter bookings and any owner-side records)
+            // covers both renter bookings and any owner-side records
             await bookingSchema.deleteMany({ propertyId: property._id });
 
             // Delete the property itself
             await propertySchema.findByIdAndDelete(property._id);
           } catch {
-            // silent — don't block the overall delete if one property fails
+            // silent don't block the overall delete if one property fails
           }
         })
       );
     }
 
-    // ── RENTER cascade ──────────────────────────────────────────────
+    // RENTER 
     // If the deleted user was a Renter, find their booked sale listings
     // first so we can reset isAvailable before deleting their bookings
     if (user.type === "Renter") {
@@ -166,7 +166,7 @@ const deleteUserController = async (req, res) => {
   }
 };
 
-/////////delete property (reuses owner logic — also cleans up bookings)///////////////
+/////////delete property///////////////
 const adminDeletePropertyController = async (req, res) => {
   const { propertyid } = req.params;
   try {

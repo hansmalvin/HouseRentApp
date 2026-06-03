@@ -26,7 +26,7 @@ import {
   Refrigerator, FlameKindling, BriefcaseMedical, Users, X,
 } from "lucide-react";
 
-// ─── Amenities config (mirrors AddProperty.jsx) ───────────────────────────────
+//  Amenities config 
 const AMENITIES = [
   { label: "Kitchen",                  Icon: Utensils             },
   { label: "Wifi",                     Icon: Wifi                 },
@@ -240,7 +240,7 @@ const OwnerAllProperties = ({ isAdmin = false }) => {
   const saveChanges = async (propertyId, status) => {
     setSubmitting(true);
     try {
-      // Rebuild additionalInfo: strip amenity labels + old maxGuests, then re-append
+      // Rebuild additionalInfo strip amenity labels, old maxGuests, then re-append
       const knownLabels = AMENITIES.map((a) => a.label);
       const baseNotes = (editingPropertyData.additionalInfo || "")
         .split(",").map((s) => s.trim())
@@ -269,7 +269,7 @@ const OwnerAllProperties = ({ isAdmin = false }) => {
       formData.append("maxGuests", editMaxGuests);
       formData.append("isAvailable", status);
 
-      // Only append images if owner chose new ones — server deletes old Cloudinary images and replaces
+      // Only append images if owner chose new ones server deletes old Cloudinary images and replaces
       if (newImages.length > 0) {
         for (let i = 0; i < newImages.length; i++) {
           formData.append("propertyImages", newImages[i]);
@@ -420,7 +420,7 @@ const OwnerAllProperties = ({ isAdmin = false }) => {
         </table>
       </div>
 
-      {/* ── Edit modal ── */}
+      {/*  Edit modal  */}
       {show && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-indigo-900/20 p-2 backdrop-blur-sm sm:p-4"
@@ -507,7 +507,7 @@ const OwnerAllProperties = ({ isAdmin = false }) => {
                     onChange={handleAmountChange} placeholder="e.g. 100.000" className={editFieldClass} />
                 </div>
 
-                {/* ── Amenities + Max guests ── */}
+                {/* ── Amenities Max guests  */}
                 <div className="rounded-xl border border-indigo-100 border-l-4 border-l-violet-400 bg-violet-50/40 p-4 shadow-sm space-y-3">
                   <p className="text-sm font-semibold text-slate-700">Amenities &amp; capacity</p>
 
@@ -574,7 +574,7 @@ const OwnerAllProperties = ({ isAdmin = false }) => {
                     className={`${editFieldClass} min-h-[5rem] resize-y`} />
                 </div>
 
-                {/* ── Property images ── */}
+                {/*  Property images  */}
                 <div className="rounded-xl border border-indigo-100 border-l-4 border-l-sky-400 bg-sky-50/50 p-4 shadow-sm">
                   <label className="text-sm font-semibold text-slate-700">Property images</label>
                   <p className="mt-0.5 text-xs text-slate-400">
@@ -605,7 +605,7 @@ const OwnerAllProperties = ({ isAdmin = false }) => {
                                 const updated = newImages.filter((_, j) => j !== i);
                                 setNewImages(updated);
                                 setNewImagePreviews(updated.map((f) => URL.createObjectURL(f)));
-                                // Also update file input by resetting (can't set FileList directly)
+                                // Also update file input by resetting 
                                 if (updated.length === 0 && fileInputRef.current) fileInputRef.current.value = "";
                               }}
                               className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-white opacity-0 group-hover:opacity-100 transition shadow-md">

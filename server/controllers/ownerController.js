@@ -58,7 +58,7 @@ const getAllOwnerPropertiesController = async (req, res) => {
     );
 
     // For sale listings marked Unavailable, check if the booked booking's
-    // checkOut date has passed — if so, reset isAvailable back to Available.
+    // checkOut date has passed if so, reset isAvailable back to Available.
     const now = new Date();
     await Promise.all(
       ownerProperties
@@ -73,7 +73,7 @@ const getAllOwnerPropertiesController = async (req, res) => {
             bookingStatus: "booked",
             checkOut: { $gt: now },
           });
-          // No active future booking found — safe to reset to Available
+          // No active future booking found safe to reset to Available
           if (!activeBooking) {
             await propertySchema.findByIdAndUpdate(
               p._id,
@@ -217,7 +217,7 @@ const getAllBookingsController = async (req, res) => {
 const handleAllBookingstatusController = async (req, res) => {
   const { bookingId, propertyId, status } = req.body;
   try {
-    // ── Date collision check (only when marking as booked) ──────────
+    //  Date collision check (only when marking as booked)
     if (status === "booked") {
       const bookingToConfirm = await bookingSchema.findById(bookingId);
 
@@ -253,7 +253,7 @@ const handleAllBookingstatusController = async (req, res) => {
       }
     }
 
-    // ── No collision — proceed with status update ───────────────────
+    // No collision proceed with status update
     await bookingSchema.findByIdAndUpdate(
       { _id: bookingId },
       { bookingStatus: status },

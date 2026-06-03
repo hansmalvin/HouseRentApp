@@ -23,7 +23,7 @@ const RenterHome = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* ── Header ── */}
+      {/*  Header  */}
       <header className="sticky top-0 z-40 border-b border-gray-200 bg-white">
         <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-4 px-6 py-4">
           <RentEaseLogo to="/" variant="light" size="md" />
@@ -51,7 +51,7 @@ const RenterHome = () => {
         </div>
       </header>
 
-      {/* ── Page content ── */}
+      {/* Page content */}
       <main className="mx-auto max-w-[1200px] px-6 py-10">
         {/* Welcome banner */}
         <div className="mb-8">
@@ -63,7 +63,7 @@ const RenterHome = () => {
           </p>
         </div>
 
-        {/* ── How bookings work info banner ── */}
+        {/* How bookings work info banner*/}
         <div className="mb-8 rounded-2xl border border-indigo-100 bg-indigo-50/60 px-5 py-5">
           <h2 className="mb-3 text-sm font-semibold text-indigo-800 uppercase tracking-wide">
             How does a pending booking get confirmed?

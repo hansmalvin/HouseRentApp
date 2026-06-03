@@ -19,7 +19,7 @@ axios.defaults.withCredentials = true;
 const fieldClass =
   "w-full rounded-xl border border-indigo-200 bg-white px-3 py-2.5 text-slate-800 shadow-sm transition placeholder:text-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200";
 
-// ─── Tooltip content ──────────────────────────────────────────────────────────
+//  Tooltip content 
 const FIELD_INFO = {
   propertyType: "Select the category that best describes your property. Residential covers homes, apartments, and rooms. Commercial is for offices, shops, or warehouses. Land/Plot is for undeveloped land.",
   listingType: "Choose how you want to list your property. Rent means tenants pay monthly. Sale means you are selling the property outright.",
@@ -31,7 +31,7 @@ const FIELD_INFO = {
   additionalInfo: "Select amenities your property offers — these appear as icons on the detail page. Then add any free-text notes renters should know: move-in date, parking rules, pet policy, nearby landmarks, house rules, etc.",
 };
 
-// ─── InfoTooltip ──────────────────────────────────────────────────────────────
+//  InfoTooltip 
 const InfoTooltip = ({ infoKey }) => {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -69,7 +69,7 @@ const FieldLabel = ({ children, infoKey, optional = false }) => (
   </label>
 );
 
-// ─── Amenities ────────────────────────────────────────────────────────────────
+//  Amenities 
 const AMENITIES = [
   { label: "Kitchen",                  Icon: Utensils             },
   { label: "Wifi",                     Icon: Wifi                 },
@@ -110,10 +110,10 @@ function toggleAmenityInText(currentText, label) {
   return base ? `${base}, ${label}` : label;
 }
 
-// ─── Max guests options ───────────────────────────────────────────────────────
+//  Max guests options 
 const GUEST_OPTIONS = Array.from({ length: 20 }, (_, i) => i + 1);
 
-// ─── Main component ───────────────────────────────────────────────────────────
+//  Main component
 function AddProperty({ isAdmin = false }) {
   const [image, setImage] = useState(null);
   const fileInputRef = useRef(null);
@@ -217,7 +217,7 @@ function AddProperty({ isAdmin = false }) {
 
       <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
 
-        {/* ── Property type + Listing type ── */}
+        {/*  Property type + Listing type  */}
         <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
           <div>
             <FieldLabel infoKey="propertyType">Property type</FieldLabel>
@@ -238,7 +238,7 @@ function AddProperty({ isAdmin = false }) {
           </div>
         </div>
 
-        {/* ── Location ── */}
+        {/*  Location  */}
         <div>
           <IndonesiaPropertyAddressFields
             city={addressCity} district={addressDistrict}
@@ -248,7 +248,7 @@ function AddProperty({ isAdmin = false }) {
           />
         </div>
 
-        {/* ── Images + Contact + Amount ── */}
+        {/*  Images  Contact  Amount  */}
         <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
           <div>
             <FieldLabel infoKey="images">Property images</FieldLabel>
@@ -270,11 +270,11 @@ function AddProperty({ isAdmin = false }) {
           </div>
         </div>
 
-        {/* ── Additional details ── */}
+        {/*  Additional details  */}
         <div>
           <FieldLabel infoKey="additionalInfo" optional>Additional details</FieldLabel>
 
-          {/* Amenities + max guests — same row, aligned controls */}
+          {/* Amenities  max guests  same row, aligned controls */}
           <div className="mb-2 flex flex-col gap-3 sm:flex-row sm:items-end">
             <div className="min-w-0 flex-1">
               <FieldLabel >

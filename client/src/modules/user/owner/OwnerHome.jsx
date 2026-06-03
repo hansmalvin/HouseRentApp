@@ -62,7 +62,7 @@ const OwnerHome = () => {
           <div className="flex items-center justify-between px-3 py-3 sm:px-6 sm:py-4">
             <RentEaseLogo subtitle="Owner dashboard" variant="light" size="sm" className="min-[680px]:hidden" />
             <RentEaseLogo subtitle="Owner dashboard" variant="light" className="hidden min-[680px]:flex" />
-            {/* Logout button — only visible when sidebar is hidden */}
+            {/* Logout button only visible when sidebar is hidden */}
             <button
               type="button"
               onClick={handleLogOut}

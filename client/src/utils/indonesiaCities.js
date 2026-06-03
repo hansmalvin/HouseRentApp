@@ -1,4 +1,4 @@
-/** Major Indonesian cities (kota/kabupaten) for property listings. */
+// Major Indonesian cities.
 export const INDONESIA_CITIES = [
   "Ambon",
   "Balikpapan",

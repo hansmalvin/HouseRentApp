@@ -39,7 +39,7 @@ const Login = () => {
       if (res.data.success) {
         const user = res.data.user;
 
-        // Ungranted owner — show the review toast for longer before reloading
+        // Ungranted owner  show the review toast for longer before reloading
         if (user.type === "Owner" && user.granted === "ungranted") {
           showToast("error", "Your owner account is being reviewed by the admin");
           setTimeout(() => {
@@ -48,7 +48,7 @@ const Login = () => {
           return;
         }
 
-        // Everyone else — short success toast then navigate
+        // Everyone else  short success toast then navigate
         showToast("success", res.data.message);
         localStorage.setItem("user", JSON.stringify(user));
 
@@ -95,7 +95,7 @@ const Login = () => {
         aria-hidden
       />
 
-      {/* Light beige tint — keeps the photo visible */}
+      {/* Light beige tint  keeps the photo visible */}
       <div
         className="pointer-events-none absolute inset-0 bg-gradient-to-br from-stone-100/35 via-amber-50/30 to-orange-50/25"
         aria-hidden

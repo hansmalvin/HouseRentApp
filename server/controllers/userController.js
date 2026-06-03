@@ -168,10 +168,10 @@ const bookingHandleController = async (req, res) => {
     const isSale = property && String(property.propertyAdType).toLowerCase() === "sale";
 
     if (isSale) {
-      // Sale listings: no date range needed — price is the full listing amount
+      // Sale listings no date range needed — price is the full listing amount
       totalPrice = property.propertyAmt ?? null;
     } else if (checkIn && checkOut) {
-      // Rent listings: prorate monthly price over selected nights
+      // Rent listings prorate monthly price over selected nights
       const inDate  = new Date(checkIn);
       const outDate = new Date(checkOut);
       const diffMs  = outDate.getTime() - inDate.getTime();
@@ -274,13 +274,13 @@ const updateBookingController = async (req, res) => {
   }
 };
 
-/////get all bookings for single tenants — enriched with owner contact //////
+/////get all bookings for single tenants enriched with owner contact //////
 const getAllBookingsController = async (req, res) => {
   const { userId } = req.body;
   try {
     const allBookings = await bookingSchema.find({ userID: userId }).lean();
 
-    // Enrich each booking with ownerEmail + ownerContact from property → owner
+    // each booking with ownerEmail, ownerContact from property to owner
     const enriched = await Promise.all(
       allBookings.map(async (booking) => {
         try {
@@ -305,7 +305,7 @@ const getAllBookingsController = async (req, res) => {
   }
 };
 
-///////////reverse geocode via server (avoids browser CORS issues)///////////////
+///////////reverse geocode via server (Fixed to avoid browser CORS issues)///////////////
 const reverseGeocodeController = async (req, res) => {
   try {
     const { lat, lng } = req.query;
